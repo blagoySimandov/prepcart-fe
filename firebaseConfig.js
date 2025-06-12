@@ -1,14 +1,15 @@
+import Constants from "expo-constants";
 import { getApp, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCv-NV0p8JX2o2qzuyHeTHJhhpfAIXW1xY",
-  authDomain: "prepcart-prod.firebaseapp.com",
-  projectId: "prepcart-prod",
-  storageBucket: "prepcart-prod.firebasestorage.app",
-  messagingSenderId: "60659278182",
-  appId: "1:60659278182:web:90b5b603a46cf22a1968a7",
-  measurementId: "G-LGPYPWN70K",
+  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
+  authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain,
+  projectId: Constants.expoConfig?.extra?.firebaseProjectId,
+  storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket,
+  messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId,
+  appId: Constants.expoConfig?.extra?.firebaseAppId,
+  measurementId: Constants.expoConfig?.extra?.firebaseMeasurementId,
 };
 
 let app;
