@@ -1,6 +1,7 @@
 import { auth } from "@/firebaseConfig";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { UserService } from "../user/service";
 import { authenticate } from "./authenticate";
 
 export function useAuth() {
@@ -8,7 +9,15 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userService = new UserService(user.uid);
+        await userService.createUserProfileIfNotExists({
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
+      }
       setUser(user);
       setLoading(false);
     });

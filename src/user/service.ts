@@ -1,3 +1,5 @@
+import { db } from "@/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ShoppingListService } from "./shopping-list/manager";
 
 /**
@@ -6,13 +8,42 @@ import { ShoppingListService } from "./shopping-list/manager";
  */
 export class UserService {
   public shoppingList: ShoppingListService;
+  private userId: string;
 
   constructor(userId: string) {
     if (!userId) {
       throw new Error("Cannot initialize UserService without a user ID.");
     }
-
+    this.userId = userId;
     this.shoppingList = new ShoppingListService(userId);
-    // Other services like 'profile' or 'settings' could be initialized here
+  }
+
+  /**
+   * Checks if a user profile exists in Firestore and creates it if it doesn't.
+   * This is useful for saving initial user data upon first sign-in.
+   * @param userData - The basic user data from the authentication provider.
+   */
+  async createUserProfileIfNotExists(userData: {
+    email?: string | null;
+    displayName?: string | null;
+    photoURL?: string | null;
+  }): Promise<void> {
+    const userDocRef = doc(db, "users", this.userId);
+    try {
+      const docSnap = await getDoc(userDocRef);
+      if (!docSnap.exists()) {
+        // Document doesn't exist, so this is a new user. Create the profile.
+        await setDoc(userDocRef, {
+          id: this.userId,
+          email: userData.email,
+          displayName: userData.displayName,
+          photoURL: userData.photoURL,
+          createdAt: new Date(),
+        });
+      }
+    } catch (error) {
+      console.error("Error creating user profile:", error);
+      throw error;
+    }
   }
 }
