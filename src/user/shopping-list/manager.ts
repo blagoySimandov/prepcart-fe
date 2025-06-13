@@ -36,7 +36,6 @@ export class ShoppingListService {
       if (docSnap.exists() && docSnap.data().shoppingList) {
         return docSnap.data().shoppingList as ShoppingItem[];
       } else {
-        // If the user document or shoppingList doesn't exist, create it.
         await setDoc(this.userDocRef, { shoppingList: [] }, { merge: true });
         return [];
       }
@@ -66,7 +65,7 @@ export class ShoppingListService {
   async addItem(item: Omit<ShoppingItem, "id">): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList")
+        collection(db, "users", this.userId, "shoppingList"),
       );
       const newItem = { ...item, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
