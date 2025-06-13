@@ -1,30 +1,27 @@
+import { useAuth } from "@/src/auth/hooks";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAuth } from "./hooks";
 
 export default function LoginScreen() {
-  const { signInWithGoogle, user } = useAuth();
+  const { signInWithGoogle, user, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/(tabs)");
+    }
+  }, [user, loading, router]);
 
   const handleSignIn = async () => {
     try {
-      console.log("Starting Google sign in...");
-      const result = await signInWithGoogle();
-      console.log("Sign in successful:", result);
-
-      if (result.user) {
-        console.log("Redirecting to tabs...");
-        router.replace("/(tabs)");
-      }
+      await signInWithGoogle();
     } catch (error) {
       console.error("Sign in error:", error);
     }
   };
 
-  // If user is already authenticated, redirect to tabs
-  if (user) {
-    console.log("User already authenticated, redirecting...");
-    router.replace("/(tabs)");
+  if (loading || user) {
     return null;
   }
 

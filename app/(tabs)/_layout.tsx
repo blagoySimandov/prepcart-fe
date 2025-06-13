@@ -7,21 +7,24 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { useAuth } from "../auth/hooks";
+import { useAuth } from "@/src/auth/hooks";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (loading) {
+      return; // Wait until the auth state is loaded
+    }
     if (!user) {
       router.replace("/auth/login");
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
-  if (!user) {
-    return null;
+  if (loading || !user) {
+    return null; // Or a loading spinner
   }
 
   return (
