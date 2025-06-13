@@ -1,5 +1,6 @@
 import { db } from "@/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { DiscountService } from "../discounts/service";
 import { ShoppingListService } from "./shopping-list/manager";
 
 /**
@@ -8,6 +9,7 @@ import { ShoppingListService } from "./shopping-list/manager";
  */
 export class UserService {
   public shoppingList: ShoppingListService;
+  public discounts: DiscountService;
   private userId: string;
 
   constructor(userId: string) {
@@ -16,6 +18,25 @@ export class UserService {
     }
     this.userId = userId;
     this.shoppingList = new ShoppingListService(userId);
+    this.discounts = new DiscountService();
+  }
+
+  /**
+   * Retrieves the user's profile data from Firestore.
+   * @returns {Promise<any | null>} A promise that resolves with the user's profile data, or null if not found.
+   */
+  async getProfile(): Promise<any | null> {
+    const userDocRef = doc(db, "users", this.userId);
+    try {
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
   }
 
   /**

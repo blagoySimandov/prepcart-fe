@@ -1,8 +1,13 @@
+import { useNotificationSettings } from "@/app/notifications";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import React from "react";
+import { useAuth } from "@/src/auth/hooks";
+import { useUserService } from "@/src/user";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -11,12 +16,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useUserProfile } from "./hooks";
 import useStyles from "./styles";
-import { useNotificationSettings } from "@/app/notifications";
 
 export default function ProfileScreen() {
-  const { profile } = useUserProfile();
+  const { signOut } = useAuth();
+  const userService = useUserService();
+  const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { styles, colors } = useStyles();
   const {
     notificationsEnabled,
@@ -27,7 +33,20 @@ export default function ProfileScreen() {
     setCookingReminders,
   } = useNotificationSettings();
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (userService) {
+        setIsLoading(true);
+        const userProfile = await userService.getProfile();
+        setProfile(userProfile);
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [userService]);
+
   const formatDate = (date: Date) => {
+    if (!date) return "";
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -41,43 +60,55 @@ export default function ProfileScreen() {
       {
         text: "Sign Out",
         style: "destructive",
-        onPress: () => {},
+        onPress: signOut,
       },
     ]);
   };
 
-  //TODO: Divide into components
+  if (isLoading || !profile) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <SafeAreaView>
           <View style={styles.profileHeader}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {profile.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </Text>
-            </View>
-            <Text style={styles.userName}>{profile.name}</Text>
+            {profile.photoURL ? (
+              <Image source={{ uri: profile.photoURL }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {profile.displayName
+                    ?.split(" ")
+                    .map((n: string) => n[0])
+                    .join("")}
+                </Text>
+              </View>
+            )}
+            <Text style={styles.userName}>{profile.displayName}</Text>
             <Text style={styles.userEmail}>{profile.email}</Text>
             <Text style={styles.memberSince}>
-              Member since {formatDate(profile.memberSince)}
+              Member since {formatDate(profile.createdAt?.toDate())}
             </Text>
           </View>
 
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{profile.recipesImported}</Text>
+              <Text style={styles.statNumber}>
+                {profile.recipesImported || 0}
+              </Text>
               <Text style={styles.statLabel}>Recipes Imported</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {profile.shoppingListsCreated}
+                {profile.shoppingListsCreated || 0}
               </Text>
               <Text style={styles.statLabel}>Shopping Lists</Text>
             </View>
@@ -105,8 +136,7 @@ export default function ProfileScreen() {
               style={[
                 styles.settingItem,
                 !notificationsEnabled && styles.disabledSetting,
-              ]}
-            >
+              ]}>
               <View style={styles.settingLeft}>
                 <Text style={styles.settingTitle}>Shopping Reminders</Text>
                 <Text style={styles.settingDescription}>
@@ -126,8 +156,7 @@ export default function ProfileScreen() {
               style={[
                 styles.settingItem,
                 !notificationsEnabled && styles.disabledSetting,
-              ]}
-            >
+              ]}>
               <View style={styles.settingLeft}>
                 <Text style={styles.settingTitle}>Cooking Reminders</Text>
                 <Text style={styles.settingDescription}>

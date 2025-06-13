@@ -1,5 +1,6 @@
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Discount } from "@/src/discounts/types";
 import { useUserService } from "@/src/user";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React, { useCallback, useEffect, useState } from "react";
@@ -14,21 +15,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { DiscountModal } from "./components/discount-modal";
+import { SavingsSummary } from "./components/savings-summary";
 import { ShoppingItem as ShoppingItemComponent } from "./components/shopping-item";
 import { useStyles } from "./styles";
 
 export function ShoppingListScreen() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [discountModalVisible, setDiscountModalVisible] = useState(false);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQuantity, setNewItemQuantity] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("");
   const [items, setItems] = useState<ShoppingItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFindingDiscounts, setIsFindingDiscounts] = useState(false);
 
   const userService = useUserService();
   const { styles, colors } = useStyles();
 
-  // Load initial list from Firestore
   useEffect(() => {
     const loadList = async () => {
       if (userService) {
@@ -41,7 +46,33 @@ export function ShoppingListScreen() {
     loadList();
   }, [userService]);
 
-  // Persist changes to Firestore
+  const handleFindDiscounts = async () => {
+    if (!userService) return;
+
+    setIsFindingDiscounts(true);
+    try {
+      await userService.discounts.loadAllDiscounts();
+      const discountsMap = userService.discounts.findDiscountsForItems(items);
+
+      const updatedItems = items.map((item) => {
+        const foundDiscounts = discountsMap.get(item.id);
+        return foundDiscounts
+          ? { ...item, detectedDiscounts: foundDiscounts }
+          : item;
+      });
+
+      setItems(updatedItems);
+      await userService.shoppingList.saveList(updatedItems);
+    } catch {
+      Alert.alert(
+        "Error",
+        "Could not fetch discounts. Please try again later."
+      );
+    } finally {
+      setIsFindingDiscounts(false);
+    }
+  };
+
   const handleSaveChanges = useCallback(
     (updatedItems: ShoppingItemType[]) => {
       if (userService) {
@@ -103,13 +134,51 @@ export function ShoppingListScreen() {
     handleSaveChanges(updatedItems);
   };
 
-  const renderShoppingItem = ({ item }: { item: ShoppingItemType }) => (
-    <ShoppingItemComponent
-      item={item}
-      onToggle={handleToggleItem}
-      onDelete={handleDeleteItem}
-    />
-  );
+  const handleShowDiscounts = (discounts: Discount[]) => {
+    setSelectedDiscounts(discounts);
+    setDiscountModalVisible(true);
+  };
+
+  const renderShoppingItem = ({ item }: { item: ShoppingItemType }) => {
+    const discounts = item.detectedDiscounts || [];
+    const bestDiscount =
+      discounts.length > 0
+        ? Math.max(...discounts.map((d) => d.discount_percent))
+        : undefined;
+
+    return (
+      <ShoppingItemComponent
+        item={item}
+        onToggle={handleToggleItem}
+        onDelete={handleDeleteItem}
+        onShowDiscounts={handleShowDiscounts}
+        discounts={discounts}
+        bestDiscount={bestDiscount}
+      />
+    );
+  };
+
+  const calculateTotalSavings = () => {
+    let totalSavings = 0;
+    let itemsWithDiscounts = 0;
+
+    items.forEach((item) => {
+      if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
+        const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
+          current.discount_percent > best.discount_percent ? current : best
+        );
+        const savings =
+          bestDiscount.price_before_discount_local *
+          (bestDiscount.discount_percent / 100);
+        totalSavings += savings;
+        itemsWithDiscounts++;
+      }
+    });
+
+    return { totalSavings, itemsWithDiscounts };
+  };
+
+  const { totalSavings, itemsWithDiscounts } = calculateTotalSavings();
 
   const completedItems = items.filter((item) => item.completed);
   const pendingItems = items.filter((item) => !item.completed);
@@ -130,6 +199,20 @@ export function ShoppingListScreen() {
           <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.addButton}
+              onPress={handleFindDiscounts}
+              disabled={isFindingDiscounts}>
+              {isFindingDiscounts ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <IconSymbol name="sparkles" size={16} color="#FFFFFF" />
+              )}
+              <Text style={styles.addButtonText}>
+                {isFindingDiscounts ? "Searching..." : "Find Discounts"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.addButton}
               onPress={() => setModalVisible(true)}>
               <IconSymbol name="plus" size={16} color="#FFFFFF" />
               <Text style={styles.addButtonText}>Add Item</Text>
@@ -144,6 +227,11 @@ export function ShoppingListScreen() {
             )}
           </View>
         </View>
+
+        <SavingsSummary
+          totalSavings={totalSavings}
+          itemsWithDiscounts={itemsWithDiscounts}
+        />
 
         <View style={styles.listContainer}>
           {pendingItems.length > 0 && (
@@ -188,8 +276,8 @@ export function ShoppingListScreen() {
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modal}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Add New Item</Text>
+            <View style={styles.addItemModalContent}>
+              <Text style={styles.addItemModalTitle}>Add New Item</Text>
 
               <TextInput
                 style={styles.input}
@@ -232,6 +320,12 @@ export function ShoppingListScreen() {
             </View>
           </View>
         </Modal>
+
+        <DiscountModal
+          visible={discountModalVisible}
+          onClose={() => setDiscountModalVisible(false)}
+          discounts={selectedDiscounts}
+        />
       </SafeAreaView>
     </ThemedView>
   );

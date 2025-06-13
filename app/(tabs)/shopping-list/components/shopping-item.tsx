@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Discount } from "@/src/discounts/types";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
@@ -8,10 +9,21 @@ interface ShoppingItemProps {
   item: ShoppingItemType;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onShowDiscounts: (discounts: Discount[]) => void;
+  discounts: Discount[];
+  bestDiscount?: number;
 }
 
-export function ShoppingItem({ item, onToggle, onDelete }: ShoppingItemProps) {
+export function ShoppingItem({
+  item,
+  onToggle,
+  onDelete,
+  onShowDiscounts,
+  discounts,
+  bestDiscount,
+}: ShoppingItemProps) {
   const { styles, colors } = useStyles();
+  const hasDiscounts = discounts.length > 0;
 
   const handleDeleteItem = (id: string, name: string) => {
     Alert.alert("Delete Item", `Are you sure you want to delete "${name}"?`, [
@@ -55,6 +67,15 @@ export function ShoppingItem({ item, onToggle, onDelete }: ShoppingItemProps) {
           </View>
         </View>
       </TouchableOpacity>
+
+      {hasDiscounts && (
+        <TouchableOpacity
+          style={styles.storeDiscountBadge}
+          onPress={() => onShowDiscounts(discounts)}>
+          <Text style={styles.storeDiscountStoreName}>LIDL</Text>
+          <Text style={styles.storeDiscountPercentage}>{bestDiscount}%</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.deleteButton}

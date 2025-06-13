@@ -76,6 +76,9 @@ export function useStyles() {
     },
     itemContent: {
       flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
     itemLeft: {
       flexDirection: "row",
@@ -93,10 +96,16 @@ export function useStyles() {
     itemInfo: {
       flex: 1,
     },
+    itemNameRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 2,
+    },
     itemName: {
       fontSize: 16,
       fontWeight: "500",
-      marginBottom: 2,
+      flex: 1,
     },
     itemDetails: {
       fontSize: 14,
@@ -105,29 +114,123 @@ export function useStyles() {
       textDecorationLine: "line-through",
       opacity: 0.6,
     },
+    discountBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.accent,
+      borderRadius: 8,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      marginLeft: 8,
+      minWidth: 35,
+      justifyContent: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    discountText: {
+      color: "#FFFFFF",
+      fontSize: 10,
+      fontWeight: "700",
+      marginLeft: 1,
+    },
+    storeDiscountBadge: {
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.accent,
+      borderRadius: 8,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      marginLeft: 8,
+      minWidth: 50,
+    },
+    storeDiscountStoreName: {
+      color: "#FFFFFF",
+      fontSize: 9,
+      fontWeight: "600",
+      textTransform: "uppercase",
+    },
+    storeDiscountPercentage: {
+      color: "#FFFFFF",
+      fontSize: 14,
+      fontWeight: "800",
+    },
+    savingsSummary: {
+      backgroundColor: colors.card,
+      marginHorizontal: 16,
+      marginBottom: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    savingsContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+    },
+    savingsTitle: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: colors.text,
+      marginLeft: 6,
+      marginRight: 8,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+    savingsAmount: {
+      fontSize: 14,
+      color: colors.success,
+      fontWeight: "600",
+    },
+    savingsSubtext: {
+      fontSize: 11,
+      color: colors.icon,
+      textAlign: "center",
+      opacity: 0.8,
+    },
     deleteButton: {
       padding: 8,
     },
     emptyState: {
       textAlign: "center",
-      color: colors.icon,
+      color: "#666",
+      fontSize: 16,
+      marginTop: 50,
       fontStyle: "italic",
-      marginTop: 20,
     },
+
+    // Generic Add Item Modal Styles
     modal: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
       backgroundColor: "rgba(0,0,0,0.5)",
     },
-    modalContent: {
+    addItemModalContent: {
       backgroundColor: colors.card,
       padding: 20,
       borderRadius: 15,
       width: "90%",
       maxWidth: 400,
     },
-    modalTitle: {
+    addItemModalTitle: {
       fontSize: 20,
       fontWeight: "bold",
       color: colors.text,
@@ -165,6 +268,100 @@ export function useStyles() {
       textAlign: "center",
       fontWeight: "600",
       color: "#FFFFFF",
+    },
+
+    // Discount Modal Styles
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: "rgba(0,0,0,0.6)",
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+      height: "75%",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: -2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 22,
+      fontWeight: "bold",
+      color: colors.text,
+    },
+    closeButton: {
+      padding: 8,
+      borderRadius: 16,
+      backgroundColor: colors.border,
+    },
+    discountItemCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    discountItemHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    discountStoreName: {
+      fontSize: 14,
+      fontWeight: "bold",
+      color: colors.tint,
+    },
+    discountBadgeText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "bold",
+    },
+    discountProductName: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 16,
+      lineHeight: 22,
+    },
+    priceContainer: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: 12,
+    },
+    priceItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+    priceLabel: {
+      fontSize: 14,
+      color: colors.icon,
+    },
+    originalPrice: {
+      fontSize: 14,
+      color: colors.icon,
+      textDecorationLine: "line-through",
+    },
+    discountedPrice: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: colors.accent,
     },
   });
   return { styles, colors };
