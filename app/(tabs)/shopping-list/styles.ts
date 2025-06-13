@@ -59,6 +59,13 @@ export function useStyles() {
       flex: 1,
       paddingHorizontal: 20,
     },
+    sectionHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: 10,
+      marginBottom: 10,
+    },
     sectionTitle: {
       fontSize: 18,
       fontWeight: "600",

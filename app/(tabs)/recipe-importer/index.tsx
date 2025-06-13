@@ -1,5 +1,5 @@
-import { useRecipeImporter } from "@/app/ai/recipe-importer";
-import React, { useState, useEffect } from "react";
+import { useRecipeImporter } from "@/src/recipe-importer/hooks";
+import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { ChatInterface } from "./components/ChatInterface";
 
@@ -35,11 +35,13 @@ export function RecipeImporterScreen() {
 📝 **${latestRecipe.title}**
 
 🥘 **Ingredients** (${latestRecipe.ingredients.length} items):
-${latestRecipe.ingredients.map((ingredient) => `• ${ingredient}`).join("\n")}
+${latestRecipe.ingredients
+  .map((ingredient: string) => `• ${ingredient}`)
+  .join("\n")}
 
 👨‍🍳 **Instructions** (${latestRecipe.instructions.length} steps):
 ${latestRecipe.instructions
-  .map((instruction, index) => `${index + 1}. ${instruction}`)
+  .map((instruction: string, index: number) => `${index + 1}. ${instruction}`)
   .join("\n")}
 
 ${latestRecipe.source ? `\n🔗 **Source**: ${latestRecipe.source}` : ""}
