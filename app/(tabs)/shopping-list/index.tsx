@@ -1,55 +1,126 @@
-import React, { useState } from "react";
+import { ThemedView } from "@/components/ThemedView";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useUserService } from "@/src/user";
+import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
-  Alert,
-  Modal,
-  SafeAreaView,
+  View,
 } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useStyles } from "./styles";
 import { ShoppingItem as ShoppingItemComponent } from "./components/shopping-item";
-import {
-  useShoppingList,
-  type ShoppingItem as ShoppingItemType,
-} from "@/app/capabilities/user/shopping-list";
+import { useStyles } from "./styles";
 
 export function ShoppingListScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQuantity, setNewItemQuantity] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("");
+  const [items, setItems] = useState<ShoppingItemType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { items, addItem, toggleItem, deleteItem, clearCompleted } =
-    useShoppingList();
+  const userService = useUserService();
   const { styles, colors } = useStyles();
+
+  // Load initial list from Firestore
+  useEffect(() => {
+    const loadList = async () => {
+      if (userService) {
+        setIsLoading(true);
+        const loadedItems = await userService.shoppingList.loadList();
+        setItems(loadedItems);
+        setIsLoading(false);
+      }
+    };
+    loadList();
+  }, [userService]);
+
+  // Persist changes to Firestore
+  const handleSaveChanges = useCallback(
+    (updatedItems: ShoppingItemType[]) => {
+      if (userService) {
+        userService.shoppingList.saveList(updatedItems);
+      }
+    },
+    [userService]
+  );
 
   const handleAddItem = () => {
     if (!newItemName.trim()) {
       Alert.alert("Error", "Please enter an item name");
       return;
     }
-    addItem(newItemName, newItemQuantity || "1", newItemCategory || "Other");
+    const newItem: Omit<ShoppingItemType, "id"> = {
+      name: newItemName.trim(),
+      quantity: newItemQuantity.trim() || "1",
+      category: newItemCategory.trim() || "Other",
+      completed: false,
+      createdAt: new Date(),
+    };
+
+    if (userService) {
+      // For a more responsive UI, we can update the state optimistically
+      // The `addItem` service method would need to be adjusted to return the created item
+      // For now, we'll just save and reload.
+      userService.shoppingList.addItem(newItem).then(() => {
+        // Reload the list to get the new item with its ID
+        userService.shoppingList.loadList().then(setItems);
+      });
+    }
+
     setNewItemName("");
     setNewItemQuantity("");
     setNewItemCategory("");
     setModalVisible(false);
   };
 
+  const handleToggleItem = (id: string) => {
+    const updatedItems = items.map((item) =>
+      item.id === id ? { ...item, completed: !item.completed } : item
+    );
+    setItems(updatedItems);
+    handleSaveChanges(updatedItems);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    if (userService) {
+      userService.shoppingList.deleteItem(id).then(() => {
+        const updatedItems = items.filter((item) => item.id !== id);
+        setItems(updatedItems);
+      });
+    }
+  };
+
+  const clearCompleted = () => {
+    const updatedItems = items.filter((item) => !item.completed);
+    setItems(updatedItems);
+    handleSaveChanges(updatedItems);
+  };
+
   const renderShoppingItem = ({ item }: { item: ShoppingItemType }) => (
     <ShoppingItemComponent
       item={item}
-      onToggle={toggleItem}
-      onDelete={deleteItem}
+      onToggle={handleToggleItem}
+      onDelete={handleDeleteItem}
     />
   );
 
   const completedItems = items.filter((item) => item.completed);
   const pendingItems = items.filter((item) => !item.completed);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -59,8 +130,7 @@ export function ShoppingListScreen() {
           <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => setModalVisible(true)}
-            >
+              onPress={() => setModalVisible(true)}>
               <IconSymbol name="plus" size={16} color="#FFFFFF" />
               <Text style={styles.addButtonText}>Add Item</Text>
             </TouchableOpacity>
@@ -68,8 +138,7 @@ export function ShoppingListScreen() {
             {completedItems.length > 0 && (
               <TouchableOpacity
                 style={styles.clearButton}
-                onPress={clearCompleted}
-              >
+                onPress={clearCompleted}>
                 <Text style={styles.clearButtonText}>Clear Completed</Text>
               </TouchableOpacity>
             )}
@@ -117,8 +186,7 @@ export function ShoppingListScreen() {
           animationType="slide"
           transparent={true}
           visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
+          onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modal}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Add New Item</Text>
@@ -151,15 +219,13 @@ export function ShoppingListScreen() {
               <View style={styles.modalActions}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setModalVisible(false)}
-                >
+                  onPress={() => setModalVisible(false)}>
                   <Text style={styles.modalButtonText}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.modalButton, styles.saveButton]}
-                  onPress={handleAddItem}
-                >
+                  onPress={handleAddItem}>
                   <Text style={styles.modalButtonText}>Add Item</Text>
                 </TouchableOpacity>
               </View>

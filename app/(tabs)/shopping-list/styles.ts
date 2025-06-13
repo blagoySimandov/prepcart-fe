@@ -11,6 +11,11 @@ export function useStyles() {
       flex: 1,
       backgroundColor: colors.background,
     },
+    centered: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
     header: {
       padding: 20,
       paddingBottom: 10,
