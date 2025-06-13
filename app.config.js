@@ -6,27 +6,27 @@ export default {
     slug: "prepcartv2",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.simandoff.prepcart",
+      googleServicesFile: "./google-services.json",
     },
     android: {
-      adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#ffffff",
-      },
+      package: "com.simandoff.prepcart",
+      googleServicesFile: "./GoogleService-Info.plist",
     },
     web: {
       favicon: "./assets/favicon.png",
     },
     extra: {
+      eas: {
+        projectId: "d7612470-b4e7-44b8-ac5e-c9d7a9053477",
+      },
       firebaseApiKey: process.env.FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.FIREBASE_AUTH_DOMAIN,
       firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
