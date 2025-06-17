@@ -1,4 +1,4 @@
-import { useNotificationSettings } from "@/app/notifications";
+import { useNotificationSettings } from "@/src/notifications";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuth } from "@/src/auth/hooks";
@@ -77,7 +77,8 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <SafeAreaView>
           <View style={styles.profileHeader}>
             {profile.photoURL ? (
@@ -136,7 +137,8 @@ export default function ProfileScreen() {
               style={[
                 styles.settingItem,
                 !notificationsEnabled && styles.disabledSetting,
-              ]}>
+              ]}
+            >
               <View style={styles.settingLeft}>
                 <Text style={styles.settingTitle}>Shopping Reminders</Text>
                 <Text style={styles.settingDescription}>
@@ -156,7 +158,8 @@ export default function ProfileScreen() {
               style={[
                 styles.settingItem,
                 !notificationsEnabled && styles.disabledSetting,
-              ]}>
+              ]}
+            >
               <View style={styles.settingLeft}>
                 <Text style={styles.settingTitle}>Cooking Reminders</Text>
                 <Text style={styles.settingDescription}>

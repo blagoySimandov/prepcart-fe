@@ -370,6 +370,17 @@ export function useStyles() {
       fontWeight: "bold",
       color: colors.accent,
     },
+    similarityContainer: {
+      marginTop: 8,
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    similarityText: {
+      fontSize: 12,
+      color: colors.icon,
+      fontStyle: "italic",
+    },
   });
   return { styles, colors };
 }

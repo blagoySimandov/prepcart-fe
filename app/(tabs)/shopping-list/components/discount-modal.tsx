@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { getStoreName } from "@/src/discounts/constants";
 import { Discount } from "@/src/discounts/types";
 import React from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
@@ -21,11 +22,12 @@ export function DiscountModal({
     const discountedPrice =
       item.price_before_discount_local * (1 - item.discount_percent / 100);
     const savings = item.price_before_discount_local - discountedPrice;
+    const storeName = getStoreName(item.store_id);
 
     return (
       <View style={styles.discountItemCard}>
         <View style={styles.discountItemHeader}>
-          <Text style={styles.discountStoreName}>LIDL</Text>
+          <Text style={styles.discountStoreName}>{storeName}</Text>
           <View style={styles.discountBadge}>
             <Text style={styles.discountBadgeText}>
               {item.discount_percent}% OFF
@@ -58,6 +60,14 @@ export function DiscountModal({
             </Text>
           </View>
         </View>
+
+        {item.similarity_score && (
+          <View style={styles.similarityContainer}>
+            <Text style={styles.similarityText}>
+              Match confidence: {item.similarity_score.toFixed(1)}%
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -80,7 +90,10 @@ export function DiscountModal({
           <FlatList
             data={discounts}
             renderItem={renderDiscount}
-            keyExtractor={(item) => item.product_name + item.discount_percent}
+            keyExtractor={(item, index) =>
+              item.id ||
+              `${item.product_name}-${item.discount_percent}-${index}`
+            }
             showsVerticalScrollIndicator={false}
           />
         </View>

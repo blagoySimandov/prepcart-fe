@@ -1,75 +1,144 @@
-import { db } from "@/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
 import { ShoppingItem } from "../user/shopping-list/types";
-import { Discount } from "./types";
+import {
+  Discount,
+  DiscountMatch,
+  MatchShoppingListRequest,
+  MatchShoppingListResponse,
+  ShoppingListApiItem,
+} from "./types";
 
 /**
- * Service for fetching and matching product discounts from Firestore.
+ * Service for fetching and matching product discounts using the Cloud Function API.
  */
 export class DiscountService {
-  private allDiscounts: Discount[] = [];
-  private hasLoadedDiscounts = false;
+  private static readonly API_ENDPOINT =
+    "https://europe-west1-prepcart-prod.cloudfunctions.net/matchShoppingList";
 
   /**
-   * Loads all available discounts from the 'pdfAnalysisResults' collection in Firestore.
-   * This method is designed to be called explicitly by the user and will only fetch
-   * data from Firestore once per session.
-   * @returns {Promise<void>}
+   * Finds discounts for a list of shopping items using the Cloud Function API.
+   * @param items The user's shopping list items.
+   * @param maxResultsPerItem Maximum number of discount matches per item (default: 5).
+   * @returns A Map where the key is the shopping item's ID and the value is an array of matching discounts.
    */
-  public async loadAllDiscounts(): Promise<void> {
-    if (this.hasLoadedDiscounts) {
-      console.log("Discounts have already been loaded.");
-      return;
+  public async findDiscountsForItems(
+    items: ShoppingItem[],
+    maxResultsPerItem: number = 5
+  ): Promise<{
+    itemDiscounts: Map<string, Discount[]>;
+    totalSavings: Record<string, number>;
+    unmatchedItems: string[];
+    matches: DiscountMatch[];
+  }> {
+    const itemDiscounts = new Map<string, Discount[]>();
+
+    if (items.length === 0) {
+      return {
+        itemDiscounts,
+        totalSavings: {},
+        unmatchedItems: [],
+        matches: [],
+      };
     }
 
     try {
-      const querySnapshot = await getDocs(collection(db, "pdfAnalysisResults"));
-      const discounts: Discount[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as any; // Using any to be safe with nested structure
-        if (data.extractedData && data.extractedData.discounted_products) {
-          discounts.push(...data.extractedData.discounted_products);
+      // Convert shopping items to API format
+      const apiItems: ShoppingListApiItem[] = items.map((item) => ({
+        item: item.name,
+        quantity: parseInt(item.quantity) || 1,
+        notes: item.category !== "Other" ? item.category : undefined,
+      }));
+
+      const requestBody: MatchShoppingListRequest = {
+        shopping_list: apiItems,
+        max_results_per_item: maxResultsPerItem,
+      };
+
+      console.log("Calling discount API with:", requestBody);
+
+      const response = await fetch(DiscountService.API_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data: MatchShoppingListResponse = await response.json();
+
+      console.log("Discount API response:", data);
+
+      // Create a map from item name to shopping item for quick lookup
+      const itemNameToShoppingItem = new Map<string, ShoppingItem>();
+      items.forEach((item) => {
+        itemNameToShoppingItem.set(item.name.toLowerCase(), item);
+      });
+
+      // Process matches and group by shopping item ID
+      data.matches.forEach((match) => {
+        const shoppingItem = itemNameToShoppingItem.get(
+          match.shopping_list_item.toLowerCase()
+        );
+        if (shoppingItem) {
+          const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];
+          existingDiscounts.push(match.matched_product);
+          itemDiscounts.set(shoppingItem.id, existingDiscounts);
         }
       });
-      this.allDiscounts = discounts;
-      this.hasLoadedDiscounts = true;
+
+      return {
+        itemDiscounts,
+        totalSavings: data.total_potential_savings_by_currency,
+        unmatchedItems: data.unmatched_items,
+        matches: data.matches,
+      };
     } catch (error) {
-      console.error("Error loading all discounts:", error);
-      throw error; // Re-throw to allow UI to handle it
+      console.error("Failed to fetch discounts from API:", error);
+      throw error;
     }
   }
 
   /**
-   * Finds matching discounts for a given list of shopping items.
-   * @param shoppingList - An array of items from the user's shopping list.
-   * @returns A Map where the key is the shopping item's ID and the value is an array of matching discounts.
+   * Legacy method for backward compatibility.
+   * @deprecated Use findDiscountsForItems instead.
    */
-  public findDiscountsForItems(
+  public async loadAllDiscounts(): Promise<void> {
+    console.warn(
+      "loadAllDiscounts is deprecated. Use findDiscountsForItems instead."
+    );
+    // No-op for backward compatibility
+  }
+
+  /**
+   * Legacy method for backward compatibility.
+   * @deprecated Use findDiscountsForItems instead.
+   */
+  public findDiscountsForItemsSync(
     shoppingList: ShoppingItem[]
   ): Map<string, Discount[]> {
-    const itemDiscounts = new Map<string, Discount[]>();
+    console.warn(
+      "findDiscountsForItemsSync is deprecated. Use findDiscountsForItems instead."
+    );
+    return new Map();
+  }
 
-    if (this.allDiscounts.length === 0) {
-      return itemDiscounts;
-    }
-
-    shoppingList.forEach((item) => {
-      const matches: Discount[] = [];
-      const itemNameLower = item.name.toLowerCase();
-
-      this.allDiscounts.forEach((discount) => {
-        // Simple matching logic: check if the shopping list item name is a substring
-        // of the discounted product name. This can be improved with fuzzy search.
-        if (discount.product_name.toLowerCase().includes(itemNameLower)) {
-          matches.push(discount);
-        }
-      });
-
-      if (matches.length > 0) {
-        itemDiscounts.set(item.id, matches);
-      }
-    });
-
-    return itemDiscounts;
+  /**
+   * Legacy method for backward compatibility.
+   * @deprecated Use findDiscountsForItems instead.
+   */
+  public async findDiscountsWithVectorSearch(
+    items: ShoppingItem[],
+    nearbyStoreIds: string[]
+  ): Promise<Map<string, Discount[]>> {
+    console.warn(
+      "findDiscountsWithVectorSearch is deprecated. Use findDiscountsForItems instead."
+    );
+    const result = await this.findDiscountsForItems(items);
+    return result.itemDiscounts;
   }
 }

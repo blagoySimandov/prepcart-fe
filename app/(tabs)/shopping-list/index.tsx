@@ -18,6 +18,10 @@ export function ShoppingListScreen() {
   const [items, setItems] = useState<ShoppingItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFindingDiscounts, setIsFindingDiscounts] = useState(false);
+  const [apiTotalSavings, setApiTotalSavings] = useState<
+    Record<string, number>
+  >({});
+  const [unmatchedItems, setUnmatchedItems] = useState<string[]>([]);
 
   const userService = useUserService();
   const { styles } = useStyles();
@@ -39,19 +43,69 @@ export function ShoppingListScreen() {
 
     setIsFindingDiscounts(true);
     try {
-      await userService.discounts.loadAllDiscounts();
-      const discountsMap = userService.discounts.findDiscountsForItems(items);
+      const result = await userService.discounts.findDiscountsForItems(
+        items,
+        5
+      );
+      const {
+        itemDiscounts,
+        totalSavings,
+        unmatchedItems: unmatched,
+        matches,
+      } = result;
+
+      await userService.updateUserStatistics(matches.length, totalSavings);
+
+      console.log("Discount search results:", {
+        totalMatches: matches.length,
+        totalSavings,
+        unmatchedItems: unmatched,
+      });
 
       const updatedItems = items.map((item) => {
-        const foundDiscounts = discountsMap.get(item.id);
+        const foundDiscounts = itemDiscounts.get(item.id);
         return foundDiscounts
           ? { ...item, detectedDiscounts: foundDiscounts }
           : item;
       });
 
       setItems(updatedItems);
+      setApiTotalSavings(totalSavings);
+      setUnmatchedItems(unmatched);
       await userService.shoppingList.saveList(updatedItems);
-    } catch {
+
+      // Show summary of results
+      const matchedCount = matches.length;
+      const unmatchedCount = unmatched.length;
+      const totalSavingsText = Object.entries(totalSavings)
+        .map(
+          ([currency, amount]) => `${(amount as number).toFixed(2)} ${currency}`
+        )
+        .join(", ");
+
+      if (matchedCount > 0) {
+        Alert.alert(
+          "Discounts Found!",
+          `Found ${matchedCount} discount${
+            matchedCount > 1 ? "s" : ""
+          } for your items.${
+            totalSavingsText ? `\nPotential savings: ${totalSavingsText}` : ""
+          }${
+            unmatchedCount > 0
+              ? `\n\n${unmatchedCount} item${
+                  unmatchedCount > 1 ? "s" : ""
+                } had no matching discounts.`
+              : ""
+          }`
+        );
+      } else {
+        Alert.alert(
+          "No Discounts Found",
+          "Sorry, we couldn't find any discounts for your current shopping list items."
+        );
+      }
+    } catch (error) {
+      console.error("Error finding discounts:", error);
       Alert.alert(
         "Error",
         "Could not fetch discounts. Please try again later."
@@ -160,6 +214,7 @@ export function ShoppingListScreen() {
         <SavingsSummary
           totalSavings={totalSavings}
           itemsWithDiscounts={itemsWithDiscounts}
+          apiTotalSavings={apiTotalSavings}
         />
 
         <ShoppingListView
