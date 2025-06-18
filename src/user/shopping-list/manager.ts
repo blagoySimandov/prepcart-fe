@@ -65,7 +65,7 @@ export class ShoppingListService {
   async addItem(item: Omit<ShoppingItem, "id">): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList"),
+        collection(db, "users", this.userId, "shoppingList")
       );
       const newItem = { ...item, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
@@ -92,6 +92,31 @@ export class ShoppingListService {
       }
     } catch (error) {
       console.error("Error deleting item from shopping list:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Updates a single item in the user's shopping list.
+   * @param {string} itemId The ID of the item to update.
+   * @param {Partial<ShoppingItem>} updatedData The data to update.
+   */
+  async updateItem(
+    itemId: string,
+    updatedData: Partial<ShoppingItem>
+  ): Promise<void> {
+    try {
+      const currentList = await this.loadList();
+      const itemIndex = currentList.findIndex((item) => item.id === itemId);
+      if (itemIndex > -1) {
+        currentList[itemIndex] = {
+          ...currentList[itemIndex],
+          ...updatedData,
+        };
+        await this.saveList(currentList);
+      }
+    } catch (error) {
+      console.error("Error updating item in shopping list:", error);
       throw error;
     }
   }

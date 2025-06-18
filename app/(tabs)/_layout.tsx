@@ -36,12 +36,12 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
           default: {},
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -51,15 +51,15 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="recipe-importer"
-        options={{
-          title: "Recipes",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="book.fill" color={color} />
-          ),
-        }}
-      />
+      {/* <Tabs.Screen */}
+      {/*   name="recipe-importer" */}
+      {/*   options={{ */}
+      {/*     title: "Recipes", */}
+      {/*     tabBarIcon: ({ color }) => ( */}
+      {/*       <IconSymbol size={28} name="book.fill" color={color} /> */}
+      {/*     ), */}
+      {/*   }} */}
+      {/* /> */}
       <Tabs.Screen
         name="shopping-list"
         options={{

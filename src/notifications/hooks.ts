@@ -5,7 +5,6 @@ import { NotificationManager } from "./manager";
 export const useNotificationSettings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [shoppingReminders, setShoppingReminders] = useState(true);
-  const [cookingReminders, setCookingReminders] = useState(true);
 
   useEffect(() => {
     checkNotificationStatus();
@@ -30,9 +29,7 @@ export const useNotificationSettings = () => {
   return {
     notificationsEnabled,
     shoppingReminders,
-    cookingReminders,
     toggleNotifications,
     setShoppingReminders,
-    setCookingReminders,
   };
 };

@@ -212,6 +212,9 @@ export function useStyles() {
       textAlign: "center",
       opacity: 0.8,
     },
+    editButton: {
+      padding: 8,
+    },
     deleteButton: {
       padding: 8,
     },

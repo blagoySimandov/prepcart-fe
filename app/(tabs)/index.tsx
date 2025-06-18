@@ -16,13 +16,13 @@ interface QuickAction {
 
 const useHomeData = () => {
   const quickActions: QuickAction[] = [
-    {
-      title: "Import Recipe",
-      description: "Add from URL or text",
-      icon: "book.fill",
-      route: "/(tabs)/recipe-importer",
-      color: "#FF8C42",
-    },
+    // {
+    //   title: "Import Recipe",
+    //   description: "Add from URL or text",
+    //   icon: "book.fill",
+    //   route: "/(tabs)/recipe-importer",
+    //   color: "#FF8C42",
+    // }, //STILL IN DEVELOPMENT
     {
       title: "Shopping List",
       description: "Manage your groceries",

@@ -9,6 +9,7 @@ interface ShoppingItemProps {
   item: ShoppingItemType;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (item: ShoppingItemType) => void;
   onShowDiscounts: (discounts: Discount[]) => void;
   discounts: Discount[];
   bestDiscount?: number;
@@ -18,6 +19,7 @@ export function ShoppingItem({
   item,
   onToggle,
   onDelete,
+  onEdit,
   onShowDiscounts,
   discounts,
   bestDiscount,
@@ -77,6 +79,9 @@ export function ShoppingItem({
         </TouchableOpacity>
       )}
 
+      <TouchableOpacity style={styles.editButton} onPress={() => onEdit(item)}>
+        <IconSymbol name="pencil" size={20} color={colors.tint} />
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => handleDeleteItem(item.id, item.name)}>

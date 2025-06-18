@@ -11,6 +11,7 @@ interface ShoppingListViewProps {
   onDeleteItem: (id: string) => void;
   onShowDiscounts: (discounts: Discount[]) => void;
   onClearCompleted: () => void;
+  onEditItem: (item: ShoppingItemType) => void;
 }
 
 export function ShoppingListView({
@@ -19,6 +20,7 @@ export function ShoppingListView({
   onDeleteItem,
   onShowDiscounts,
   onClearCompleted,
+  onEditItem,
 }: ShoppingListViewProps) {
   const { styles } = useStyles();
 
@@ -35,6 +37,7 @@ export function ShoppingListView({
         onToggle={onToggleItem}
         onDelete={onDeleteItem}
         onShowDiscounts={onShowDiscounts}
+        onEdit={onEditItem}
         discounts={discounts}
         bestDiscount={bestDiscount}
       />

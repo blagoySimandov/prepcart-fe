@@ -1,5 +1,6 @@
+import { ShoppingItem } from "@/src/user/shopping-list/types";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   LayoutAnimation,
@@ -60,12 +61,19 @@ interface AddItemModalProps {
     quantity: string;
     category: string;
   }) => void;
+  onUpdateItem: (
+    id: string,
+    item: { name: string; quantity: string; category: string }
+  ) => void;
+  itemToEdit?: ShoppingItem | null;
 }
 
 export function AddItemModal({
   visible,
   onClose,
   onAddItem,
+  onUpdateItem,
+  itemToEdit,
 }: AddItemModalProps) {
   const { styles, colors } = useStyles();
   const [text, setText] = useState("");
@@ -75,7 +83,28 @@ export function AddItemModal({
   const [manualCategory, setManualCategory] = useState("");
   const inputRef = useRef<TextInput>(null);
 
+  const isEditMode = itemToEdit != null;
+
+  useEffect(() => {
+    if (itemToEdit) {
+      setManualName(itemToEdit.name);
+      setManualQuantity(itemToEdit.quantity);
+      setManualCategory(itemToEdit.category);
+      setIsExpanded(true);
+      setText(""); // Clear single-line input
+    } else {
+      // Reset for add mode
+      setManualName("");
+      setManualQuantity("");
+      setManualCategory("");
+      setText("");
+      setIsExpanded(false);
+    }
+  }, [itemToEdit]);
+
   const toggleExpand = () => {
+    if (isEditMode) return; // Don't allow toggling in edit mode
+
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (!isExpanded) {
       const parsed = parseLine(text.trim());
@@ -95,8 +124,20 @@ export function AddItemModal({
     setIsExpanded(!isExpanded);
   };
 
-  const handleAddItem = () => {
-    if (isExpanded) {
+  const handleSubmit = () => {
+    if (isEditMode) {
+      if (!manualName.trim()) {
+        Alert.alert("Error", "Please enter an item name");
+        return;
+      }
+      if (itemToEdit) {
+        onUpdateItem(itemToEdit.id, {
+          name: manualName.trim(),
+          quantity: manualQuantity.trim() || "1",
+          category: manualCategory.trim() || "Other",
+        });
+      }
+    } else if (isExpanded) {
       if (!manualName.trim()) {
         Alert.alert("Error", "Please enter an item name");
         return;
@@ -144,14 +185,17 @@ export function AddItemModal({
       <View style={styles.modal}>
         <View style={styles.addItemModalContent}>
           <View style={styles.addItemHeader}>
-            <Text style={styles.addItemModalTitle}>Add New Item</Text>
+            <Text style={styles.addItemModalTitle}>
+              {isEditMode ? "Edit Item" : "Add New Item"}
+            </Text>
             <TouchableOpacity
               onPress={toggleExpand}
-              style={styles.expandButton}>
+              style={styles.expandButton}
+              disabled={isEditMode}>
               <Ionicons
                 name={isExpanded ? "chevron-up" : "chevron-down"}
                 size={24}
-                color={colors.icon}
+                color={isEditMode ? colors.disabled : colors.icon}
               />
             </TouchableOpacity>
           </View>
@@ -202,9 +246,9 @@ export function AddItemModal({
 
             <TouchableOpacity
               style={[styles.modalButton, styles.saveButton]}
-              onPress={handleAddItem}>
+              onPress={handleSubmit}>
               <Text style={styles.modalButtonText}>
-                {isExpanded ? "Add Item" : "Add"}
+                {isEditMode ? "Save" : isExpanded ? "Add Item" : "Add"}
               </Text>
             </TouchableOpacity>
           </View>

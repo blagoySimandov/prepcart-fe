@@ -13,6 +13,7 @@ import { useStyles } from "./styles";
 
 export function ShoppingListScreen() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingItem, setEditingItem] = useState<ShoppingItemType | null>(null);
   const [discountModalVisible, setDiscountModalVisible] = useState(false);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [items, setItems] = useState<ShoppingItemType[]>([]);
@@ -37,6 +38,16 @@ export function ShoppingListScreen() {
     };
     loadList();
   }, [userService]);
+
+  const openAddModal = () => {
+    setEditingItem(null);
+    setModalVisible(true);
+  };
+
+  const openEditModal = (item: ShoppingItemType) => {
+    setEditingItem(item);
+    setModalVisible(true);
+  };
 
   const handleFindDiscounts = async () => {
     if (!userService) return;
@@ -144,6 +155,17 @@ export function ShoppingListScreen() {
     }
   };
 
+  const handleUpdateItem = (
+    id: string,
+    updatedData: Partial<ShoppingItemType>
+  ) => {
+    if (userService) {
+      userService.shoppingList.updateItem(id, updatedData).then(() => {
+        userService.shoppingList.loadList().then(setItems);
+      });
+    }
+  };
+
   const handleToggleItem = (id: string) => {
     const updatedItems = items.map((item) =>
       item.id === id ? { ...item, completed: !item.completed } : item
@@ -208,7 +230,7 @@ export function ShoppingListScreen() {
         <ShoppingListHeader
           onFindDiscounts={handleFindDiscounts}
           isFindingDiscounts={isFindingDiscounts}
-          onAddItem={() => setModalVisible(true)}
+          onAddItem={openAddModal}
         />
 
         <SavingsSummary
@@ -223,12 +245,15 @@ export function ShoppingListScreen() {
           onDeleteItem={handleDeleteItem}
           onShowDiscounts={handleShowDiscounts}
           onClearCompleted={clearCompleted}
+          onEditItem={openEditModal}
         />
 
         <AddItemModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           onAddItem={handleAddItem}
+          onUpdateItem={handleUpdateItem}
+          itemToEdit={editingItem}
         />
 
         <DiscountModal

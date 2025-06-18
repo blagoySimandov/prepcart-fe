@@ -1,13 +1,14 @@
-import { useNotificationSettings } from "@/src/notifications";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuth } from "@/src/auth/hooks";
-import { useUserService } from "@/src/user";
+import { useNotificationSettings } from "@/src/notifications";
+import { useUserService, useUserStatistics } from "@/src/user";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -17,29 +18,29 @@ import {
   View,
 } from "react-native";
 import useStyles from "./styles";
+const HELP_AND_SUPPORT_LINK = "https://prepcart.com/help";
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
   const userService = useUserService();
   const [profile, setProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const { styles, colors } = useStyles();
+  const { stats: userStats } = useUserStatistics();
   const {
     notificationsEnabled,
     shoppingReminders,
-    cookingReminders,
     toggleNotifications,
     setShoppingReminders,
-    setCookingReminders,
   } = useNotificationSettings();
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (userService) {
-        setIsLoading(true);
+        setIsLoadingProfile(true);
         const userProfile = await userService.getProfile();
         setProfile(userProfile);
-        setIsLoading(false);
+        setIsLoadingProfile(false);
       }
     };
     fetchProfile();
@@ -64,8 +65,11 @@ export default function ProfileScreen() {
       },
     ]);
   };
+  const handleHelpAndSupport = () => {
+    Linking.openURL(HELP_AND_SUPPORT_LINK);
+  };
 
-  if (isLoading || !profile) {
+  if (isLoadingProfile || !profile) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
@@ -103,15 +107,20 @@ export default function ProfileScreen() {
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {profile.recipesImported || 0}
+                {Object.entries(userStats?.totalSavings || {})
+                  .map(
+                    ([currency, amount]) =>
+                      `${(amount as number).toFixed(2)} ${currency}`,
+                  )
+                  .join("\n") || "0.00"}
               </Text>
-              <Text style={styles.statLabel}>Recipes Imported</Text>
+              <Text style={styles.statLabel}>Total Savings</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {profile.shoppingListsCreated || 0}
+                {userStats?.totalDiscoveredDiscounts || 0}
               </Text>
-              <Text style={styles.statLabel}>Shopping Lists</Text>
+              <Text style={styles.statLabel}>Discounts Found</Text>
             </View>
           </View>
 
@@ -153,44 +162,12 @@ export default function ProfileScreen() {
                 thumbColor={Platform.OS === "ios" ? undefined : "#FFFFFF"}
               />
             </View>
-
-            <View
-              style={[
-                styles.settingItem,
-                !notificationsEnabled && styles.disabledSetting,
-              ]}
-            >
-              <View style={styles.settingLeft}>
-                <Text style={styles.settingTitle}>Cooking Reminders</Text>
-                <Text style={styles.settingDescription}>
-                  Get suggestions for when to cook your recipes
-                </Text>
-              </View>
-              <Switch
-                value={cookingReminders && notificationsEnabled}
-                onValueChange={setCookingReminders}
-                disabled={!notificationsEnabled}
-                trackColor={{ false: colors.border, true: colors.tint }}
-                thumbColor={Platform.OS === "ios" ? undefined : "#FFFFFF"}
-              />
-            </View>
           </View>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <IconSymbol name="person.circle" size={24} color={colors.tint} />
-            <Text style={[styles.actionButtonText, styles.editProfileText]}>
-              Edit Profile
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <IconSymbol name="gear" size={24} color={colors.icon} />
-            <Text style={[styles.actionButtonText, { color: colors.text }]}>
-              App Settings
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={handleHelpAndSupport}
+          >
             <IconSymbol
               name="questionmark.circle"
               size={24}

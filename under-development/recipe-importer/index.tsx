@@ -20,7 +20,7 @@ export function RecipeImporterScreen() {
     // TODO: Implement calorie analysis functionality
     Alert.alert(
       "Coming Soon",
-      "Calorie analysis feature will be available soon!"
+      "Calorie analysis feature will be available soon!",
     );
   };
 
