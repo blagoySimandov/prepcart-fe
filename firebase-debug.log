@@ -1,0 +1,20 @@
+[debug] [2025-06-18T08:40:27.906Z] ----------------------------------------------------------------------
+[debug] [2025-06-18T08:40:27.909Z] Command:       /opt/homebrew/Cellar/node/24.2.0/bin/node /opt/homebrew/bin/firebase deploy --only functions
+[debug] [2025-06-18T08:40:27.909Z] CLI Version:   13.24.2
+[debug] [2025-06-18T08:40:27.909Z] Platform:      darwin
+[debug] [2025-06-18T08:40:27.909Z] Node Version:  v24.2.0
+[debug] [2025-06-18T08:40:27.910Z] Time:          Wed Jun 18 2025 11:40:27 GMT+0300 (Eastern European Summer Time)
+[debug] [2025-06-18T08:40:27.910Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Not in a Firebase app directory (could not locate firebase.json)
+[debug] [2025-06-18T08:40:31.546Z] ----------------------------------------------------------------------
+[debug] [2025-06-18T08:40:31.548Z] Command:       /opt/homebrew/Cellar/node/24.2.0/bin/node /opt/homebrew/bin/firebase deploy --only functions
+[debug] [2025-06-18T08:40:31.548Z] CLI Version:   13.24.2
+[debug] [2025-06-18T08:40:31.548Z] Platform:      darwin
+[debug] [2025-06-18T08:40:31.548Z] Node Version:  v24.2.0
+[debug] [2025-06-18T08:40:31.548Z] Time:          Wed Jun 18 2025 11:40:31 GMT+0300 (Eastern European Summer Time)
+[debug] [2025-06-18T08:40:31.548Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Not in a Firebase app directory (could not locate firebase.json)

@@ -7,6 +7,8 @@ import {
   ShoppingListApiItem,
 } from "./types";
 
+const DEFAULT_LANGUAGE = "BG";
+
 /**
  * Service for fetching and matching product discounts using the Cloud Function API.
  */
@@ -41,7 +43,6 @@ export class DiscountService {
     }
 
     try {
-      // Convert shopping items to API format
       const apiItems: ShoppingListApiItem[] = items.map((item) => ({
         item: item.name,
         quantity: parseInt(item.quantity) || 1,
@@ -51,6 +52,7 @@ export class DiscountService {
       const requestBody: MatchShoppingListRequest = {
         shopping_list: apiItems,
         max_results_per_item: maxResultsPerItem,
+        discount_language: DEFAULT_LANGUAGE,
       };
 
       console.log("Calling discount API with:", requestBody);
@@ -73,23 +75,27 @@ export class DiscountService {
 
       console.log("Discount API response:", data);
 
-      // Create a map from item name to shopping item for quick lookup
       const itemNameToShoppingItem = new Map<string, ShoppingItem>();
       items.forEach((item) => {
         itemNameToShoppingItem.set(item.name.toLowerCase(), item);
       });
 
-      // Process matches and group by shopping item ID
-      data.matches.forEach((match) => {
-        const shoppingItem = itemNameToShoppingItem.get(
-          match.shopping_list_item.toLowerCase()
-        );
-        if (shoppingItem) {
-          const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];
-          existingDiscounts.push(match.matched_product);
-          itemDiscounts.set(shoppingItem.id, existingDiscounts);
+      for (const match of data.matches) {
+        if (match.matched_products && match.matched_products.length > 0) {
+          const shoppingItem = itemNameToShoppingItem.get(
+            match.shopping_list_item.toLowerCase()
+          );
+          if (shoppingItem) {
+            const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];
+            for (const product of match.matched_products) {
+              if (product.discount_percent > 0) {
+                existingDiscounts.push(product);
+              }
+            }
+            itemDiscounts.set(shoppingItem.id, existingDiscounts);
+          }
         }
-      });
+      }
 
       return {
         itemDiscounts,
@@ -101,44 +107,5 @@ export class DiscountService {
       console.error("Failed to fetch discounts from API:", error);
       throw error;
     }
-  }
-
-  /**
-   * Legacy method for backward compatibility.
-   * @deprecated Use findDiscountsForItems instead.
-   */
-  public async loadAllDiscounts(): Promise<void> {
-    console.warn(
-      "loadAllDiscounts is deprecated. Use findDiscountsForItems instead."
-    );
-    // No-op for backward compatibility
-  }
-
-  /**
-   * Legacy method for backward compatibility.
-   * @deprecated Use findDiscountsForItems instead.
-   */
-  public findDiscountsForItemsSync(
-    shoppingList: ShoppingItem[]
-  ): Map<string, Discount[]> {
-    console.warn(
-      "findDiscountsForItemsSync is deprecated. Use findDiscountsForItems instead."
-    );
-    return new Map();
-  }
-
-  /**
-   * Legacy method for backward compatibility.
-   * @deprecated Use findDiscountsForItems instead.
-   */
-  public async findDiscountsWithVectorSearch(
-    items: ShoppingItem[],
-    nearbyStoreIds: string[]
-  ): Promise<Map<string, Discount[]>> {
-    console.warn(
-      "findDiscountsWithVectorSearch is deprecated. Use findDiscountsForItems instead."
-    );
-    const result = await this.findDiscountsForItems(items);
-    return result.itemDiscounts;
   }
 }

@@ -28,7 +28,10 @@ export interface ShoppingListApiItem {
  */
 export interface MatchShoppingListRequest {
   shopping_list: ShoppingListApiItem[];
+  country?: string;
+  store_ids?: string[];
   max_results_per_item?: number;
+  discount_language?: string;
 }
 
 /**
@@ -36,7 +39,7 @@ export interface MatchShoppingListRequest {
  */
 export interface DiscountMatch {
   shopping_list_item: string;
-  matched_product: Discount;
+  matched_products: Discount[];
   confidence_score: number;
   match_reasoning: string;
   is_exact_match: boolean;
@@ -74,4 +77,9 @@ export interface PdfAnalysisResult {
   extractedData: {
     discounted_products: Discount[];
   };
+}
+
+export interface ShoppingListMatch {
+  shopping_list_item: string;
+  matched_products: Discount[];
 }

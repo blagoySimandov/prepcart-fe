@@ -237,12 +237,22 @@ export function useStyles() {
       width: "90%",
       maxWidth: 400,
     },
+    addItemHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    expandButton: {
+      padding: 5,
+    },
     addItemModalTitle: {
       fontSize: 20,
       fontWeight: "bold",
       color: colors.text,
-      marginBottom: 20,
       textAlign: "center",
+      flex: 1,
+      marginLeft: 34,
     },
     input: {
       borderWidth: 1,
