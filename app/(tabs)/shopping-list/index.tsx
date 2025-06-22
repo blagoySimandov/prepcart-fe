@@ -24,18 +24,14 @@ export function ShoppingListScreen() {
     useDiscounts(items);
   const { itemModal, discountModal } = useShoppingListModals();
 
-  const handleAddItem = (item: {
-    name: string;
-    quantity: string;
-    category: string;
-  }) => {
+  const handleAddItem = (item: { name: string; quantity: string }) => {
     addItem(item);
     itemModal.close();
   };
 
   const handleUpdateItem = (
     id: string,
-    updatedData: { name: string; quantity: string; category: string }
+    updatedData: { name: string; quantity: string }
   ) => {
     updateItem(id, updatedData);
     itemModal.close();

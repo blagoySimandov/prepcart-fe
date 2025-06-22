@@ -26,18 +26,17 @@ export function useShoppingList() {
   }, [userService]);
 
   const addItem = useCallback(
-    async (item: { name: string; quantity: string; category: string }) => {
+    async (item: { name: string; quantity: string }) => {
       if (!userService) return;
       const newItem: Omit<ShoppingItem, "id" | "detectedDiscounts"> = {
         name: item.name,
         quantity: item.quantity,
-        category: item.category,
         completed: false,
         createdAt: new Date(),
       };
       await userService.shoppingList.addItem(newItem);
     },
-    [userService],
+    [userService]
   );
 
   const updateItem = useCallback(
@@ -45,7 +44,7 @@ export function useShoppingList() {
       if (!userService) return;
       await userService.shoppingList.updateItem(id, updatedData);
     },
-    [userService],
+    [userService]
   );
 
   const toggleItem = useCallback(
@@ -56,7 +55,7 @@ export function useShoppingList() {
         await updateItem(id, { completed: !itemToToggle.completed });
       }
     },
-    [userService, items, updateItem],
+    [userService, items, updateItem]
   );
 
   const deleteItem = useCallback(
@@ -64,13 +63,13 @@ export function useShoppingList() {
       if (!userService) return;
       await userService.shoppingList.deleteItem(id);
     },
-    [userService],
+    [userService]
   );
 
   const clearCompleted = useCallback(async () => {
     if (!userService) return;
-    const updatedItems = items.filter((item) => !item.completed);
-    await userService.shoppingList.saveList(updatedItems);
+    const completedItems = items.filter((item) => item.completed);
+    await userService.shoppingList.archiveCompletedItems(completedItems);
   }, [userService, items]);
 
   return {
@@ -98,7 +97,7 @@ export function useDiscounts(items: ShoppingItem[]) {
     try {
       const result = await userService.discounts.findDiscountsForItems(
         items,
-        5,
+        5
       );
       const { itemDiscounts, totalSavings, unmatchedItems, matches } = result;
 
@@ -118,8 +117,7 @@ export function useDiscounts(items: ShoppingItem[]) {
       const unmatchedCount = unmatchedItems.length;
       const totalSavingsText = Object.entries(totalSavings)
         .map(
-          ([currency, amount]) =>
-            `${(amount as number).toFixed(2)} ${currency}`,
+          ([currency, amount]) => `${(amount as number).toFixed(2)} ${currency}`
         )
         .join(", ");
 
@@ -137,19 +135,19 @@ export function useDiscounts(items: ShoppingItem[]) {
                   unmatchedCount > 1 ? "s" : ""
                 } had no matching discounts.`
               : ""
-          }`,
+          }`
         );
       } else {
         Alert.alert(
           "No Discounts Found",
-          "Sorry, we couldn't find any discounts for your current shopping list items.",
+          "Sorry, we couldn't find any discounts for your current shopping list items."
         );
       }
     } catch (error) {
       console.error("Error finding discounts:", error);
       Alert.alert(
         "Error",
-        "Could not fetch discounts. Please try again later.",
+        "Could not fetch discounts. Please try again later."
       );
     } finally {
       setIsFindingDiscounts(false);

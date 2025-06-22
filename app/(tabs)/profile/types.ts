@@ -1,7 +1,4 @@
-export interface UserProfile {
-  name: string;
-  email: string;
-  memberSince: Date;
-  recipesImported: number;
-  shoppingListsCreated: number;
+export interface UserStatistics {
+  totalDiscoveredDiscounts: number;
+  totalSavings: Record<string, number>;
 }

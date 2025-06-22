@@ -1,13 +1,10 @@
+import { UserStatistics } from "@/app/(tabs)/profile/types";
 import { db } from "@/firebaseConfig";
 import { useAuth } from "@/src/auth/hooks";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { UserService } from "./service";
-
-export interface UserStatistics {
-  totalDiscoveredDiscounts: number;
-  totalSavings: Record<string, number>;
-}
+import { ShoppingItem } from "./shopping-list/types";
 
 /**
  * A hook that provides an instance of the UserService
@@ -30,6 +27,28 @@ export function useUserService(): UserService | null {
   return userService;
 }
 
+const calculateSavingsFromItems = (
+  items: ShoppingItem[]
+): Record<string, number> => {
+  const savings: Record<string, number> = {};
+
+  items.forEach((item) => {
+    if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
+      const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
+        current.discount_percent > best.discount_percent ? current : best
+      );
+      const itemSaving =
+        bestDiscount.price_before_discount_local *
+        (bestDiscount.discount_percent / 100);
+      const currency = bestDiscount.currency_local || "EUR"; // Default currency
+
+      savings[currency] = (savings[currency] || 0) + itemSaving;
+    }
+  });
+
+  return savings;
+};
+
 /**
  * A hook that retrieves and provides real-time updates for the user's statistics.
  *
@@ -44,24 +63,78 @@ export function useUserStatistics(): {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (userService) {
-      setLoading(true);
-      const userDocRef = doc(db, "users", userService.userId);
-      const unsubscribe = onSnapshot(userDocRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data();
-          if (data.statistics) {
-            setStats(data.statistics as UserStatistics);
-          }
-        }
-        setLoading(false);
-      });
-
-      return () => unsubscribe();
-    } else {
-      setStats(null);
+    if (!userService) {
       setLoading(false);
+      setStats(null);
+      return;
     }
+
+    let basicStats: Partial<UserStatistics> = {
+      totalDiscoveredDiscounts: 0,
+    };
+    let activeItems: ShoppingItem[] = [];
+    let historyItems: ShoppingItem[] = [];
+    let activeItemsLoading = true;
+    let historyLoading = true;
+    let statsLoading = true;
+
+    const recompute = () => {
+      if (activeItemsLoading || historyLoading || statsLoading) {
+        setLoading(true);
+        return;
+      }
+
+      const completedItemsSavings = calculateSavingsFromItems(
+        activeItems.filter((i) => i.completed)
+      );
+      const historySavings = calculateSavingsFromItems(historyItems);
+
+      const totalSavings: Record<string, number> = {};
+
+      Object.keys({ ...completedItemsSavings, ...historySavings }).forEach(
+        (currency) => {
+          totalSavings[currency] =
+            (completedItemsSavings[currency] || 0) +
+            (historySavings[currency] || 0);
+        }
+      );
+
+      setStats({
+        totalDiscoveredDiscounts: basicStats.totalDiscoveredDiscounts || 0,
+        totalSavings: totalSavings,
+      });
+      setLoading(false);
+    };
+
+    const userDocRef = doc(db, "users", userService.userId);
+    const unsubStats = onSnapshot(userDocRef, (doc) => {
+      statsLoading = false;
+      if (doc.exists()) {
+        const data = doc.data();
+        if (data.statistics) {
+          basicStats = data.statistics;
+        }
+      }
+      recompute();
+    });
+
+    const unsubActiveList = userService.shoppingList.onListUpdate((items) => {
+      activeItemsLoading = false;
+      activeItems = items;
+      recompute();
+    });
+
+    const unsubHistory = userService.shoppingList.onHistoryUpdate((items) => {
+      historyLoading = false;
+      historyItems = items;
+      recompute();
+    });
+
+    return () => {
+      unsubStats();
+      unsubActiveList();
+      unsubHistory();
+    };
   }, [userService]);
 
   return { stats, loading };

@@ -8,6 +8,7 @@ import {
   onSnapshot,
   setDoc,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { ShoppingItem } from "./types";
 
@@ -136,5 +137,58 @@ export class ShoppingListService {
       }
     });
     return unsubscribe;
+  }
+
+  /**
+   * Subscribes to real-time updates of the shopping history.
+   * @param callback - Function to be called with the history items.
+   * @returns {() => void} An unsubscribe function.
+   */
+  onHistoryUpdate(callback: (items: ShoppingItem[]) => void): () => void {
+    const historyCollectionRef = collection(
+      db,
+      "users",
+      this.userId,
+      "shoppingHistory"
+    );
+    const unsubscribe = onSnapshot(historyCollectionRef, (querySnapshot) => {
+      const items = querySnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as ShoppingItem)
+      );
+      callback(items);
+    });
+    return unsubscribe;
+  }
+
+  /**
+   * Moves completed items from the active list to the history collection.
+   * @param {ShoppingItem[]} completedItems - The items to archive.
+   */
+  async archiveCompletedItems(completedItems: ShoppingItem[]): Promise<void> {
+    if (completedItems.length === 0) return;
+
+    try {
+      const batch = writeBatch(db);
+      const historyCollectionRef = collection(
+        db,
+        "users",
+        this.userId,
+        "shoppingHistory"
+      );
+
+      // Add completed items to history and remove from active list
+      completedItems.forEach((item) => {
+        const historyDocRef = doc(historyCollectionRef, item.id);
+        batch.set(historyDocRef, item);
+        batch.update(this.userDocRef, {
+          shoppingList: arrayRemove(item),
+        });
+      });
+
+      await batch.commit();
+    } catch (error) {
+      console.error("Error archiving completed items:", error);
+      throw error;
+    }
   }
 }

@@ -56,15 +56,8 @@ function parseLine(input: string): ParsedItem | null {
 interface AddItemModalProps {
   visible: boolean;
   onClose: () => void;
-  onAddItem: (item: {
-    name: string;
-    quantity: string;
-    category: string;
-  }) => void;
-  onUpdateItem: (
-    id: string,
-    item: { name: string; quantity: string; category: string }
-  ) => void;
+  onAddItem: (item: { name: string; quantity: string }) => void;
+  onUpdateItem: (id: string, item: { name: string; quantity: string }) => void;
   itemToEdit?: ShoppingItem | null;
 }
 
@@ -80,7 +73,6 @@ export function AddItemModal({
   const [isExpanded, setIsExpanded] = useState(false);
   const [manualName, setManualName] = useState("");
   const [manualQuantity, setManualQuantity] = useState("");
-  const [manualCategory, setManualCategory] = useState("");
   const inputRef = useRef<TextInput>(null);
 
   const isEditMode = itemToEdit != null;
@@ -89,14 +81,12 @@ export function AddItemModal({
     if (itemToEdit) {
       setManualName(itemToEdit.name);
       setManualQuantity(itemToEdit.quantity);
-      setManualCategory(itemToEdit.category);
       setIsExpanded(true);
       setText(""); // Clear single-line input
     } else {
       // Reset for add mode
       setManualName("");
       setManualQuantity("");
-      setManualCategory("");
       setText("");
       setIsExpanded(false);
     }
@@ -111,11 +101,9 @@ export function AddItemModal({
       if (parsed) {
         setManualName(parsed.product);
         setManualQuantity(`${parsed.quantity} ${parsed.unit}`);
-        setManualCategory(""); // Category is not parsed
       } else {
         setManualName(text.trim());
         setManualQuantity("1 pcs");
-        setManualCategory("");
       }
     } else {
       const newText = `${manualName.trim()} ${manualQuantity.trim()}`.trim();
@@ -134,7 +122,6 @@ export function AddItemModal({
         onUpdateItem(itemToEdit.id, {
           name: manualName.trim(),
           quantity: manualQuantity.trim() || "1",
-          category: manualCategory.trim() || "Other",
         });
       }
     } else if (isExpanded) {
@@ -145,11 +132,9 @@ export function AddItemModal({
       onAddItem({
         name: manualName.trim(),
         quantity: manualQuantity.trim() || "1",
-        category: manualCategory.trim() || "Other",
       });
       setManualName("");
       setManualQuantity("");
-      setManualCategory("");
     } else {
       const textToParse = text.trim();
       if (!textToParse) {
@@ -161,13 +146,11 @@ export function AddItemModal({
         onAddItem({
           name: parsed.product,
           quantity: `${parsed.quantity} ${parsed.unit}`,
-          category: "Other",
         });
       } else {
         onAddItem({
           name: textToParse,
           quantity: "1 pcs",
-          category: "Other",
         });
       }
     }
@@ -226,13 +209,6 @@ export function AddItemModal({
                 placeholderTextColor={colors.icon}
                 value={manualQuantity}
                 onChangeText={setManualQuantity}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Category (e.g., Produce, Dairy)"
-                placeholderTextColor={colors.icon}
-                value={manualCategory}
-                onChangeText={setManualCategory}
               />
             </View>
           )}

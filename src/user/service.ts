@@ -51,44 +51,22 @@ export class UserService {
     const userDocRef = doc(db, "users", this.userId);
 
     try {
-      const fieldsToUpdate: { [key: string]: any } = {};
-
       if (discoveredDiscounts > 0) {
-        fieldsToUpdate["statistics.totalDiscoveredDiscounts"] =
-          increment(discoveredDiscounts);
-      }
-
-      for (const currency in savings) {
-        if (savings[currency] > 0) {
-          fieldsToUpdate[`statistics.totalSavings.${currency}`] = increment(
-            savings[currency]
-          );
-        }
-      }
-
-      if (Object.keys(fieldsToUpdate).length > 0) {
-        await updateDoc(userDocRef, fieldsToUpdate);
+        await updateDoc(userDocRef, {
+          "statistics.totalDiscoveredDiscounts": increment(discoveredDiscounts),
+        });
       }
     } catch (error) {
       console.error("Error updating user statistics:", error);
-      // Fallback for safety, though createUserProfileIfNotExists should prevent this.
+      // Attempt to recover if the statistics object doesn't exist.
       try {
         const userDoc = await getDoc(userDocRef);
-        if (!userDoc.exists())
-          throw new Error("User doc not found on fallback");
-        const userData = userDoc.data();
-        const stats = userData.statistics || {
-          totalDiscoveredDiscounts: 0,
-          totalSavings: {},
-        };
-
-        stats.totalDiscoveredDiscounts += discoveredDiscounts;
-        for (const currency in savings) {
-          stats.totalSavings[currency] =
-            (stats.totalSavings[currency] || 0) + savings[currency];
+        if (!userDoc.exists()) {
+          throw new Error("User document not found on fallback.");
         }
-
-        await updateDoc(userDocRef, { statistics: stats });
+        await updateDoc(userDocRef, {
+          "statistics.totalDiscoveredDiscounts": increment(discoveredDiscounts),
+        });
       } catch (fallbackError) {
         console.error("Fallback statistics update failed:", fallbackError);
       }
