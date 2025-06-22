@@ -18,7 +18,7 @@ import {
   View,
 } from "react-native";
 import useStyles from "./styles";
-const HELP_AND_SUPPORT_LINK = "https://prepcart.com/help";
+const HELP_AND_SUPPORT_LINK = "https://prepcart.it.com";
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();

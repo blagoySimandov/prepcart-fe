@@ -5,6 +5,7 @@ import {
   collection,
   doc,
   getDoc,
+  onSnapshot,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -119,5 +120,21 @@ export class ShoppingListService {
       console.error("Error updating item in shopping list:", error);
       throw error;
     }
+  }
+
+  /**
+   * Subscribes to real-time updates of the shopping list.
+   * @param callback - Function to be called with the updated list.
+   * @returns {() => void} An unsubscribe function.
+   */
+  onListUpdate(callback: (items: ShoppingItem[]) => void): () => void {
+    const unsubscribe = onSnapshot(this.userDocRef, (docSnap) => {
+      if (docSnap.exists() && docSnap.data().shoppingList) {
+        callback(docSnap.data().shoppingList as ShoppingItem[]);
+      } else {
+        callback([]);
+      }
+    });
+    return unsubscribe;
   }
 }

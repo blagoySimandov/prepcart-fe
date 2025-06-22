@@ -1,7 +1,13 @@
 import { Discount } from "@/src/discounts/types";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useStyles } from "../styles";
 import { ShoppingItem as ShoppingItemComponent } from "./shopping-item";
 
@@ -57,18 +63,17 @@ export function ShoppingListView({
   }
 
   return (
-    <View style={styles.listContainer}>
+    <ScrollView
+      style={styles.listContainer}
+      contentContainerStyle={{ paddingBottom: 100 }} // give space if needed
+      showsVerticalScrollIndicator={false}
+    >
       {pendingItems.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>
             To Buy ({pendingItems.length})
           </Text>
-          <FlatList
-            data={pendingItems}
-            renderItem={renderShoppingItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-          />
+          {pendingItems.map((item) => renderShoppingItem({ item }))}
         </>
       )}
 
@@ -80,18 +85,14 @@ export function ShoppingListView({
             </Text>
             <TouchableOpacity
               style={styles.clearButton}
-              onPress={onClearCompleted}>
+              onPress={onClearCompleted}
+            >
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>
-          <FlatList
-            data={completedItems}
-            renderItem={renderShoppingItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-          />
+          {completedItems.map((item) => renderShoppingItem({ item }))}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }

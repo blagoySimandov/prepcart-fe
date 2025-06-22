@@ -3,7 +3,7 @@
  */
 export const STORE_DISPLAY_NAMES: Record<string, string> = {
   "bila-bg": "BILA",
-  "lidl-bg": "LIDL",
+  "lidl-be": "LIDL",
   "kaufland-bg": "KAUFLAND",
   "fantastico-bg": "FANTASTICO",
   "metro-bg": "METRO",

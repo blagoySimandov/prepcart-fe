@@ -1,38 +1,39 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ShoppingItem } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Text, View } from "react-native";
 import { useStyles } from "../styles";
 
 interface SavingsSummaryProps {
-  totalSavings: number;
-  itemsWithDiscounts: number;
+  items: ShoppingItem[];
   apiTotalSavings?: Record<string, number>;
 }
 
 export function SavingsSummary({
-  totalSavings,
-  itemsWithDiscounts,
+  items,
   apiTotalSavings,
 }: SavingsSummaryProps) {
   const { styles, colors } = useStyles();
 
   const hasApiSavings =
     apiTotalSavings && Object.keys(apiTotalSavings).length > 0;
-  const displaySavings = hasApiSavings ? apiTotalSavings : null;
-  const fallbackSavings = totalSavings;
 
-  if (!hasApiSavings && fallbackSavings <= 0) {
+  if (!hasApiSavings) {
     return null;
   }
 
   const renderSavingsAmount = () => {
-    if (hasApiSavings && displaySavings) {
-      return Object.entries(displaySavings)
+    if (hasApiSavings) {
+      return Object.entries(apiTotalSavings)
         .map(([currency, amount]) => `${amount.toFixed(2)} ${currency}`)
         .join(" + ");
     }
-    return `${fallbackSavings.toFixed(2)} BGN`;
+    return "0.00";
   };
+
+  const itemsWithDiscounts = items.filter(
+    (item) => item.detectedDiscounts && item.detectedDiscounts.length > 0
+  ).length;
 
   const totalItemsText =
     itemsWithDiscounts > 0
