@@ -23,9 +23,13 @@ export function SavingsSummary({
 
   const renderSavingsAmount = () => {
     if (hasSavings) {
-      return Object.entries(apiTotalSavings)
-        .map(([currency, amount]) => `${amount.toFixed(2)} ${currency}`)
-        .join(" + ");
+      const [currency, amount] = Object.entries(apiTotalSavings)[0] || [
+        null,
+        null,
+      ];
+      return currency && amount != null
+        ? `${amount.toFixed(2)} ${currency}`
+        : "0.00";
     }
     return "0.00";
   };

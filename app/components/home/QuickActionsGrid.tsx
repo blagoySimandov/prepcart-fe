@@ -8,7 +8,8 @@ interface QuickAction {
   title: string;
   description: string;
   icon: SymbolViewProps["name"];
-  route: string;
+  route?: string;
+  onPress?: () => void;
   color: string;
 }
 
@@ -30,7 +31,9 @@ export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
               styles.quickActionCard,
               { backgroundColor: action.color + "20" },
             ]}
-            onPress={() => router.push(action.route)}>
+            onPress={() =>
+              action.route ? router.push(action.route) : action.onPress?.()
+            }>
             <View style={styles.quickActionIcon}>
               <IconSymbol name={action.icon} size={24} color={action.color} />
             </View>

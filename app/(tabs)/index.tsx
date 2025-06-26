@@ -1,8 +1,12 @@
+import { AddItemModal } from "@/app/(tabs)/shopping-list/components/add-item-modal";
+import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
 import { HomeHeader } from "@/app/components/home/HomeHeader";
 import { QuickActionsGrid } from "@/app/components/home/QuickActionsGrid";
 import { UserStatistics } from "@/app/components/home/UserStatistics";
 import { ThemedView } from "@/components/ThemedView";
+import { router } from "expo-router";
 import { SymbolViewProps } from "expo-symbols";
+import { useCallback, useState } from "react";
 import { ScrollView } from "react-native";
 import { useStyles } from "./styles";
 
@@ -10,19 +14,20 @@ interface QuickAction {
   title: string;
   description: string;
   icon: SymbolViewProps["name"];
-  route: string;
+  route?: string;
+  onPress?: () => void;
   color: string;
 }
 
-const useHomeData = () => {
+const useHomeData = (onQuickAdd: () => void) => {
   const quickActions: QuickAction[] = [
-    // {
-    //   title: "Import Recipe",
-    //   description: "Add from URL or text",
-    //   icon: "book.fill",
-    //   route: "/(tabs)/recipe-importer",
-    //   color: "#FF8C42",
-    // }, //STILL IN DEVELOPMENT
+    {
+      title: "Quick Add",
+      description: "Add an item to your list",
+      icon: "plus.circle.fill",
+      onPress: onQuickAdd,
+      color: "#4682B4",
+    },
     {
       title: "Shopping List",
       description: "Manage your groceries",
@@ -41,10 +46,25 @@ const useHomeData = () => {
 
   return { quickActions };
 };
-
+const SHOPPING_LIST_ROUTE = "/(tabs)/shopping-list";
 export default function HomeScreen() {
   const { styles } = useStyles();
-  const { quickActions } = useHomeData();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { addItem } = useShoppingList();
+  const { quickActions } = useHomeData(() => setIsModalVisible(true));
+
+  const handleAddItem = useCallback(
+    (item: { name: string; quantity: string }) => {
+      addItem(item);
+      setIsModalVisible(false);
+      router.push(SHOPPING_LIST_ROUTE);
+    },
+    [addItem]
+  );
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalVisible(false);
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
@@ -53,6 +73,12 @@ export default function HomeScreen() {
         <QuickActionsGrid actions={quickActions} />
         <UserStatistics />
       </ScrollView>
+      <AddItemModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        onAddItem={handleAddItem}
+        onUpdateItem={() => {}}
+      />
     </ThemedView>
   );
 }

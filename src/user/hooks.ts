@@ -28,14 +28,14 @@ export function useUserService(): UserService | null {
 }
 
 const calculateSavingsFromItems = (
-  items: ShoppingItem[]
+  items: ShoppingItem[],
 ): Record<string, number> => {
   const savings: Record<string, number> = {};
 
   items.forEach((item) => {
     if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
       const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
-        current.discount_percent > best.discount_percent ? current : best
+        current.discount_percent > best.discount_percent ? current : best,
       );
       const itemSaving =
         bestDiscount.price_before_discount_local *
@@ -85,7 +85,7 @@ export function useUserStatistics(): {
       }
 
       const completedItemsSavings = calculateSavingsFromItems(
-        activeItems.filter((i) => i.completed)
+        activeItems.filter((i) => i.completed),
       );
       const historySavings = calculateSavingsFromItems(historyItems);
 
@@ -96,7 +96,7 @@ export function useUserStatistics(): {
           totalSavings[currency] =
             (completedItemsSavings[currency] || 0) +
             (historySavings[currency] || 0);
-        }
+        },
       );
 
       setStats({

@@ -5,44 +5,36 @@ export interface ParsedItem {
   confidence: number; // 0-1 scale indicating parsing confidence
 }
 
-/**
- * Simple shopping item parser that extracts name, quantity, and unit from basic word/number positioning.
- */
 export class ItemParser {
   private static readonly DEFAULT_UNIT = "pcs";
 
   private static readonly PARSING_PATTERNS = [
-    // Pattern 1: Number + Word + Product (e.g., "2 bottles wine", "500g flour")
+    // Pattern 1: Number + unit + product
     {
-      regex: /^(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/i,
+      regex: /^(\d+(?:[.,]\d+)?)\s+([^\d\s]+)?\s+(.+)$/u,
       groups: { quantity: 1, unit: 2, name: 3 },
       confidence: 0.9,
     },
-    // Pattern 2: Product + Number + Word (e.g., "wine 2 bottles", "flour 500g")
+    // Pattern 2: Product + Number + unit
     {
-      regex: /^(.+?)\s+(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?$/i,
+      regex: /^(.+?)\s+(\d+(?:[.,]\d+)?)(?:\s+([^\d\s]+))?$/u,
       groups: { name: 1, quantity: 2, unit: 3 },
       confidence: 0.8,
     },
-    // Pattern 3: Number with 'x' (e.g., "3x apples", "2×bottles")
+    // Pattern 3: Number x Name
     {
-      regex: /^(\d+(?:[.,]\d+)?)\s*[xX×]\s*(.+)$/i,
+      regex: /^(\d+(?:[.,]\d+)?)\s*[xX×]\s*(.+)$/u,
       groups: { quantity: 1, name: 2 },
       confidence: 0.85,
     },
-    // Pattern 4: Product only (e.g., "milk", "bread")
+    // Pattern 4: Name only
     {
-      regex: /^(.+)$/i,
+      regex: /^(.+)$/u,
       groups: { name: 1 },
       confidence: 0.3,
     },
   ];
 
-  /**
-   * Parses a shopping list item from natural language input.
-   * @param input - The input string to parse
-   * @returns ParsedItem with extracted information and confidence score
-   */
   static parse(input: string): ParsedItem {
     const trimmedInput = input.trim();
 
@@ -55,10 +47,8 @@ export class ItemParser {
       };
     }
 
-    // Try each pattern in order of confidence
     for (const pattern of this.PARSING_PATTERNS) {
       const match = trimmedInput.match(pattern.regex);
-
       if (match) {
         const extractedData = this.extractFromMatch(match, pattern.groups);
 
@@ -73,7 +63,6 @@ export class ItemParser {
       }
     }
 
-    // Fallback: treat entire input as product name
     return {
       name: this.cleanName(trimmedInput),
       quantity: 1,
@@ -82,12 +71,9 @@ export class ItemParser {
     };
   }
 
-  /**
-   * Extracts data from regex match based on group mapping.
-   */
   private static extractFromMatch(
     match: RegExpMatchArray,
-    groups: { name?: number; quantity?: number; unit?: number }
+    groups: { name?: number; quantity?: number; unit?: number },
   ) {
     const result: { name?: string; quantity?: number; unit?: string } = {};
 
@@ -106,45 +92,28 @@ export class ItemParser {
     return result;
   }
 
-  /**
-   * Parses quantity from string.
-   */
   private static parseQuantity(quantityStr: string): number {
     const numericValue = parseFloat(quantityStr.replace(",", "."));
     return !isNaN(numericValue) ? numericValue : 1;
   }
 
-  /**
-   * Cleans and normalizes the product name.
-   */
   private static cleanName(name: string): string {
-    return name.trim().replace(/\s+/g, " "); // Replace multiple spaces with single space
+    return name.trim().replace(/\s+/g, " ");
   }
 
-  /**
-   * Cleans and normalizes the unit.
-   */
   private static cleanUnit(unit?: string): string {
     if (!unit) return this.DEFAULT_UNIT;
     return unit.trim().toLowerCase();
   }
 
-  /**
-   * Formats the parsed item for display purposes.
-   */
   static formatForDisplay(parsed: ParsedItem): string {
     const { name, quantity, unit } = parsed;
-
     if (quantity === 1 && unit === this.DEFAULT_UNIT) {
       return name;
     }
-
     return `${name} (${quantity} ${unit})`;
   }
 
-  /**
-   * Creates a breakdown of how the input was parsed for preview display.
-   */
   static getParseBreakdown(input: string): {
     original: string;
     parsed: ParsedItem;
@@ -162,11 +131,9 @@ export class ItemParser {
       position: number;
     }[] = [];
 
-    // Find which pattern matched
     for (const pattern of this.PARSING_PATTERNS) {
       const match = trimmedInput.match(pattern.regex);
       if (match) {
-        // Extract parts based on the pattern
         if (pattern.groups.quantity && match[pattern.groups.quantity]) {
           const quantityMatch = match[pattern.groups.quantity];
           const position = trimmedInput.indexOf(quantityMatch);
@@ -193,9 +160,6 @@ export class ItemParser {
     };
   }
 
-  /**
-   * Creates a JSON representation suitable for Firestore storage.
-   */
   static toFirestoreDocument(parsed: ParsedItem, userId: string): any {
     return {
       name: parsed.name,
