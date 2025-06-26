@@ -22,6 +22,9 @@ export const Colors = {
     warning: "#F4A460",
     error: "#CD853F",
     disabled: "#CCCCCC",
+    quantity: "#4A90E2",
+    unit: "#F5A623",
+    name: "#7ED321",
   },
   dark: {
     text: "#F5E6D3",
@@ -38,5 +41,8 @@ export const Colors = {
     warning: "#B8860B",
     error: "#A0522D",
     disabled: "#555555",
+    quantity: "#5DADE2",
+    unit: "#F8C471",
+    name: "#A3E4D7",
   },
 };

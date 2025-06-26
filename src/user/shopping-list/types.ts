@@ -7,4 +7,12 @@ export interface ShoppingItem {
   completed: boolean;
   createdAt: Date;
   detectedDiscounts?: Discount[];
+  userId?: string;
+  parsedData?: {
+    originalName: string;
+    numericQuantity: number;
+    unit: string;
+    confidence: number;
+    parsedAt: Date;
+  };
 }

@@ -1,6 +1,8 @@
 import { Discount } from "@/src/discounts/types";
 import { useUserService } from "@/src/user";
 import { ShoppingItem } from "@/src/user/shopping-list/types";
+import { ItemParser } from "@/src/utils/item-parser";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -28,15 +30,21 @@ export function useShoppingList() {
   const addItem = useCallback(
     async (item: { name: string; quantity: string }) => {
       if (!userService) return;
-      const newItem: Omit<ShoppingItem, "id" | "detectedDiscounts"> = {
-        name: item.name,
-        quantity: item.quantity,
-        completed: false,
-        createdAt: new Date(),
-      };
-      await userService.shoppingList.addItem(newItem);
+
+      const combinedInput = `${item.name} ${item.quantity}`.trim();
+      const parsedItem = ItemParser.parse(combinedInput);
+
+      const firestoreDoc = ItemParser.toFirestoreDocument(
+        parsedItem,
+        userService.userId,
+      );
+
+      firestoreDoc.name = item.name;
+      firestoreDoc.quantity = item.quantity;
+
+      await userService.shoppingList.addParsedItem(firestoreDoc);
     },
-    [userService]
+    [userService],
   );
 
   const updateItem = useCallback(
@@ -44,7 +52,7 @@ export function useShoppingList() {
       if (!userService) return;
       await userService.shoppingList.updateItem(id, updatedData);
     },
-    [userService]
+    [userService],
   );
 
   const toggleItem = useCallback(
@@ -55,7 +63,7 @@ export function useShoppingList() {
         await updateItem(id, { completed: !itemToToggle.completed });
       }
     },
-    [userService, items, updateItem]
+    [userService, items, updateItem],
   );
 
   const deleteItem = useCallback(
@@ -63,7 +71,7 @@ export function useShoppingList() {
       if (!userService) return;
       await userService.shoppingList.deleteItem(id);
     },
-    [userService]
+    [userService],
   );
 
   const clearCompleted = useCallback(async () => {
@@ -97,11 +105,9 @@ export function useDiscounts(items: ShoppingItem[]) {
     try {
       const result = await userService.discounts.findDiscountsForItems(
         items,
-        5
+        5,
       );
       const { itemDiscounts, totalSavings, unmatchedItems, matches } = result;
-
-      // await userService.updateUserStatistics(matches.length, totalSavings);
 
       const updatedItems = items.map((item) => {
         const foundDiscounts = itemDiscounts.get(item.id);
@@ -117,7 +123,8 @@ export function useDiscounts(items: ShoppingItem[]) {
       const unmatchedCount = unmatchedItems.length;
       const totalSavingsText = Object.entries(totalSavings)
         .map(
-          ([currency, amount]) => `${(amount as number).toFixed(2)} ${currency}`
+          ([currency, amount]) =>
+            `${(amount as number).toFixed(2)} ${currency}`,
         )
         .join(", ");
 
@@ -135,19 +142,19 @@ export function useDiscounts(items: ShoppingItem[]) {
                   unmatchedCount > 1 ? "s" : ""
                 } had no matching discounts.`
               : ""
-          }`
+          }`,
         );
       } else {
         Alert.alert(
           "No Discounts Found",
-          "Sorry, we couldn't find any discounts for your current shopping list items."
+          "Sorry, we couldn't find any discounts for your current shopping list items.",
         );
       }
     } catch (error) {
       console.error("Error finding discounts:", error);
       Alert.alert(
         "Error",
-        "Could not fetch discounts. Please try again later."
+        "Could not fetch discounts. Please try again later.",
       );
     } finally {
       setIsFindingDiscounts(false);
@@ -162,6 +169,26 @@ export function useShoppingListModals() {
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
   const [discountModalVisible, setDiscountModalVisible] = useState(false);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
+
+  useEffect(() => {
+    const checkFirstTime = async () => {
+      try {
+        const hasSeenHelp = await AsyncStorage.getItem(
+          "hasSeenShoppingListHelp",
+        );
+        if (!hasSeenHelp) {
+          setTimeout(() => {
+            setHelpModalVisible(true);
+          }, 500);
+        }
+      } catch (error) {
+        console.error("Error checking first time status:", error);
+      }
+    };
+
+    checkFirstTime();
+  }, []);
 
   const openAddModal = useCallback(() => {
     setEditingItem(null);
@@ -188,6 +215,20 @@ export function useShoppingListModals() {
     setSelectedDiscounts([]);
   }, []);
 
+  const openHelpModal = useCallback(() => {
+    setHelpModalVisible(true);
+  }, []);
+
+  const closeHelpModal = useCallback(async () => {
+    setHelpModalVisible(false);
+    try {
+      // Mark that user has seen the help
+      await AsyncStorage.setItem("hasSeenShoppingListHelp", "true");
+    } catch (error) {
+      console.error("Error saving help seen status:", error);
+    }
+  }, []);
+
   return {
     itemModal: {
       visible: itemModalVisible,
@@ -201,6 +242,11 @@ export function useShoppingListModals() {
       discounts: selectedDiscounts,
       open: openDiscountModal,
       close: closeDiscountModal,
+    },
+    helpModal: {
+      visible: helpModalVisible,
+      open: openHelpModal,
+      close: closeHelpModal,
     },
   };
 }

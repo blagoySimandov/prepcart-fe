@@ -46,7 +46,6 @@ export class DiscountService {
       const apiItems: ShoppingListApiItem[] = items.map((item) => ({
         item: item.name,
         quantity: parseInt(item.quantity) || 1,
-        notes: item.category !== "Other" ? item.category : undefined,
       }));
 
       const requestBody: MatchShoppingListRequest = {
@@ -83,7 +82,7 @@ export class DiscountService {
       for (const match of data.matches) {
         if (match.matched_products && match.matched_products.length > 0) {
           const shoppingItem = itemNameToShoppingItem.get(
-            match.shopping_list_item.toLowerCase()
+            match.shopping_list_item.item.toLowerCase()
           );
           if (shoppingItem) {
             const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];

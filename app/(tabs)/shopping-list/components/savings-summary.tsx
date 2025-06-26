@@ -15,15 +15,14 @@ export function SavingsSummary({
 }: SavingsSummaryProps) {
   const { styles, colors } = useStyles();
 
-  const hasApiSavings =
-    apiTotalSavings && Object.keys(apiTotalSavings).length > 0;
+  const hasSavings = apiTotalSavings && Object.keys(apiTotalSavings).length > 0;
 
-  if (!hasApiSavings) {
+  if (!hasSavings) {
     return null;
   }
 
   const renderSavingsAmount = () => {
-    if (hasApiSavings) {
+    if (hasSavings) {
       return Object.entries(apiTotalSavings)
         .map(([currency, amount]) => `${amount.toFixed(2)} ${currency}`)
         .join(" + ");
@@ -32,7 +31,7 @@ export function SavingsSummary({
   };
 
   const itemsWithDiscounts = items.filter(
-    (item) => item.detectedDiscounts && item.detectedDiscounts.length > 0
+    (item) => item.detectedDiscounts && item.detectedDiscounts.length > 0,
   ).length;
 
   const totalItemsText =

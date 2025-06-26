@@ -38,7 +38,7 @@ export interface MatchShoppingListRequest {
  * Individual match result from the Cloud Function
  */
 export interface DiscountMatch {
-  shopping_list_item: string;
+  shopping_list_item: ShoppingListApiItem;
   matched_products: Discount[];
   confidence_score: number;
   match_reasoning: string;

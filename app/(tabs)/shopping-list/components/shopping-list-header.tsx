@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
@@ -7,18 +8,25 @@ interface ShoppingListHeaderProps {
   onFindDiscounts: () => void;
   isFindingDiscounts: boolean;
   onAddItem: () => void;
+  onShowHelp: () => void;
 }
 
 export function ShoppingListHeader({
   onFindDiscounts,
   isFindingDiscounts,
   onAddItem,
+  onShowHelp,
 }: ShoppingListHeaderProps) {
-  const { styles } = useStyles();
+  const { styles, colors } = useStyles();
 
   return (
     <View style={styles.header}>
-      <Text style={styles.headerTitle}>Shopping List</Text>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.headerTitle}>Shopping List</Text>
+        <TouchableOpacity style={styles.helpButton} onPress={onShowHelp}>
+          <Ionicons name="help-circle-outline" size={20} color={colors.icon} />
+        </TouchableOpacity>
+      </View>
       <View style={styles.headerActions}>
         <TouchableOpacity
           style={styles.addButton}

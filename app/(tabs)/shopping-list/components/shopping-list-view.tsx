@@ -1,13 +1,7 @@
 import { Discount } from "@/src/discounts/types";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
-import {
-  FlatList,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
 import { ShoppingItem as ShoppingItemComponent } from "./shopping-item";
 
@@ -40,6 +34,7 @@ export function ShoppingListView({
     return (
       <ShoppingItemComponent
         item={item}
+        key={item.id}
         onToggle={onToggleItem}
         onDelete={onDeleteItem}
         onShowDiscounts={onShowDiscounts}

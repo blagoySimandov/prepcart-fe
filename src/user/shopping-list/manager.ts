@@ -80,6 +80,25 @@ export class ShoppingListService {
   }
 
   /**
+   * Adds a parsed item with enhanced metadata to Firestore.
+   * @param {any} firestoreDocument The Firestore document from ItemParser.toFirestoreDocument().
+   */
+  async addParsedItem(firestoreDocument: any): Promise<void> {
+    try {
+      const newItemRef = doc(
+        collection(db, "users", this.userId, "shoppingList")
+      );
+      const newItem = { ...firestoreDocument, id: newItemRef.id };
+      await updateDoc(this.userDocRef, {
+        shoppingList: arrayUnion(newItem),
+      });
+    } catch (error) {
+      console.error("Error adding parsed item to shopping list:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Deletes a single item from the user's shopping list by its ID.
    * @param {string} itemId The ID of the item to delete.
    */

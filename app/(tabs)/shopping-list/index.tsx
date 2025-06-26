@@ -3,13 +3,14 @@ import React from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { AddItemModal } from "./components/add-item-modal";
 import { DiscountModal } from "./components/discount-modal";
+import { HelpModal } from "./components/help-modal";
 import { SavingsSummary } from "./components/savings-summary";
 import { ShoppingListHeader } from "./components/shopping-list-header";
 import { ShoppingListView } from "./components/shopping-list-view";
 import { useDiscounts, useShoppingList, useShoppingListModals } from "./hooks";
 import { useStyles } from "./styles";
 
-export function ShoppingListScreen() {
+export default function ShoppingListScreen() {
   const { styles } = useStyles();
   const {
     items,
@@ -22,7 +23,7 @@ export function ShoppingListScreen() {
   } = useShoppingList();
   const { findDiscounts, isFindingDiscounts, apiTotalSavings } =
     useDiscounts(items);
-  const { itemModal, discountModal } = useShoppingListModals();
+  const { itemModal, discountModal, helpModal } = useShoppingListModals();
 
   const handleAddItem = (item: { name: string; quantity: string }) => {
     addItem(item);
@@ -52,6 +53,7 @@ export function ShoppingListScreen() {
           onFindDiscounts={findDiscounts}
           isFindingDiscounts={isFindingDiscounts}
           onAddItem={itemModal.openAdd}
+          onShowHelp={helpModal.open}
         />
 
         <SavingsSummary items={items} apiTotalSavings={apiTotalSavings} />
@@ -78,6 +80,8 @@ export function ShoppingListScreen() {
           onClose={discountModal.close}
           discounts={discountModal.discounts}
         />
+
+        <HelpModal visible={helpModal.visible} onClose={helpModal.close} />
       </SafeAreaView>
     </ThemedView>
   );
