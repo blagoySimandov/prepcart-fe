@@ -36,6 +36,13 @@ const useHomeData = (onQuickAdd: () => void) => {
       color: "#8FBC8F",
     },
     {
+      title: "Catalog Search",
+      description: "Find products & discounts",
+      icon: "magnifyingglass.circle.fill",
+      route: "/(tabs)/catalog-search",
+      color: "#FF6B6B",
+    },
+    {
       title: "My Profile",
       description: "Settings & preferences",
       icon: "person.fill",

@@ -25,11 +25,12 @@ export interface ProductCandidate {
   priceBeforeDiscount: number;
   discountPercent: number;
   pageNumber: number;
+  sourceFileUri: string;
 }
 
 // Decoder function to map API response to frontend type
 export function decodeProductCandidate(
-  apiResponse: ProductCandidateApiResponse,
+  apiResponse: ProductCandidateApiResponse
 ): ProductCandidate {
   return {
     id: apiResponse.id,
@@ -40,12 +41,13 @@ export function decodeProductCandidate(
     priceBeforeDiscount: apiResponse["discount.price_before_discount_local"],
     discountPercent: apiResponse["discount.discount_percent"],
     pageNumber: apiResponse["discount.page_number"],
+    sourceFileUri: apiResponse.sourceFileUri || "",
   };
 }
 
 // Helper function to decode an array of API responses
 export function decodeProductCandidates(
-  apiResponses: ProductCandidateApiResponse[],
+  apiResponses: ProductCandidateApiResponse[]
 ): ProductCandidate[] {
   return apiResponses.map(decodeProductCandidate);
 }
