@@ -40,8 +40,7 @@ export default function TabLayout() {
           },
           default: {},
         }),
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -66,6 +65,15 @@ export default function TabLayout() {
           title: "Shopping",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="cart.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="catalog-search"
+        options={{
+          title: "Search",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="magnifyingglass" color={color} />
           ),
         }}
       />
