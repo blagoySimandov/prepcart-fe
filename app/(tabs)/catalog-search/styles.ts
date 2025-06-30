@@ -56,6 +56,27 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     opacity: 0.6,
   },
+  storeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    gap: 8,
+  },
+  storeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+  },
+  storeBadgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  pageInfo: {
+    fontSize: 12,
+    opacity: 0.7,
+  },
   discountBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,

@@ -17,6 +17,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { CatalogService } from "@/src/catalog-search";
+import { getStoreName } from "@/src/catalog-search/constants";
 import { ProductCandidate } from "@/src/catalog-search/types";
 import { convertGsUrlToHttps } from "@/src/catalog-search/utils";
 import { Discount } from "@/src/discounts/types";
@@ -204,13 +205,24 @@ export default function CatalogSearchScreen() {
                       style={[styles.itemName, { color: themeColors.text }]}>
                       {item.productName}
                     </Text>
-                    <Text
-                      style={[
-                        styles.storeInfo,
-                        { color: themeColors.tabIconDefault },
-                      ]}>
-                      {item.storeId} • Page {item.pageNumber}
-                    </Text>
+                    <View style={styles.storeRow}>
+                      <View
+                        style={[
+                          styles.storeBadge,
+                          { backgroundColor: themeColors.tabIconDefault },
+                        ]}>
+                        <Text style={styles.storeBadgeText}>
+                          {getStoreName(item.storeId)}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.pageInfo,
+                          { color: themeColors.tabIconDefault },
+                        ]}>
+                        Page {item.pageNumber}
+                      </Text>
+                    </View>
                   </View>
                   <View
                     style={[
