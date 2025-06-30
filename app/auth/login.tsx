@@ -1,11 +1,15 @@
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAuth } from "@/src/auth/hooks";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function LoginScreen() {
   const { signInWithGoogle, user, loading } = useAuth();
   const router = useRouter();
+  const tint = useThemeColor({}, "tint");
 
   useEffect(() => {
     if (!loading && user) {
@@ -26,14 +30,26 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to PrepCart</Text>
-      <Text style={styles.subtitle}>Sign in to continue</Text>
+    <ThemedView style={styles.container}>
+      <Image
+        source={require("../../assets/images/icon.png")}
+        style={styles.logo}
+      />
+      <ThemedText type="title" style={styles.title}>
+        Welcome to PrepCart
+      </ThemedText>
+      <ThemedText type="subtitle" style={styles.subtitle}>
+        Sign in to continue
+      </ThemedText>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Sign in with Google</Text>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: tint }]}
+        onPress={handleSignIn}>
+        <ThemedText type="defaultSemiBold" lightColor="#fff" darkColor="#000">
+          Sign in with Google
+        </ThemedText>
       </TouchableOpacity>
-    </View>
+    </ThemedView>
   );
 }
 
@@ -43,29 +59,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#fff",
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 10,
+    textAlign: "center",
   },
   subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 30,
+    marginBottom: 50,
+    textAlign: "center",
   },
   button: {
-    backgroundColor: "#4285F4",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 30,
+    paddingVertical: 15,
     borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    justifyContent: "center",
+    width: "80%",
   },
 });

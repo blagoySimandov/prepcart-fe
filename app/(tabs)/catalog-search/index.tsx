@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { InitialSearchPrompt } from "@/app/(tabs)/catalog-search/components/InitialSearchPrompt";
+import { NoResultsFound } from "@/app/(tabs)/catalog-search/components/NoResultsFound";
 import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -174,7 +176,14 @@ export default function CatalogSearchScreen() {
         onChangeText={handleInputChange}
       />
       {loading ? (
-        <ActivityIndicator size="large" color={themeColors.tint} />
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color={themeColors.tint} />
+        </View>
+      ) : query.length === 0 ? (
+        <InitialSearchPrompt />
+      ) : results.length === 0 && !loading ? (
+        <NoResultsFound query={query} />
       ) : (
         <FlatList
           data={results}
