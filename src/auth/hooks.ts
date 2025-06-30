@@ -1,11 +1,11 @@
 import { auth } from "@/firebaseConfig";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "@react-native-firebase/auth";
 import { useEffect, useState } from "react";
 import { UserService } from "../user/service";
 import { authenticate } from "./authenticate";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null); //TODO: User type
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

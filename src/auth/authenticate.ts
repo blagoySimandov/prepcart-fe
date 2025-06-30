@@ -1,6 +1,9 @@
 import { auth } from "@/firebaseConfig";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "@react-native-firebase/auth";
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,

@@ -1,23 +1,29 @@
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { firebase } from "@react-native-firebase/app";
+import "@react-native-firebase/auth";
+import "@react-native-firebase/firestore";
+import Constants from "expo-constants";
 
-const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-};
+// Firebase configuration
+// const firebaseConfig = {
+//   apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
+//   authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain,
+//   projectId: Constants.expoConfig?.extra?.firebaseProjectId,
+//   storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket,
+//   messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId,
+//   appId: Constants.expoConfig?.extra?.firebaseAppId,
+//   measurementId: Constants.expoConfig?.extra?.firebaseMeasurementId,
+// };
 
 // Initialize Firebase
 let app;
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  app = firebase.initializeApp();
 } else {
-  app = getApp();
+  app = firebase.app();
 }
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Export Firebase services
+export const auth = firebase.auth();
+export const db = firebase.firestore();
+export const analytics = firebase.analytics();
+export default firebase;

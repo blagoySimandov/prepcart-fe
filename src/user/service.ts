@@ -1,5 +1,11 @@
 import { db } from "@/firebaseConfig";
-import { doc, getDoc, increment, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  increment,
+  setDoc,
+  updateDoc,
+} from "@react-native-firebase/firestore";
 import { DiscountService } from "../discounts/service";
 import { ShoppingListService } from "./shopping-list/manager";
 
@@ -46,7 +52,7 @@ export class UserService {
    */
   async updateUserStatistics(
     discoveredDiscounts: number,
-    savings: Record<string, number>
+    savings: Record<string, number>,
   ): Promise<void> {
     const userDocRef = doc(db, "users", this.userId);
 

@@ -1,7 +1,7 @@
 import { UserStatistics } from "@/app/(tabs)/profile/types";
 import { db } from "@/firebaseConfig";
 import { useAuth } from "@/src/auth/hooks";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
 import { UserService } from "./service";
 import { ShoppingItem } from "./shopping-list/types";

@@ -6,22 +6,59 @@ export default {
     slug: "prepcartv2",
     version: "1.0.0",
     orientation: "portrait",
-    userInterfaceStyle: "light",
+    icon: "./assets/images/icon.png",
+    scheme: "prepcart",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
     splash: {
+      image: "./assets/images/splash-icon.png",
       resizeMode: "contain",
+      backgroundColor: "#ffffff",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.simandoff.prepcart",
-      googleServicesFile: "./google-services.json",
+      googleServicesFile: "./GoogleService-Info.plist",
     },
     android: {
       package: "com.simandoff.prepcart",
-      googleServicesFile: "./GoogleService-Info.plist",
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      googleServicesFile: "./google-services.json",
     },
     web: {
-      favicon: "./assets/favicon.png",
+      bundler: "metro",
+      output: "static",
+      favicon: "./assets/images/favicon.png",
+    },
+    plugins: [
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app",
+      "expo-router",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            useFrameworks: "static",
+          },
+        },
+      ],
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/splash-icon.png",
+          imageWidth: 200,
+          resizeMode: "contain",
+          backgroundColor: "#ffffff",
+        },
+      ],
+    ],
+    experiments: {
+      typedRoutes: true,
     },
     extra: {
       eas: {
