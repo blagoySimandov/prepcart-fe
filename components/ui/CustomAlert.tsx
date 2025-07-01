@@ -74,7 +74,6 @@ export function CustomAlert({
 
   const handleButtonPress = (button: AlertButton) => {
     hideAnimation(() => {
-      // Reset animations for next time
       opacityAnim.setValue(0);
       scaleAnim.setValue(0.8);
 

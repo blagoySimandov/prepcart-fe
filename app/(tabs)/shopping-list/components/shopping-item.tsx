@@ -66,7 +66,7 @@ export function ShoppingItem({
               {item.name}
             </Text>
             <Text style={[styles.itemDetails, { color: colors.icon }]}>
-              {item.quantity}
+              {item.quantity} {item.unit}
             </Text>
           </View>
         </View>

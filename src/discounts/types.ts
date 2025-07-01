@@ -20,7 +20,7 @@ export interface Discount {
 export interface ShoppingListApiItem {
   item: string;
   quantity: number;
-  notes?: string;
+  unit: string;
 }
 
 /**

@@ -41,7 +41,8 @@ export function useShoppingList() {
       );
 
       firestoreDoc.name = item.name;
-      firestoreDoc.quantity = item.quantity;
+      firestoreDoc.quantity = parsedItem.quantity;
+      firestoreDoc.unit = parsedItem.unit;
 
       await userService.shoppingList.addParsedItem(firestoreDoc);
       analytics.logEvent("add_shopping_list_item", { name: item.name });

@@ -23,16 +23,8 @@ export function useItemForm(itemToEdit?: ShoppingItem | null) {
   useEffect(() => {
     if (itemToEdit) {
       setDetailedName(itemToEdit.name);
-      const quantityMatch = itemToEdit.quantity.match(
-        /^(\d+(?:\.\d+)?)\s*(.*)$/
-      );
-      if (quantityMatch) {
-        setDetailedQuantity(quantityMatch[1]);
-        setDetailedUnit(quantityMatch[2] || "pcs");
-      } else {
-        setDetailedQuantity("1");
-        setDetailedUnit("pcs");
-      }
+      setDetailedQuantity(itemToEdit.quantity.toString());
+      setDetailedUnit(itemToEdit.unit);
       setIsExpanded(true);
       setSimpleText("");
     } else {

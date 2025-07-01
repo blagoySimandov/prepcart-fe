@@ -14,7 +14,7 @@ const DEFAULT_LANGUAGE = "BG";
  */
 export class DiscountService {
   private static readonly API_ENDPOINT =
-    "https://europe-west1-prepcart-prod.cloudfunctions.net/matchShoppingList";
+    "https://matchshoppinglist-bwddpfl55a-ew.a.run.app";
 
   /**
    * Finds discounts for a list of shopping items using the Cloud Function API.
@@ -45,7 +45,8 @@ export class DiscountService {
     try {
       const apiItems: ShoppingListApiItem[] = items.map((item) => ({
         item: item.name,
-        quantity: parseInt(item.quantity) || 1,
+        quantity: item.quantity || 1,
+        unit: item.unit,
       }));
 
       const requestBody: MatchShoppingListRequest = {

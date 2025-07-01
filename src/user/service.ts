@@ -52,7 +52,7 @@ export class UserService {
    */
   async updateUserStatistics(
     discoveredDiscounts: number,
-    savings: Record<string, number>,
+    savings: Record<string, number>
   ): Promise<void> {
     const userDocRef = doc(db, "users", this.userId);
 

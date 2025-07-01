@@ -15,19 +15,25 @@ export class ItemParser {
       groups: { quantity: 1, unit: 2, name: 3 },
       confidence: 0.9,
     },
-    // Pattern 2: Product + Number + unit
+    // Pattern 2: Product + NumberUnit (e.g., "Cheese 500g")
+    {
+      regex: /^(.+?)\s+(\d+(?:[.,]\d+)?)([a-zA-Zа-яА-Я]+)$/u,
+      groups: { name: 1, quantity: 2, unit: 3 },
+      confidence: 0.85,
+    },
+    // Pattern 3: Product + Number + unit
     {
       regex: /^(.+?)\s+(\d+(?:[.,]\d+)?)(?:\s+([^\d\s]+))?$/u,
       groups: { name: 1, quantity: 2, unit: 3 },
       confidence: 0.8,
     },
-    // Pattern 3: Number x Name
+    // Pattern 4: Number x Name
     {
       regex: /^(\d+(?:[.,]\d+)?)\s*[xX×]\s*(.+)$/u,
       groups: { quantity: 1, name: 2 },
       confidence: 0.85,
     },
-    // Pattern 4: Name only
+    // Pattern 5: Name only
     {
       regex: /^(.+)$/u,
       groups: { name: 1 },
@@ -73,7 +79,7 @@ export class ItemParser {
 
   private static extractFromMatch(
     match: RegExpMatchArray,
-    groups: { name?: number; quantity?: number; unit?: number },
+    groups: { name?: number; quantity?: number; unit?: number }
   ) {
     const result: { name?: string; quantity?: number; unit?: string } = {};
 
@@ -163,7 +169,8 @@ export class ItemParser {
   static toFirestoreDocument(parsed: ParsedItem, userId: string): any {
     return {
       name: parsed.name,
-      quantity: `${parsed.quantity} ${parsed.unit}`,
+      quantity: parsed.quantity,
+      unit: parsed.unit,
       completed: false,
       createdAt: new Date(),
       userId: userId,
