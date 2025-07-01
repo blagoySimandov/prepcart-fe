@@ -35,8 +35,8 @@ export class ShoppingListService {
   async loadList(): Promise<ShoppingItem[]> {
     try {
       const docSnap = await getDoc(this.userDocRef);
-      if (docSnap.exists() && docSnap.data().shoppingList) {
-        return docSnap.data().shoppingList as ShoppingItem[];
+      if (docSnap.exists() && docSnap.data()?.shoppingList) {
+        return docSnap.data()?.shoppingList as ShoppingItem[];
       } else {
         await setDoc(this.userDocRef, { shoppingList: [] }, { merge: true });
         return [];
@@ -149,8 +149,8 @@ export class ShoppingListService {
    */
   onListUpdate(callback: (items: ShoppingItem[]) => void): () => void {
     const unsubscribe = onSnapshot(this.userDocRef, (docSnap) => {
-      if (docSnap.exists() && docSnap.data().shoppingList) {
-        callback(docSnap.data().shoppingList as ShoppingItem[]);
+      if (docSnap.exists() && docSnap.data()?.shoppingList) {
+        callback(docSnap.data()?.shoppingList as ShoppingItem[]);
       } else {
         callback([]);
       }

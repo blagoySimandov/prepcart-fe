@@ -12,7 +12,7 @@ export function PdfViewer({
   const { styles, themeColors } = usePdfViewerStyles();
 
   const pdfUrl = `${PDF_JS_VIEWER_BASE_URL}?file=${encodeURIComponent(
-    source
+    source,
   )}#page=${initialPage}`;
 
   return (

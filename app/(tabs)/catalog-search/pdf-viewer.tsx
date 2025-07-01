@@ -17,7 +17,7 @@ export default function PdfViewerScreen() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
 
-  const handleError = (error: any) => {
+  const handleError = () => {
     Alert.alert("PDF Error", "Failed to load PDF. Please try again later.", [
       { text: "OK", onPress: () => router.back() },
     ]);
@@ -26,7 +26,8 @@ export default function PdfViewerScreen() {
   if (!source) {
     return (
       <SafeAreaView
-        style={[styles.container, { backgroundColor: themeColors.background }]}>
+        style={[styles.container, { backgroundColor: themeColors.background }]}
+      >
         <Text style={[styles.errorText, { color: themeColors.text }]}>
           No PDF source provided
         </Text>
@@ -36,11 +37,13 @@ export default function PdfViewerScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.background }]}>
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+    >
       <View style={[styles.header, { borderBottomColor: themeColors.tint }]}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}>
+          onPress={() => router.back()}
+        >
           <IconSymbol size={24} name="chevron.left" color={themeColors.tint} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
@@ -51,7 +54,8 @@ export default function PdfViewerScreen() {
             style={[
               styles.headerSubtitle,
               { color: themeColors.tabIconDefault },
-            ]}>
+            ]}
+          >
             Page {page || 1}
           </Text>
         </View>

@@ -9,6 +9,8 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/src/auth/hooks";
 
+const SIZE = 28;
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
@@ -16,7 +18,7 @@ export default function TabLayout() {
 
   useEffect(() => {
     if (loading) {
-      return; // Wait until the auth state is loaded
+      return;
     }
     if (!user) {
       router.replace("/auth/login");
@@ -24,7 +26,7 @@ export default function TabLayout() {
   }, [user, loading, router]);
 
   if (loading || !user) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
@@ -40,13 +42,14 @@ export default function TabLayout() {
           },
           default: {},
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={SIZE} name="house.fill" color={color} />
           ),
         }}
       />
@@ -64,7 +67,7 @@ export default function TabLayout() {
         options={{
           title: "Shopping",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="cart.fill" color={color} />
+            <IconSymbol size={SIZE} name="cart.fill" color={color} />
           ),
         }}
       />
@@ -73,7 +76,7 @@ export default function TabLayout() {
         options={{
           title: "Search",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="magnifyingglass" color={color} />
+            <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
           ),
         }}
       />
@@ -82,7 +85,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="person.fill" color={color} />
+            <IconSymbol size={SIZE} name="person.fill" color={color} />
           ),
         }}
       />

@@ -1,8 +1,8 @@
 import { ShoppingItem } from "@/src/user/shopping-list/types";
 import React, { useRef } from "react";
 import { Modal, View } from "react-native";
-import { useItemActions } from "../hooks/useItemActions";
-import { useItemForm } from "../hooks/useItemForm";
+import { useItemActions } from "../hooks/use-item-actions";
+import { useItemForm } from "../hooks/use-item-form";
 import { useStyles } from "../styles";
 import { DetailedInputView, DetailedInputViewRef } from "./detailed-input-view";
 import { ModalActions } from "./modal-actions";
@@ -68,7 +68,8 @@ export function AddItemModal({
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}>
+      onRequestClose={onClose}
+    >
       <View style={styles.modal}>
         <View style={styles.addItemModalContent}>
           <ModalHeader

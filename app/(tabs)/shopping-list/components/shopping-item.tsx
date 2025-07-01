@@ -1,8 +1,9 @@
+import { useAlert } from "@/components/providers/AlertProvider";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Discount } from "@/src/discounts/types";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
 
 interface ShoppingItemProps {
@@ -25,10 +26,11 @@ export function ShoppingItem({
   bestDiscount,
 }: ShoppingItemProps) {
   const { styles, colors } = useStyles();
+  const { showAlert } = useAlert();
   const hasDiscounts = discounts.length > 0;
 
   const handleDeleteItem = (id: string, name: string) => {
-    Alert.alert("Delete Item", `Are you sure you want to delete "${name}"?`, [
+    showAlert("Delete Item", `Are you sure you want to delete "${name}"?`, [
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: () => onDelete(id) },
     ]);

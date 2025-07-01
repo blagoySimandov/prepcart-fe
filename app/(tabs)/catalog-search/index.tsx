@@ -1,9 +1,10 @@
+import { useAlert } from "@/components/providers/AlertProvider";
+import { analytics } from "@/firebaseConfig";
 import { useRouter } from "expo-router";
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Text,
   TextInput,
@@ -12,8 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { InitialSearchPrompt } from "@/app/(tabs)/catalog-search/components/InitialSearchPrompt";
-import { NoResultsFound } from "@/app/(tabs)/catalog-search/components/NoResultsFound";
+import { InitialSearchPrompt } from "@/app/(tabs)/catalog-search/components/initial-search-prompt";
 import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -25,6 +25,7 @@ import { convertGsUrlToHttps } from "@/src/catalog-search/utils";
 import { Discount } from "@/src/discounts/types";
 import { useUserService } from "@/src/user";
 import { ItemParser } from "@/src/utils/item-parser";
+import { NoResultsFound } from "./components/no-results-found";
 import { styles } from "./styles";
 
 export default function CatalogSearchScreen() {
@@ -35,16 +36,23 @@ export default function CatalogSearchScreen() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
   const router = useRouter();
-  const { addItem } = useShoppingList();
+  const { showAlert } = useAlert();
+  useShoppingList();
   const userService = useUserService();
 
   const search = useCallback(async (searchQuery: string) => {
     if (searchQuery.length > 2) {
       setLoading(true);
       try {
+        analytics.logSearch({ search_term: searchQuery });
         const searchResults = await CatalogService.search(searchQuery);
         console.log("Search results:", searchResults);
         setResults(searchResults);
+        if (searchResults.length === 0) {
+          analytics.logEvent("search_no_results", {
+            search_term: searchQuery,
+          });
+        }
       } catch (error) {
         console.error(error);
         setResults([]);
@@ -71,6 +79,11 @@ export default function CatalogSearchScreen() {
 
   const handleViewPdf = (item: ProductCandidate) => {
     if (item.sourceFileUri) {
+      analytics.logEvent("view_catalog_pdf", {
+        product_name: item.productName,
+        source: item.sourceFileUri,
+        page: item.pageNumber,
+      });
       const httpsUrl = convertGsUrlToHttps(item.sourceFileUri);
       router.push({
         pathname: "/catalog-search/pdf-viewer",
@@ -85,13 +98,25 @@ export default function CatalogSearchScreen() {
 
   const handleAddToList = async (item: ProductCandidate) => {
     if (!userService) {
-      Alert.alert("Error", "Please make sure you're logged in.");
+      showAlert("Error", "Please make sure you're logged in.");
       return;
     }
 
     setAddingItems((prev) => new Set(prev).add(item.id));
 
     try {
+      analytics.logEvent("add_from_catalog", {
+        product_name: item.productName,
+        store: getStoreName(item.storeId),
+        discounted_price: calculateDiscountedPrice(
+          item.priceBeforeDiscount,
+          item.discountPercent
+        ),
+        savings: calculateSavings(
+          item.priceBeforeDiscount,
+          item.discountPercent
+        ),
+      });
       // Create a discount object matching the schema structure
       const discount: Discount & {
         confidence_score: number;
@@ -127,17 +152,15 @@ export default function CatalogSearchScreen() {
       // Add the item with discount information directly
       await userService.shoppingList.addParsedItem(firestoreDoc);
 
-      Alert.alert(
+      showAlert(
         "Added to Shopping List! 🛒",
-        `${item.productName} has been added to your shopping list with a ${item.discountPercent}% discount already detected!`,
-        [{ text: "OK" }]
+        `${item.productName} has been added to your shopping list with a ${item.discountPercent}% discount already detected!`
       );
     } catch (error) {
       console.error("Error adding item to list:", error);
-      Alert.alert(
+      showAlert(
         "Error",
-        "Could not add item to shopping list. Please try again.",
-        [{ text: "OK" }]
+        "Could not add item to shopping list. Please try again."
       );
     } finally {
       setAddingItems((prev) => {
