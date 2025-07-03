@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 export function useShoppingList() {
   const userService = useUserService();
   const [items, setItems] = useState<ShoppingItem[]>([]);
+  console.log(items?.[0]?.detectedDiscounts);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export function useShoppingList() {
 
       const firestoreDoc = ItemParser.toFirestoreDocument(
         parsedItem,
-        userService.userId
+        userService.userId,
       );
 
       firestoreDoc.name = item.name;
@@ -47,7 +48,7 @@ export function useShoppingList() {
       await userService.shoppingList.addParsedItem(firestoreDoc);
       analytics.logEvent("add_shopping_list_item", { name: item.name });
     },
-    [userService]
+    [userService],
   );
 
   const updateItem = useCallback(
@@ -56,7 +57,7 @@ export function useShoppingList() {
       await userService.shoppingList.updateItem(id, updatedData);
       analytics.logEvent("update_shopping_list_item");
     },
-    [userService]
+    [userService],
   );
 
   const toggleItem = useCallback(
@@ -70,7 +71,7 @@ export function useShoppingList() {
         });
       }
     },
-    [userService, items, updateItem]
+    [userService, items, updateItem],
   );
 
   const deleteItem = useCallback(
@@ -79,7 +80,7 @@ export function useShoppingList() {
       await userService.shoppingList.deleteItem(id);
       analytics.logEvent("delete_shopping_list_item");
     },
-    [userService]
+    [userService],
   );
 
   const clearCompleted = useCallback(async () => {
@@ -120,7 +121,7 @@ export function useDiscounts(items: ShoppingItem[]) {
     try {
       const result = await userService.discounts.findDiscountsForItems(
         items,
-        5
+        5,
       );
       const { itemDiscounts, totalSavings, unmatchedItems, matches } = result;
 
@@ -144,7 +145,8 @@ export function useDiscounts(items: ShoppingItem[]) {
       const unmatchedCount = unmatchedItems.length;
       const totalSavingsText = Object.entries(totalSavings)
         .map(
-          ([currency, amount]) => `${(amount as number).toFixed(2)} ${currency}`
+          ([currency, amount]) =>
+            `${(amount as number).toFixed(2)} ${currency}`,
         )
         .join(", ");
 
@@ -161,12 +163,12 @@ export function useDiscounts(items: ShoppingItem[]) {
                   unmatchedCount > 1 ? "s" : ""
                 } had no matching discounts.`
               : ""
-          }`
+          }`,
         );
       } else {
         showAlert(
           "No Discounts Found",
-          "Sorry, we couldn't find any discounts for your current shopping list items."
+          "Sorry, we couldn't find any discounts for your current shopping list items.",
         );
         analytics.logEvent("find_discounts_no_results");
       }
@@ -195,7 +197,7 @@ export function useShoppingListModals() {
     const checkFirstTime = async () => {
       try {
         const hasSeenHelp = await AsyncStorage.getItem(
-          "hasSeenShoppingListHelp"
+          "hasSeenShoppingListHelp",
         );
         if (!hasSeenHelp) {
           setTimeout(() => {

@@ -1,4 +1,5 @@
-import remoteConfig from "@react-native-firebase/remote-config";
+import { remoteConfig } from "@/firebaseConfig";
+import { CONFIG, DEFAULTS } from "./constants";
 
 class RemoteConfigService {
   private static instance: RemoteConfigService;
@@ -11,15 +12,12 @@ class RemoteConfigService {
   }
 
   async initialize() {
-    await remoteConfig().setDefaults({
-      enable_search_highlighting: false,
-    });
-
-    await remoteConfig().fetchAndActivate();
+    await remoteConfig.setDefaults(DEFAULTS);
+    await remoteConfig.fetchAndActivate();
   }
 
   isHighlightingEnabled(): boolean {
-    return remoteConfig().getValue("enable_search_highlighting").asBoolean();
+    return remoteConfig.getValue(CONFIG.EnableSearchHighlighting).asBoolean();
   }
 }
 

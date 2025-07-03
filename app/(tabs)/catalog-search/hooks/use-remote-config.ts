@@ -1,4 +1,4 @@
-import { remoteConfigService } from "@/src/catalog-search/remote-config";
+import { remoteConfigService } from "@/src/remote-config";
 import { useEffect, useState } from "react";
 
 export function useRemoteConfig() {

@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import React from "react";
-import { FlatList, Text, TextInput } from "react-native";
+import { FlatList, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAlgoliaSearch } from "../hooks/use-algolia-search";
 import { useProductActions } from "../hooks/use-product-actions";
@@ -21,9 +21,19 @@ export function CatalogSearchContent() {
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Text style={[styles.title, { color: themeColors.text }]}>
-        Catalog Search
-      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+        }}>
+        <Text style={[styles.title, { color: themeColors.text, flex: 1 }]}>
+          Catalog Search
+        </Text>
+        {query.length > 0 && results.length > 0 && <SearchStats />}
+      </View>
       <TextInput
         style={[
           styles.input,
@@ -39,25 +49,22 @@ export function CatalogSearchContent() {
       ) : results.length === 0 ? (
         <NoResultsFound query={query} />
       ) : (
-        <>
-          <SearchStats />
-          <FlatList
-            data={results}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <ProductCard
-                item={item}
-                isAdding={addingItems.has(item.id)}
-                onAddToList={handleAddToList}
-                onViewPdf={handleViewPdf}
-              />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContainer}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.1}
-          />
-        </>
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ProductCard
+              item={item}
+              isAdding={addingItems.has(item.id)}
+              onAddToList={handleAddToList}
+              onViewPdf={handleViewPdf}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.1}
+        />
       )}
     </SafeAreaView>
   );
