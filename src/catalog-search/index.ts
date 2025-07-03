@@ -14,12 +14,12 @@ export class CatalogService {
    */
   static async search(
     query: string,
-    page: number = 1
+    page: number = 1,
   ): Promise<ProductCandidate[]> {
     try {
       const params = new URLSearchParams({
         query,
-        page: (page - 1).toString(), // Algolia uses 0-based pages
+        page: (page - 1).toString(),
         hitsPerPage: "20",
         highlightPreTag: "<mark>",
         highlightPostTag: "</mark>",
@@ -39,7 +39,6 @@ export class CatalogService {
         const apiResponse = {
           results: results.hits as ProductCandidateApiResponse[],
         };
-        console.log("Algolia API response:", apiResponse);
         return decodeProductCandidates(apiResponse.results);
       }
 

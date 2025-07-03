@@ -8,6 +8,8 @@ export interface ProductCandidateApiResponse {
   "discount.price_before_discount_local": number;
   "discount.discount_percent": number;
   "discount.page_number": number;
+  "discount.validFrom": number;
+  "discount.validUntil": number;
   _highlightResult?: any;
   _snippetResult?: any;
   archivedAt?: number;
@@ -26,6 +28,8 @@ export interface ProductCandidate {
   priceBeforeDiscount: number;
   discountPercent: number;
   pageNumber: number;
+  validFrom: number;
+  validUntil: number;
   sourceFileUri: string;
   _highlightResult?: any;
   _snippetResult?: any;
@@ -50,6 +54,8 @@ export function decodeProductCandidate(
     priceBeforeDiscount: apiResponse["discount.price_before_discount_local"],
     discountPercent: apiResponse["discount.discount_percent"],
     pageNumber: apiResponse["discount.page_number"],
+    validFrom: apiResponse["discount.validFrom"],
+    validUntil: apiResponse["discount.validUntil"],
     sourceFileUri: apiResponse.sourceFileUri || "",
     _highlightResult: apiResponse._highlightResult,
     _snippetResult: apiResponse._snippetResult,

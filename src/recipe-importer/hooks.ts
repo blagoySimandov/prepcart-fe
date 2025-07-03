@@ -7,7 +7,6 @@ export const useRecipeImporter = () => {
 
   const importFromUrl = async (url: string) => {
     setLoading(true);
-    console.log("(Mock) Importing from URL:", url);
     await new Promise((res) => setTimeout(res, 1500));
     setRecipes((prev) => [
       ...prev,
