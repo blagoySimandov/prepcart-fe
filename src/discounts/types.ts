@@ -12,6 +12,7 @@ export interface Discount {
   currency_local: string;
   page_number: number;
   similarity_score?: number;
+  requires_loyalty_card?: boolean;
 }
 
 /**

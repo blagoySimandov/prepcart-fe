@@ -177,6 +177,33 @@ export function useStyles() {
       fontSize: 14,
       fontWeight: "800",
     },
+    discountContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+    },
+    loyaltyCardIndicator: {
+      backgroundColor: colors.background,
+      borderRadius: 4,
+      padding: 2,
+      borderWidth: 1,
+      borderColor: colors.accent,
+    },
+    loyaltyCardNotice: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.warning + "20",
+      borderRadius: 6,
+      padding: 8,
+      marginBottom: 12,
+      gap: 6,
+    },
+    loyaltyCardNoticeText: {
+      fontSize: 12,
+      color: colors.warning,
+      fontWeight: "500",
+      flex: 1,
+    },
     savingsSummary: {
       backgroundColor: colors.card,
       marginHorizontal: 16,

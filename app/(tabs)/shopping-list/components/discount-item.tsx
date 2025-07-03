@@ -1,3 +1,4 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { getStoreName } from "@/src/discounts/constants";
 import { Discount } from "@/src/discounts/types";
 import React from "react";
@@ -9,7 +10,7 @@ interface DiscountItemProps {
 }
 
 export function DiscountItem({ discount }: DiscountItemProps) {
-  const { styles } = useStyles();
+  const { styles, colors } = useStyles();
 
   const discountedPrice =
     discount.price_before_discount_local *
@@ -21,16 +22,32 @@ export function DiscountItem({ discount }: DiscountItemProps) {
     <View style={styles.discountItemCard}>
       <View style={styles.discountItemHeader}>
         <Text style={styles.discountStoreName}>{storeName}</Text>
-        <View style={styles.discountBadge}>
-          <Text style={styles.discountBadgeText}>
-            {discount.discount_percent}% OFF
-          </Text>
+        <View style={styles.discountContainer}>
+          <View style={styles.discountBadge}>
+            <Text style={styles.discountBadgeText}>
+              {discount.discount_percent}% OFF
+            </Text>
+          </View>
+          {discount.requires_loyalty_card && (
+            <View style={styles.loyaltyCardIndicator}>
+              <IconSymbol name="creditcard" size={12} color={colors.accent} />
+            </View>
+          )}
         </View>
       </View>
 
       <Text style={styles.discountProductName} numberOfLines={3}>
         {discount.product_name}
       </Text>
+
+      {discount.requires_loyalty_card && (
+        <View style={styles.loyaltyCardNotice}>
+          <IconSymbol name="info.circle" size={14} color={colors.warning} />
+          <Text style={styles.loyaltyCardNoticeText}>
+            {storeName} card required for this discount
+          </Text>
+        </View>
+      )}
 
       <View style={styles.priceContainer}>
         <View style={styles.priceItem}>
