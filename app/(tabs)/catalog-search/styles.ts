@@ -147,6 +147,24 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 6,
   },
+  loyaltyCardIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 12,
+    backgroundColor: "rgba(0,0,0,0.02)",
+  },
+  loyaltyCardIcon: {
+    marginRight: 8,
+  },
+  loyaltyCardText: {
+    fontSize: 13,
+    fontWeight: "500",
+    flex: 1,
+  },
 
   // Legacy styles (keeping for compatibility)
   itemContainer: {

@@ -10,6 +10,7 @@ export interface ProductCandidateApiResponse {
   "discount.page_number": number;
   "discount.validFrom": number;
   "discount.validUntil": number;
+  "discount.requires_loyalty_card": boolean;
   _highlightResult?: any;
   _snippetResult?: any;
   archivedAt?: number;
@@ -30,6 +31,7 @@ export interface ProductCandidate {
   pageNumber: number;
   validFrom: number;
   validUntil: number;
+  requiresLoyaltyCard: boolean;
   sourceFileUri: string;
   _highlightResult?: any;
   _snippetResult?: any;
@@ -56,6 +58,7 @@ export function decodeProductCandidate(
     pageNumber: apiResponse["discount.page_number"],
     validFrom: apiResponse["discount.validFrom"],
     validUntil: apiResponse["discount.validUntil"],
+    requiresLoyaltyCard: apiResponse["discount.requires_loyalty_card"],
     sourceFileUri: apiResponse.sourceFileUri || "",
     _highlightResult: apiResponse._highlightResult,
     _snippetResult: apiResponse._snippetResult,

@@ -4,6 +4,7 @@ import { ProductCandidate } from "@/src/catalog-search/types";
 import React from "react";
 import { View } from "react-native";
 import { styles } from "../styles";
+import { LoyaltyCardIndicator } from "./loyalty-card-indicator";
 import { ProductActions } from "./product-actions";
 import { ProductHeader } from "./product-header";
 import { ProductPrice } from "./product-price";
@@ -39,6 +40,12 @@ export function ProductCard({
         discountPercent={item.discountPercent}
         themeColors={themeColors}
       />
+      {item.requiresLoyaltyCard && (
+        <LoyaltyCardIndicator
+          storeId={item.storeId}
+          themeColors={themeColors}
+        />
+      )}
       <ProductActions
         item={item}
         isAdding={isAdding}
