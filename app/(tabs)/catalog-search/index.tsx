@@ -15,6 +15,7 @@ export default function CatalogSearchScreen() {
     selectedStores,
     modalVisible,
     allStores,
+    isLoading,
     toggleStore,
     selectAllStores,
     clearAllStores,
@@ -24,9 +25,15 @@ export default function CatalogSearchScreen() {
 
   const numericFilters = [`validUntil >= ${now}`, `validFrom <= ${now}`];
 
-  const storeFilter = `(${selectedStores
-    .map((storeId) => `storeId:${storeId}`)
-    .join(" OR ")})`;
+  // Only apply store filters when stores are loaded and some are selected
+  const storeFilter =
+    !isLoading &&
+    selectedStores.length > 0 &&
+    selectedStores.length < allStores.length
+      ? `(${selectedStores
+          .map((storeId) => `storeId:${storeId}`)
+          .join(" OR ")})`
+      : undefined;
 
   return (
     <>

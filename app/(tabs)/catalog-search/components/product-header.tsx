@@ -1,5 +1,5 @@
-import { getStoreName } from "@/src/catalog-search/constants";
 import { ProductCandidate } from "@/src/catalog-search/types";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import React from "react";
 import { Text, View } from "react-native";
 import { useRemoteConfig } from "../hooks/use-remote-config";
@@ -13,6 +13,7 @@ interface ProductHeaderProps {
 
 export function ProductHeader({ item, themeColors }: ProductHeaderProps) {
   const { isHighlightingEnabled } = useRemoteConfig();
+  const { getStoreName } = useStoreNames();
 
   return (
     <View style={styles.itemHeader}>

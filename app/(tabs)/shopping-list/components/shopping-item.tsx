@@ -1,7 +1,7 @@
 import { useAlert } from "@/components/providers/AlertProvider";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Discount } from "@/src/discounts/types";
-import { getStoreName } from "@/src/shared/store-constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -28,6 +28,7 @@ export function ShoppingItem({
 }: ShoppingItemProps) {
   const { styles, colors } = useStyles();
   const { showAlert } = useAlert();
+  const { getStoreName } = useStoreNames();
   const hasDiscounts = discounts.length > 0;
 
   const handleDeleteItem = (id: string, name: string) => {

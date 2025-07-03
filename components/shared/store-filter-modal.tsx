@@ -1,9 +1,16 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { getStoreName } from "@/src/shared/store-constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import React from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface StoreFilterModalProps {
   visible: boolean;
@@ -26,6 +33,7 @@ export function StoreFilterModal({
 }: StoreFilterModalProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
+  const { getStoreName, isLoading: isLoadingStoreNames } = useStoreNames();
 
   return (
     <Modal
@@ -92,7 +100,8 @@ export function StoreFilterModal({
                 borderRadius: 8,
                 alignItems: "center",
               }}
-              onPress={onSelectAll}>
+              onPress={onSelectAll}
+              disabled={isLoadingStoreNames}>
               <Text
                 style={{
                   color: "#FFFFFF",
@@ -110,7 +119,8 @@ export function StoreFilterModal({
                 borderRadius: 8,
                 alignItems: "center",
               }}
-              onPress={onClearAll}>
+              onPress={onClearAll}
+              disabled={isLoadingStoreNames}>
               <Text
                 style={{
                   color: colors.text,
@@ -128,48 +138,73 @@ export function StoreFilterModal({
               maxHeight: 300,
               paddingHorizontal: 20,
             }}>
-            {allStores.map((storeId) => {
-              const isSelected = selectedStores.includes(storeId);
-              return (
-                <TouchableOpacity
-                  key={storeId}
+            {isLoadingStoreNames ? (
+              <View
+                style={{
+                  padding: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                <ActivityIndicator size="large" color={colors.tint} />
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingVertical: 12,
-                    borderBottomWidth: 1,
-                    borderBottomColor: colors.tabIconDefault + "10",
-                  }}
-                  onPress={() => onStoreToggle(storeId)}>
-                  <View
+                    marginTop: 12,
+                    fontSize: 14,
+                    color: colors.tabIconDefault,
+                  }}>
+                  Loading stores...
+                </Text>
+              </View>
+            ) : (
+              allStores.map((storeId) => {
+                const isSelected = selectedStores.includes(storeId);
+                return (
+                  <TouchableOpacity
+                    key={storeId}
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 4,
-                      borderWidth: 2,
-                      borderColor: isSelected
-                        ? colors.tint
-                        : colors.tabIconDefault,
-                      backgroundColor: isSelected ? colors.tint : "transparent",
-                      marginRight: 12,
+                      flexDirection: "row",
                       alignItems: "center",
-                      justifyContent: "center",
-                    }}>
-                    {isSelected && (
-                      <IconSymbol name="checkmark" size={12} color="#FFFFFF" />
-                    )}
-                  </View>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: colors.text,
-                      flex: 1,
-                    }}>
-                    {getStoreName(storeId)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                      paddingVertical: 12,
+                      borderBottomWidth: 1,
+                      borderBottomColor: colors.tabIconDefault + "10",
+                    }}
+                    onPress={() => onStoreToggle(storeId)}>
+                    <View
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 4,
+                        borderWidth: 2,
+                        borderColor: isSelected
+                          ? colors.tint
+                          : colors.tabIconDefault,
+                        backgroundColor: isSelected
+                          ? colors.tint
+                          : "transparent",
+                        marginRight: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                      {isSelected && (
+                        <IconSymbol
+                          name="checkmark"
+                          size={12}
+                          color="#FFFFFF"
+                        />
+                      )}
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: colors.text,
+                        flex: 1,
+                      }}>
+                      {getStoreName(storeId)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })
+            )}
           </ScrollView>
 
           {/* Footer */}

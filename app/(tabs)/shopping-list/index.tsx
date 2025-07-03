@@ -28,6 +28,7 @@ export default function ShoppingListScreen() {
     selectedStores,
     modalVisible,
     allStores,
+    isLoading: isLoadingStores,
     toggleStore,
     selectAllStores,
     clearAllStores,
@@ -35,9 +36,10 @@ export default function ShoppingListScreen() {
     closeModal,
   } = useStoreFilter();
 
+  // Only pass selectedStores to useDiscounts when stores are loaded
   const { findDiscounts, isFindingDiscounts, apiTotalSavings } = useDiscounts(
     items,
-    selectedStores
+    isLoadingStores ? [] : selectedStores
   );
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
 

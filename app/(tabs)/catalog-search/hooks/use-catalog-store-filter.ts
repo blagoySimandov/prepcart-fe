@@ -1,6 +1,7 @@
-import { getAvailableStoreIds } from "@/src/shared/store-constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
+import { useOnceAsync } from "@/src/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 const STORAGE_KEY = "catalog_selected_stores";
 
@@ -8,27 +9,29 @@ export function useCatalogStoreFilter() {
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const allStores = getAvailableStoreIds();
-  const totalStores = allStores.length;
+  const { availableStoreIds, isLoading: isLoadingStoreNames } = useStoreNames();
+  const totalStores = availableStoreIds.length;
 
-  useEffect(() => {
-    loadSelectedStores();
-  }, []);
+  useOnceAsync(async () => {
+    if (availableStoreIds.length === 0) return; // Wait for store names to load
 
-  const loadSelectedStores = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsedStores = JSON.parse(stored);
-        setSelectedStores(parsedStores);
+        // Filter to only include valid store IDs
+        const validStores = parsedStores.filter((id: string) =>
+          availableStoreIds.includes(id)
+        );
+        setSelectedStores(validStores);
       } else {
-        setSelectedStores(allStores);
+        setSelectedStores(availableStoreIds);
       }
     } catch (error) {
       console.error("Error loading selected stores:", error);
-      setSelectedStores(allStores);
+      setSelectedStores(availableStoreIds);
     }
-  };
+  }, availableStoreIds.length > 0);
 
   const saveSelectedStores = async (stores: string[]) => {
     try {
@@ -49,9 +52,9 @@ export function useCatalogStoreFilter() {
   }, []);
 
   const selectAllStores = useCallback(() => {
-    setSelectedStores(allStores);
-    saveSelectedStores(allStores);
-  }, [allStores]);
+    setSelectedStores(availableStoreIds);
+    saveSelectedStores(availableStoreIds);
+  }, [availableStoreIds]);
 
   const clearAllStores = useCallback(() => {
     setSelectedStores([]);
@@ -69,8 +72,9 @@ export function useCatalogStoreFilter() {
   return {
     selectedStores,
     modalVisible,
-    allStores,
+    allStores: availableStoreIds,
     totalStores,
+    isLoading: isLoadingStoreNames,
     toggleStore,
     selectAllStores,
     clearAllStores,

@@ -1,4 +1,4 @@
-import { getAvailableStoreIds } from "@/src/shared/store-constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
@@ -8,25 +8,31 @@ export function useStoreFilter() {
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const allStores = getAvailableStoreIds();
-  const totalStores = allStores.length;
+  const { availableStoreIds, isLoading: isLoadingStoreNames } = useStoreNames();
+  const totalStores = availableStoreIds.length;
 
   useEffect(() => {
+    if (availableStoreIds.length === 0) return; // Wait for store names to load
+
     loadSelectedStores();
-  }, []);
+  }, [availableStoreIds]);
 
   const loadSelectedStores = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsedStores = JSON.parse(stored);
-        setSelectedStores(parsedStores);
+        // Filter to only include valid store IDs
+        const validStores = parsedStores.filter((id: string) =>
+          availableStoreIds.includes(id)
+        );
+        setSelectedStores(validStores);
       } else {
-        setSelectedStores(allStores);
+        setSelectedStores(availableStoreIds);
       }
     } catch (error) {
       console.error("Error loading selected stores:", error);
-      setSelectedStores(allStores);
+      setSelectedStores(availableStoreIds);
     }
   };
 
@@ -49,9 +55,9 @@ export function useStoreFilter() {
   }, []);
 
   const selectAllStores = useCallback(() => {
-    setSelectedStores(allStores);
-    saveSelectedStores(allStores);
-  }, [allStores]);
+    setSelectedStores(availableStoreIds);
+    saveSelectedStores(availableStoreIds);
+  }, [availableStoreIds]);
 
   const clearAllStores = useCallback(() => {
     setSelectedStores([]);
@@ -69,8 +75,9 @@ export function useStoreFilter() {
   return {
     selectedStores,
     modalVisible,
-    allStores,
+    allStores: availableStoreIds,
     totalStores,
+    isLoading: isLoadingStoreNames,
     toggleStore,
     selectAllStores,
     clearAllStores,

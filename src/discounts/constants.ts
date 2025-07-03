@@ -1,8 +1,5 @@
 /**
- * Re-export shared store constants for backward compatibility
- * @deprecated Use @/src/shared/store-constants instead
+ * Store constants have been moved to Firebase Remote Config.
+ * Use the useStoreNames hook from @/src/shared/hooks/use-store-names for all store name operations.
+ * @deprecated This file will be removed in a future version.
  */
-export {
-  getStoreName,
-  STORE_NAMES as STORE_DISPLAY_NAMES,
-} from "@/src/shared/store-constants";
