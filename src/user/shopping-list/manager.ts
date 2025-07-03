@@ -1,4 +1,7 @@
 import { db } from "@/firebaseConfig";
+import { ProductCandidate } from "@/src/catalog-search/types";
+import { Discount } from "@/src/discounts/types";
+import { ItemParser } from "@/src/utils/item-parser";
 import {
   arrayRemove,
   arrayUnion,
@@ -67,7 +70,7 @@ export class ShoppingListService {
   async addItem(item: Omit<ShoppingItem, "id">): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList"),
+        collection(db, "users", this.userId, "shoppingList")
       );
       const newItem = { ...item, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
@@ -86,7 +89,7 @@ export class ShoppingListService {
   async addParsedItem(firestoreDocument: any): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList"),
+        collection(db, "users", this.userId, "shoppingList")
       );
       const newItem = { ...firestoreDocument, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
@@ -124,7 +127,7 @@ export class ShoppingListService {
    */
   async updateItem(
     itemId: string,
-    updatedData: Partial<ShoppingItem>,
+    updatedData: Partial<ShoppingItem>
   ): Promise<void> {
     try {
       const currentList = await this.loadList();
@@ -168,11 +171,11 @@ export class ShoppingListService {
       db,
       "users",
       this.userId,
-      "shoppingHistory",
+      "shoppingHistory"
     );
     const unsubscribe = onSnapshot(historyCollectionRef, (querySnapshot) => {
       const items = querySnapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() }) as ShoppingItem,
+        (doc) => ({ id: doc.id, ...doc.data() } as ShoppingItem)
       );
       callback(items);
     });
@@ -192,7 +195,7 @@ export class ShoppingListService {
         db,
         "users",
         this.userId,
-        "shoppingHistory",
+        "shoppingHistory"
       );
 
       // Add completed items to history and remove from active list
@@ -209,5 +212,38 @@ export class ShoppingListService {
       console.error("Error archiving completed items:", error);
       throw error;
     }
+  }
+
+  async addItemFromCatalog(item: ProductCandidate, userId: string) {
+    const discount: Discount & {
+      confidence_score: number;
+      is_exact_match: boolean;
+    } = {
+      id: item.id,
+      product_name: item.productName,
+      store_id: item.storeId,
+      country: "bulgaria",
+      discount_percent: item.discountPercent,
+      price_before_discount_local: item.priceBeforeDiscount,
+      currency_local: "BGN",
+      page_number: item.pageNumber,
+      similarity_score: 1.0, // High confidence since it's a direct match
+      confidence_score: 95, // High confidence for direct catalog search
+      is_exact_match: true, // This is an exact match from catalog search
+    };
+
+    // Create a parsed item with the discount pre-populated
+    const combinedInput = `${item.productName} 1`;
+    const parsedItem = ItemParser.parse(combinedInput);
+    const firestoreDoc = ItemParser.toFirestoreDocument(parsedItem, userId);
+
+    // Override with our specific data and add the discount
+    firestoreDoc.name = item.productName;
+    firestoreDoc.quantity = "1";
+    firestoreDoc.detectedDiscounts = [discount];
+    firestoreDoc.createdAt = new Date();
+
+    // Add the item with discount information directly
+    await this.addParsedItem(firestoreDoc);
   }
 }

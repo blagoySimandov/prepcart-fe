@@ -1,4 +1,4 @@
-// Raw API response type
+// Raw API response type (now from Algolia)
 export interface ProductCandidateApiResponse {
   id: string;
   objectID: string;
@@ -9,6 +9,7 @@ export interface ProductCandidateApiResponse {
   "discount.discount_percent": number;
   "discount.page_number": number;
   _highlightResult?: any;
+  _snippetResult?: any;
   archivedAt?: number;
   lastmodified?: any;
   path?: string;
@@ -26,11 +27,19 @@ export interface ProductCandidate {
   discountPercent: number;
   pageNumber: number;
   sourceFileUri: string;
+  _highlightResult?: any;
+  _snippetResult?: any;
+}
+
+// Type for Algolia search hit (extends ProductCandidateApiResponse)
+export interface AlgoliaHit extends ProductCandidateApiResponse {
+  __position?: number;
+  __queryID?: string;
 }
 
 // Decoder function to map API response to frontend type
 export function decodeProductCandidate(
-  apiResponse: ProductCandidateApiResponse
+  apiResponse: ProductCandidateApiResponse | AlgoliaHit
 ): ProductCandidate {
   return {
     id: apiResponse.id,
@@ -42,12 +51,14 @@ export function decodeProductCandidate(
     discountPercent: apiResponse["discount.discount_percent"],
     pageNumber: apiResponse["discount.page_number"],
     sourceFileUri: apiResponse.sourceFileUri || "",
+    _highlightResult: apiResponse._highlightResult,
+    _snippetResult: apiResponse._snippetResult,
   };
 }
 
 // Helper function to decode an array of API responses
 export function decodeProductCandidates(
-  apiResponses: ProductCandidateApiResponse[]
+  apiResponses: (ProductCandidateApiResponse | AlgoliaHit)[]
 ): ProductCandidate[] {
   return apiResponses.map(decodeProductCandidate);
 }
