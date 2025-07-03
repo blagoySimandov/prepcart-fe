@@ -3,12 +3,14 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
+import { StoreFilterButton } from "./store-filter-button";
 
 interface ShoppingListHeaderProps {
   onFindDiscounts: () => void;
   isFindingDiscounts: boolean;
   onAddItem: () => void;
   onShowHelp: () => void;
+  onOpenStoreFilter: () => void;
 }
 
 export function ShoppingListHeader({
@@ -16,6 +18,7 @@ export function ShoppingListHeader({
   isFindingDiscounts,
   onAddItem,
   onShowHelp,
+  onOpenStoreFilter,
 }: ShoppingListHeaderProps) {
   const { styles, colors } = useStyles();
 
@@ -28,19 +31,23 @@ export function ShoppingListHeader({
         </TouchableOpacity>
       </View>
       <View style={styles.headerActions}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={onFindDiscounts}
-          disabled={isFindingDiscounts}>
-          {isFindingDiscounts ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <IconSymbol name="sparkles" size={16} color="#FFFFFF" />
-          )}
-          <Text style={styles.addButtonText}>
-            {isFindingDiscounts ? "Searching..." : "Find Discounts"}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.headerActionsLeft}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={onFindDiscounts}
+            disabled={isFindingDiscounts}>
+            {isFindingDiscounts ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <IconSymbol name="sparkles" size={16} color="#FFFFFF" />
+            )}
+            <Text style={styles.addButtonText}>
+              {isFindingDiscounts ? "Searching..." : "Find Discounts"}
+            </Text>
+          </TouchableOpacity>
+
+          <StoreFilterButton onPress={onOpenStoreFilter} />
+        </View>
 
         <TouchableOpacity style={styles.addButton} onPress={onAddItem}>
           <IconSymbol name="plus" size={16} color="#FFFFFF" />

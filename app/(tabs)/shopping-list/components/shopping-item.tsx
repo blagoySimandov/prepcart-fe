@@ -1,6 +1,7 @@
 import { useAlert } from "@/components/providers/AlertProvider";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Discount } from "@/src/discounts/types";
+import { getStoreName } from "@/src/shared/store-constants";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -13,7 +14,7 @@ interface ShoppingItemProps {
   onEdit: (item: ShoppingItemType) => void;
   onShowDiscounts: (discounts: Discount[]) => void;
   discounts: Discount[];
-  bestDiscount?: number;
+  bestDiscountData?: Discount;
 }
 
 export function ShoppingItem({
@@ -23,7 +24,7 @@ export function ShoppingItem({
   onEdit,
   onShowDiscounts,
   discounts,
-  bestDiscount,
+  bestDiscountData,
 }: ShoppingItemProps) {
   const { styles, colors } = useStyles();
   const { showAlert } = useAlert();
@@ -72,12 +73,16 @@ export function ShoppingItem({
         </View>
       </TouchableOpacity>
 
-      {hasDiscounts && (
+      {hasDiscounts && bestDiscountData && (
         <TouchableOpacity
           style={styles.storeDiscountBadge}
           onPress={() => onShowDiscounts(discounts)}>
-          <Text style={styles.storeDiscountStoreName}>LIDL</Text>
-          <Text style={styles.storeDiscountPercentage}>{bestDiscount}%</Text>
+          <Text style={styles.storeDiscountStoreName}>
+            {getStoreName(bestDiscountData.store_id)}
+          </Text>
+          <Text style={styles.storeDiscountPercentage}>
+            {bestDiscountData.discount_percent}%
+          </Text>
         </TouchableOpacity>
       )}
 

@@ -20,6 +20,14 @@ export function useStyles() {
       padding: 20,
       paddingBottom: 10,
     },
+    headerRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+      gap: 12,
+    },
     headerTitleContainer: {
       flexDirection: "row",
       alignItems: "center",
@@ -39,6 +47,12 @@ export function useStyles() {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+    },
+
+    headerActionsLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
     addButton: {
       backgroundColor: colors.tint,
@@ -802,6 +816,111 @@ export function useStyles() {
     legendItems: {
       flexDirection: "row",
       gap: 16,
+    },
+
+    storeModalOverlay: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+      padding: 20,
+    },
+    storeModalContent: {
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      width: "90%",
+      maxWidth: 400,
+      maxHeight: "70%",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    storeModalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: 20,
+      paddingBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    storeModalTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    storeModalClose: {
+      padding: 4,
+    },
+    storeModalActions: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    storeModalAction: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: colors.card,
+    },
+    storeModalActionText: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.tint,
+    },
+    storeModalList: {
+      maxHeight: 300,
+    },
+    storeModalItem: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    storeModalItemContent: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    storeModalItemText: {
+      fontSize: 16,
+      fontWeight: "500",
+      color: colors.text,
+    },
+    storeModalCheckbox: {
+      width: 24,
+      height: 24,
+      borderRadius: 4,
+      borderWidth: 2,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    storeFilterButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 6,
+    },
+    storeFilterButtonText: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.text,
+    },
+
+    storeFilterIconButton: {
+      padding: 8,
+      borderRadius: 8,
     },
   });
   return { styles, colors };

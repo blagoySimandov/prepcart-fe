@@ -6,12 +6,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAlgoliaSearch } from "../hooks/use-algolia-search";
 import { useProductActions } from "../hooks/use-product-actions";
 import { styles } from "../styles";
+import { CatalogStoreFilterButton } from "./catalog-store-filter-button";
 import { InitialSearchPrompt } from "./initial-search-prompt";
 import { NoResultsFound } from "./no-results-found";
 import { ProductCard } from "./product-card";
 import { SearchStats } from "./search-stats";
 
-export function CatalogSearchContent() {
+interface CatalogSearchContentProps {
+  onOpenStoreFilter: () => void;
+}
+
+export function CatalogSearchContent({
+  onOpenStoreFilter,
+}: CatalogSearchContentProps) {
   const { query, results, handleInputChange, handleLoadMore } =
     useAlgoliaSearch();
   const { addingItems, handleAddToList, handleViewPdf } = useProductActions();
@@ -32,7 +39,10 @@ export function CatalogSearchContent() {
         <Text style={[styles.title, { color: themeColors.text, flex: 1 }]}>
           Catalog Search
         </Text>
-        {query.length > 0 && results.length > 0 && <SearchStats />}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <CatalogStoreFilterButton onPress={onOpenStoreFilter} />
+          {query.length > 0 && results.length > 0 && <SearchStats />}
+        </View>
       </View>
       <TextInput
         style={[
