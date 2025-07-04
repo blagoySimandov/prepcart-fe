@@ -10,23 +10,27 @@ import { useCallback, useEffect, useState } from "react";
 export function useShoppingList() {
   const userService = useUserService();
   const [items, setItems] = useState<ShoppingItem[]>([]);
-  console.log(items?.[0]?.detectedDiscounts);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!userService) return;
+    if (!userService) {
+      setIsLoading(false);
+      setItems([]);
+      return;
+    }
 
     setIsLoading(true);
-    const unsubscribe = userService.shoppingList.onListUpdate((loadedItems) => {
-      setItems(loadedItems);
-      if (isLoading) {
+
+    const unsubscribe = userService.shoppingList.onListUpdate(
+      (loadedItems: ShoppingItem[]) => {
+        setItems(loadedItems);
         setIsLoading(false);
       }
-    });
+    );
 
-    return () => unsubscribe();
-    // //TODO: Figure out why this causes a rerender
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      unsubscribe();
+    };
   }, [userService]);
 
   const addItem = useCallback(

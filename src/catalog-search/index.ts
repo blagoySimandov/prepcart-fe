@@ -14,7 +14,7 @@ export class CatalogService {
    */
   static async search(
     query: string,
-    page: number = 1,
+    page: number = 1
   ): Promise<ProductCandidate[]> {
     try {
       const params = new URLSearchParams({

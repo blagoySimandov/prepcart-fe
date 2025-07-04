@@ -1,41 +1,19 @@
 import { UserStatistics } from "@/app/(tabs)/profile/types";
 import { db } from "@/firebaseConfig";
-import { useAuth } from "@/src/auth/hooks";
 import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
-import { UserService } from "./service";
+import { useUserService } from "./context";
 import { ShoppingItem } from "./shopping-list/types";
 
-/**
- * A hook that provides an instance of the UserService
- * for the currently authenticated user.
- *
- * @returns {UserService | null} An instance of UserService, or null if the user is not authenticated.
- */
-export function useUserService(): UserService | null {
-  const { user } = useAuth();
-  const [userService, setUserService] = useState<UserService | null>(null);
-
-  useEffect(() => {
-    if (user) {
-      setUserService(new UserService(user.uid));
-    } else {
-      setUserService(null);
-    }
-  }, [user]);
-
-  return userService;
-}
-
 const calculateSavingsFromItems = (
-  items: ShoppingItem[],
+  items: ShoppingItem[]
 ): Record<string, number> => {
   const savings: Record<string, number> = {};
 
   items.forEach((item) => {
     if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
       const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
-        current.discount_percent > best.discount_percent ? current : best,
+        current.discount_percent > best.discount_percent ? current : best
       );
       const itemSaving =
         bestDiscount.price_before_discount_local *
@@ -85,7 +63,7 @@ export function useUserStatistics(): {
       }
 
       const completedItemsSavings = calculateSavingsFromItems(
-        activeItems.filter((i) => i.completed),
+        activeItems.filter((i) => i.completed)
       );
       const historySavings = calculateSavingsFromItems(historyItems);
 
@@ -96,7 +74,7 @@ export function useUserStatistics(): {
           totalSavings[currency] =
             (completedItemsSavings[currency] || 0) +
             (historySavings[currency] || 0);
-        },
+        }
       );
 
       setStats({
@@ -111,7 +89,7 @@ export function useUserStatistics(): {
       statsLoading = false;
       if (doc.exists()) {
         const data = doc.data();
-        if (data.statistics) {
+        if (data && data.statistics) {
           basicStats = data.statistics;
         }
       }
@@ -135,7 +113,7 @@ export function useUserStatistics(): {
       unsubActiveList();
       unsubHistory();
     };
-  }, [userService]);
+  }, [userService]); // userService is now stable due to the context
 
   return { stats, loading };
 }

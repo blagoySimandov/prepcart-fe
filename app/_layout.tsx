@@ -12,6 +12,7 @@ import "react-native-reanimated";
 import { AlertProvider } from "@/components/providers/AlertProvider";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { RemoteConfigProvider } from "@/src/remote-config/context";
+import { UserServiceProvider } from "@/src/user";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -26,16 +27,18 @@ export default function RootLayout() {
 
   return (
     <RemoteConfigProvider>
-      <AlertProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </AlertProvider>
+      <UserServiceProvider>
+        <AlertProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </AlertProvider>
+      </UserServiceProvider>
     </RemoteConfigProvider>
   );
 }

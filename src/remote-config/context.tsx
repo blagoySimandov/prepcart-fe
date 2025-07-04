@@ -1,45 +1,27 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, use, useContext } from "react";
 import { remoteConfigService } from "./index";
 
 interface RemoteConfigContextType {
   storeNames: Record<string, string>;
   isHighlightingEnabled: boolean;
-  isLoading: boolean;
 }
 
 const RemoteConfigContext = createContext<RemoteConfigContextType>({
   storeNames: {},
   isHighlightingEnabled: true,
-  isLoading: true,
 });
-
+const configPromise = remoteConfigService.initializeIfNot().then(() => ({
+  storeNames: remoteConfigService.getStoreNames(),
+  isHighlightingEnabled: remoteConfigService.isHighlightingEnabled(),
+}));
 export function RemoteConfigProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [storeNames, setStoreNames] = useState<Record<string, string>>({});
-  const [isHighlightingEnabled, setIsHighlightingEnabled] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await remoteConfigService.initializeIfNot();
-        setStoreNames(remoteConfigService.getStoreNames());
-        setIsHighlightingEnabled(remoteConfigService.isHighlightingEnabled());
-      } catch (error) {
-        console.error("Remote config init failed:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    init();
-  }, []);
-
+  const { storeNames, isHighlightingEnabled } = use(configPromise);
   return (
-    <RemoteConfigContext.Provider
-      value={{ storeNames, isHighlightingEnabled, isLoading }}>
+    <RemoteConfigContext.Provider value={{ storeNames, isHighlightingEnabled }}>
       {children}
     </RemoteConfigContext.Provider>
   );

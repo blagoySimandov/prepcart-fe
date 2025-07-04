@@ -165,23 +165,4 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
-
-  // Legacy styles (keeping for compatibility)
-  itemContainer: {
-    flexDirection: "row",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    alignItems: "center",
-  },
-  itemContent: {
-    flex: 1,
-  },
-  itemPrice: {
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  itemDiscount: {
-    fontSize: 12,
-  },
 });
