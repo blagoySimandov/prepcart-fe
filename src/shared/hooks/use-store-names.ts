@@ -1,40 +1,34 @@
-import { remoteConfigService } from "@/src/remote-config";
-import { useCallback, useEffect, useState } from "react";
+import { useRemoteConfig } from "@/src/remote-config/context";
+import { useCallback } from "react";
 
 interface UseStoreNamesResult {
   storeNames: Record<string, string>;
   availableStoreIds: string[];
   isLoading: boolean;
   getStoreName: (storeId: string) => string;
-  refetch: () => Promise<void>;
 }
 
 export function useStoreNames(): UseStoreNamesResult {
-  const [storeNames, setStoreNames] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const { storeNames, isLoading } = useRemoteConfig();
 
-  const fetchStoreNames = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await remoteConfigService.initialize();
-      const names = remoteConfigService.getStoreNames();
-      setStoreNames(names);
-    } catch (error) {
-      console.error("Error fetching store names from remote config:", error);
-      // Remote config should always have defaults, but in case of complete failure
-      setStoreNames({});
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const getStoreName = useCallback(
+    (storeId: string): string => {
+      if (storeNames[storeId]) {
+        return storeNames[storeId];
+      }
 
-  useEffect(() => {
-    fetchStoreNames();
-  }, [fetchStoreNames]);
+      const baseStore = storeId.split("-")[0];
+      if (storeNames[baseStore]) {
+        return storeNames[baseStore];
+      }
 
-  const getStoreName = useCallback((storeId: string): string => {
-    return remoteConfigService.getStoreName(storeId);
-  }, []);
+      return storeId
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    },
+    [storeNames]
+  );
 
   const availableStoreIds = Object.keys(storeNames);
 
@@ -43,6 +37,5 @@ export function useStoreNames(): UseStoreNamesResult {
     availableStoreIds,
     isLoading,
     getStoreName,
-    refetch: fetchStoreNames,
   };
 }

@@ -3,6 +3,7 @@ import { CONFIG, DEFAULTS } from "./constants";
 
 class RemoteConfigService {
   private static instance: RemoteConfigService;
+  private initialized = false;
 
   static getInstance(): RemoteConfigService {
     if (!RemoteConfigService.instance) {
@@ -14,6 +15,13 @@ class RemoteConfigService {
   async initialize() {
     await remoteConfig.setDefaults(DEFAULTS);
     await remoteConfig.fetchAndActivate();
+    this.initialized = true;
+  }
+
+  async initializeIfNot() {
+    if (!this.initialized) {
+      await this.initialize();
+    }
   }
 
   isHighlightingEnabled(): boolean {
@@ -34,24 +42,6 @@ class RemoteConfigService {
 
   getAvailableStoreIds(): string[] {
     return Object.keys(this.getStoreNames());
-  }
-
-  getStoreName(storeId: string): string {
-    const storeNames = this.getStoreNames();
-
-    if (storeNames[storeId]) {
-      return storeNames[storeId];
-    }
-
-    const baseStore = storeId.split("-")[0];
-    if (storeNames[baseStore]) {
-      return storeNames[baseStore];
-    }
-
-    return storeId
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
   }
 }
 

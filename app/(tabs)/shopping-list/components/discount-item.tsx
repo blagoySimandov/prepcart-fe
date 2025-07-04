@@ -1,5 +1,5 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { getStoreName } from "@/src/discounts/constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import { Discount } from "@/src/discounts/types";
 import React from "react";
 import { Text, View } from "react-native";
@@ -16,6 +16,7 @@ export function DiscountItem({ discount }: DiscountItemProps) {
     discount.price_before_discount_local *
     (1 - discount.discount_percent / 100);
   const savings = discount.price_before_discount_local - discountedPrice;
+  const { getStoreName } = useStoreNames();
   const storeName = getStoreName(discount.store_id);
 
   return (
