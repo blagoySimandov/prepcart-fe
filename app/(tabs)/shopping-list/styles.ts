@@ -191,6 +191,12 @@ export function useStyles() {
       fontSize: 14,
       fontWeight: "800",
     },
+    storeDiscountSavings: {
+      color: "#FFFFFF",
+      fontSize: 10,
+      fontWeight: "600",
+      marginTop: 2,
+    },
     discountContainer: {
       flexDirection: "row",
       alignItems: "center",
@@ -416,6 +422,18 @@ export function useStyles() {
     discountBadgeText: {
       color: "#FFFFFF",
       fontSize: 12,
+      fontWeight: "bold",
+    },
+    bestMatchIndicator: {
+      backgroundColor: colors.success,
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      marginLeft: 4,
+    },
+    bestMatchText: {
+      color: "#FFFFFF",
+      fontSize: 10,
       fontWeight: "bold",
     },
     discountProductName: {

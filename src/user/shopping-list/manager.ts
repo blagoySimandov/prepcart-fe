@@ -70,7 +70,7 @@ export class ShoppingListService {
   async addItem(item: Omit<ShoppingItem, "id">): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList")
+        collection(db, "users", this.userId, "shoppingList"),
       );
       const newItem = { ...item, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
@@ -89,7 +89,7 @@ export class ShoppingListService {
   async addParsedItem(firestoreDocument: any): Promise<void> {
     try {
       const newItemRef = doc(
-        collection(db, "users", this.userId, "shoppingList")
+        collection(db, "users", this.userId, "shoppingList"),
       );
       const newItem = { ...firestoreDocument, id: newItemRef.id };
       await updateDoc(this.userDocRef, {
@@ -127,7 +127,7 @@ export class ShoppingListService {
    */
   async updateItem(
     itemId: string,
-    updatedData: Partial<ShoppingItem>
+    updatedData: Partial<ShoppingItem>,
   ): Promise<void> {
     try {
       const currentList = await this.loadList();
@@ -138,7 +138,7 @@ export class ShoppingListService {
 
         if (updatedData.quantity) {
           const parsed = ItemParser.parse(
-            `${updatedData.name || existingItem.name} ${updatedData.quantity}`
+            `${updatedData.name || existingItem.name} ${updatedData.quantity}`,
           );
           updatedData.quantity = parsed.quantity;
           updatedData.unit = parsed.unit;
@@ -182,11 +182,11 @@ export class ShoppingListService {
       db,
       "users",
       this.userId,
-      "shoppingHistory"
+      "shoppingHistory",
     );
     const unsubscribe = onSnapshot(historyCollectionRef, (querySnapshot) => {
       const items = querySnapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as ShoppingItem)
+        (doc) => ({ id: doc.id, ...doc.data() }) as ShoppingItem,
       );
       callback(items);
     });
@@ -206,7 +206,7 @@ export class ShoppingListService {
         db,
         "users",
         this.userId,
-        "shoppingHistory"
+        "shoppingHistory",
       );
 
       // Add completed items to history and remove from active list
@@ -236,7 +236,7 @@ export class ShoppingListService {
       country: "bulgaria",
       discount_percent: item.discountPercent,
       price_before_discount_local: item.priceBeforeDiscount,
-      currency_local: "BGN",
+      currency_local: item.currencyLocal,
       page_number: item.pageNumber,
       requires_loyalty_card: item.requiresLoyaltyCard,
       similarity_score: 1.0, // High confidence since it's a direct match

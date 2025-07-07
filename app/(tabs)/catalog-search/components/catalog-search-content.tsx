@@ -35,7 +35,8 @@ export function CatalogSearchContent({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.background }]}>
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -43,7 +44,8 @@ export function CatalogSearchContent({
           justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingVertical: 8,
-        }}>
+        }}
+      >
         <Text style={[styles.title, { color: themeColors.text, flex: 1 }]}>
           Catalog Search
         </Text>
@@ -78,7 +80,7 @@ export function CatalogSearchContent({
           console.log(
             "[CatalogSearchContent] Showing results list with",
             results.length,
-            "items"
+            "items",
           );
           return (
             <FlatList
@@ -88,7 +90,7 @@ export function CatalogSearchContent({
                 console.log(
                   "[CatalogSearchContent] Rendering item:",
                   item.id,
-                  item.productName
+                  item.productName,
                 );
                 return (
                   <ProductCard

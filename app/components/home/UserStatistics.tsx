@@ -24,7 +24,7 @@ export function UserStatistics() {
               {Object.entries(stats.totalSavings || {})
                 .map(
                   ([currency, amount]) =>
-                    `${(amount as number).toFixed(2)} ${currency}`
+                    `${(amount as number).toFixed(2)} ${currency}`,
                 )
                 .join("\n") || "0.00 BGN"}
             </Text>

@@ -4,28 +4,7 @@ import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
 import { useUserService } from "./context";
 import { ShoppingItem } from "./shopping-list/types";
-
-const calculateSavingsFromItems = (
-  items: ShoppingItem[]
-): Record<string, number> => {
-  const savings: Record<string, number> = {};
-
-  items.forEach((item) => {
-    if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
-      const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
-        current.discount_percent > best.discount_percent ? current : best
-      );
-      const itemSaving =
-        bestDiscount.price_before_discount_local *
-        (bestDiscount.discount_percent / 100);
-      const currency = bestDiscount.currency_local || "EUR"; // Default currency
-
-      savings[currency] = (savings[currency] || 0) + itemSaving;
-    }
-  });
-
-  return savings;
-};
+import { calculateSavingsFromItems } from "./util";
 
 /**
  * A hook that retrieves and provides real-time updates for the user's statistics.
@@ -63,7 +42,7 @@ export function useUserStatistics(): {
       }
 
       const completedItemsSavings = calculateSavingsFromItems(
-        activeItems.filter((i) => i.completed)
+        activeItems.filter((i) => i.completed),
       );
       const historySavings = calculateSavingsFromItems(historyItems);
 
@@ -74,7 +53,7 @@ export function useUserStatistics(): {
           totalSavings[currency] =
             (completedItemsSavings[currency] || 0) +
             (historySavings[currency] || 0);
-        }
+        },
       );
 
       setStats({
@@ -113,7 +92,7 @@ export function useUserStatistics(): {
       unsubActiveList();
       unsubHistory();
     };
-  }, [userService]); // userService is now stable due to the context
+  }, [userService]);
 
   return { stats, loading };
 }

@@ -12,5 +12,5 @@ export const DEFAULTS = {
     "kaufland-bg": "Kaufland",
     "cba-bg": "CBA",
   }),
-  [CONFIG.CatalogSearchDebounceTime]: 200,
+  [CONFIG.CatalogSearchDebounceTime]: 100,
 };

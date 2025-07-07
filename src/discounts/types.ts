@@ -13,6 +13,7 @@ export interface Discount {
   page_number: number;
   similarity_score?: number;
   requires_loyalty_card?: boolean;
+  quantity_multiplier?: number; // Only present on best matched product per shopping item
 }
 
 /**
@@ -52,7 +53,6 @@ export interface DiscountMatch {
 export interface MatchShoppingListResponse {
   matches: DiscountMatch[];
   unmatched_items: string[];
-  total_potential_savings_by_currency: Record<string, number>;
   processing_time_ms: number;
 }
 

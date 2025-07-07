@@ -8,6 +8,11 @@ export interface ShoppingItem {
   completed: boolean;
   createdAt: Date;
   detectedDiscounts?: Discount[];
+  calculatedSavings?: {
+    amount: number;
+    currency: string;
+    bestDiscountId?: string; // ID of the discount with quantity_multiplier
+  };
   userId?: string;
   parsedData?: {
     originalName: string;

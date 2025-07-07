@@ -78,6 +78,8 @@ export class DiscountService {
         itemNameToShoppingItem.set(item.name.toLowerCase(), item);
       });
 
+      const totalSavingsByCurrency: Record<string, number> = {};
+
       for (const match of data.matches) {
         if (match.matched_products && match.matched_products.length > 0) {
           const shoppingItem = itemNameToShoppingItem.get(
@@ -87,6 +89,18 @@ export class DiscountService {
             const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];
             for (const product of match.matched_products) {
               if (product.discount_percent > 0) {
+                // Calculate and add savings if quantity_multiplier is present (best match)
+                if (
+                  product.quantity_multiplier &&
+                  product.quantity_multiplier > 0
+                ) {
+                  const savings =
+                    product.price_before_discount_local *
+                    product.quantity_multiplier;
+                  const currency = product.currency_local || "BGN"; // Default to BGN if empty
+                  totalSavingsByCurrency[currency] =
+                    (totalSavingsByCurrency[currency] || 0) + savings;
+                }
                 existingDiscounts.push(product);
               }
             }
@@ -97,7 +111,7 @@ export class DiscountService {
 
       return {
         itemDiscounts,
-        totalSavings: data.total_potential_savings_by_currency,
+        totalSavings: totalSavingsByCurrency,
         unmatchedItems: data.unmatched_items,
         matches: data.matches,
       };

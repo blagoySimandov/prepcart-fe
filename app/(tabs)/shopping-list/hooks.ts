@@ -7,6 +7,20 @@ import { ItemParser } from "@/src/utils/item-parser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
+function removeUndefined(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefined);
+  } else if (obj && typeof obj === "object") {
+    return Object.entries(obj).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = removeUndefined(value);
+      }
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+}
+
 export function useShoppingList() {
   const userService = useUserService();
   const [items, setItems] = useState<ShoppingItem[]>([]);
@@ -133,29 +147,68 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
 
       const updatedItems = items.map((item) => {
         const foundDiscounts = itemDiscounts.get(item.id);
-        return foundDiscounts
+
+        // Calculate savings for this item
+        let calculatedSavings: ShoppingItem["calculatedSavings"] = undefined;
+        if (foundDiscounts && foundDiscounts.length > 0) {
+          // Find the discount with quantity_multiplier (best match)
+          const bestDiscount = foundDiscounts.find(
+            (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
+          );
+          if (bestDiscount && bestDiscount.quantity_multiplier) {
+            const savingsAmount =
+              bestDiscount.price_before_discount_local *
+              bestDiscount.quantity_multiplier;
+            calculatedSavings = {
+              amount: savingsAmount,
+              currency: bestDiscount.currency_local || "BGN", // Default to BGN if empty
+              bestDiscountId: bestDiscount.id,
+            };
+          }
+        }
+
+        // Only include calculatedSavings if defined
+        const base = foundDiscounts
           ? { ...item, detectedDiscounts: foundDiscounts }
           : { ...item, detectedDiscounts: [] };
+        return calculatedSavings !== undefined
+          ? { ...base, calculatedSavings }
+          : base;
       });
 
+      const itemSavingsByCurrency: Record<string, number> = {};
+      updatedItems.forEach((item) => {
+        if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
+          const bestDiscount = item.detectedDiscounts.find(
+            (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
+          );
+          if (bestDiscount && bestDiscount.quantity_multiplier) {
+            const perUnitSavings =
+              bestDiscount.price_before_discount_local *
+              (bestDiscount.discount_percent / 100);
+            const total = bestDiscount.quantity_multiplier * perUnitSavings;
+            const currency = bestDiscount.currency_local || "BGN";
+            itemSavingsByCurrency[currency] =
+              (itemSavingsByCurrency[currency] || 0) + total;
+          }
+        }
+      });
+      const totalSavingsText = Object.entries(itemSavingsByCurrency)
+        .map(([currency, amount]) => `${amount.toFixed(2)} ${currency}`)
+        .join(", ");
+
       setApiTotalSavings(totalSavings);
-      await userService.shoppingList.saveList(updatedItems);
+      await userService.shoppingList.saveList(removeUndefined(updatedItems));
 
       analytics.logEvent("find_discounts_success", {
         matched_count: matches.length,
         unmatched_count: unmatchedItems.length,
-        total_savings: totalSavings,
+        total_savings: JSON.stringify(totalSavings),
         filtered_stores: selectedStores?.length || 0,
       });
 
       const matchedCount = matches.length;
       const unmatchedCount = unmatchedItems.length;
-      const totalSavingsText = Object.entries(totalSavings)
-        .map(
-          ([currency, amount]) =>
-            `${(amount as number).toFixed(2)} ${currency}`,
-        )
-        .join(", ");
 
       if (matchedCount > 0) {
         showAlert(
