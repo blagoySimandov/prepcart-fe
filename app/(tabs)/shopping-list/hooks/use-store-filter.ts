@@ -1,6 +1,7 @@
 import { useStoreNames } from "@/src/shared/hooks/use-store-names";
+import { useOnceAsync } from "@/src/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 const STORAGE_KEY = "shopping_list_selected_stores";
 
@@ -11,11 +12,11 @@ export function useStoreFilter() {
   const { availableStoreIds, isLoading: isLoadingStoreNames } = useStoreNames();
   const totalStores = availableStoreIds.length;
 
-  useEffect(() => {
-    if (availableStoreIds.length === 0) return; // Wait for store names to load
+  useOnceAsync(async () => {
+    if (availableStoreIds.length === 0) return;
 
-    loadSelectedStores();
-  }, [availableStoreIds]);
+    void (await loadSelectedStores());
+  });
 
   const loadSelectedStores = async () => {
     try {
@@ -24,7 +25,7 @@ export function useStoreFilter() {
         const parsedStores = JSON.parse(stored);
         // Filter to only include valid store IDs
         const validStores = parsedStores.filter((id: string) =>
-          availableStoreIds.includes(id)
+          availableStoreIds.includes(id),
         );
         setSelectedStores(validStores);
       } else {

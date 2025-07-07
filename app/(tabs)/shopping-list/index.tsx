@@ -36,10 +36,9 @@ export default function ShoppingListScreen() {
     closeModal,
   } = useStoreFilter();
 
-  // Only pass selectedStores to useDiscounts when stores are loaded
   const { findDiscounts, isFindingDiscounts, apiTotalSavings } = useDiscounts(
     items,
-    isLoadingStores ? [] : selectedStores
+    isLoadingStores ? [] : selectedStores,
   );
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
 
@@ -50,7 +49,7 @@ export default function ShoppingListScreen() {
 
   const handleUpdateItem = (
     id: string,
-    updatedData: { name: string; quantity: string }
+    updatedData: { name: string; quantity: string },
   ) => {
     updateItem(id, updatedData as any);
     itemModal.close();

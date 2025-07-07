@@ -24,6 +24,10 @@ class RemoteConfigService {
     }
   }
 
+  debounceTime(): number {
+    return remoteConfig.getValue(CONFIG.CatalogSearchDebounceTime).asNumber();
+  }
+
   isHighlightingEnabled(): boolean {
     return remoteConfig.getValue(CONFIG.EnableSearchHighlighting).asBoolean();
   }

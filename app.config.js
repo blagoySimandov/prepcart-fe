@@ -6,14 +6,14 @@ export default {
     slug: "prepcartv2",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/splash-screens/icon.png",
     scheme: "prepcart",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/splash-icon.png",
+      image: "./assets/splash-screens/iPhone_16_Pro_portrait.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#FFF8F3",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -25,7 +25,7 @@ export default {
       package: "com.simandoff.prepcart",
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#FFF8F3",
       },
       googleServicesFile: "./google-services.json",
     },
@@ -50,10 +50,9 @@ export default {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
-          imageWidth: 200,
+          image: "./assets/splash-screens/iPhone_16_Pro_portrait.png",
           resizeMode: "contain",
-          backgroundColor: "#ffffff",
+          backgroundColor: "#FFF8F3",
         },
       ],
     ],
@@ -71,6 +70,7 @@ export default {
       firebaseMessagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.FIREBASE_APP_ID,
       firebaseMeasurementId: process.env.FIREBASE_MEASUREMENT_ID,
+      typesenseApiKey: process.env.EXPO_PUBLIC_TYPESENSE_API_KEY,
     },
   },
 };

@@ -13,15 +13,14 @@ export function useCatalogStoreFilter() {
   const totalStores = availableStoreIds.length;
 
   useOnceAsync(async () => {
-    if (availableStoreIds.length === 0) return; // Wait for store names to load
+    if (availableStoreIds.length === 0) return;
 
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsedStores = JSON.parse(stored);
-        // Filter to only include valid store IDs
         const validStores = parsedStores.filter((id: string) =>
-          availableStoreIds.includes(id)
+          availableStoreIds.includes(id),
         );
         setSelectedStores(validStores);
       } else {

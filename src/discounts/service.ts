@@ -25,7 +25,7 @@ export class DiscountService {
   public async findDiscountsForItems(
     items: ShoppingItem[],
     maxResultsPerItem: number = 5,
-    storeIds?: string[]
+    storeIds?: string[],
   ): Promise<{
     itemDiscounts: Map<string, Discount[]>;
     totalSavings: Record<string, number>;
@@ -57,8 +57,6 @@ export class DiscountService {
         ...(storeIds && storeIds.length > 0 && { store_ids: storeIds }),
       };
 
-      console.log("Calling discount API with:", requestBody);
-
       const response = await fetch(DiscountService.API_ENDPOINT, {
         method: "POST",
         headers: {
@@ -69,13 +67,11 @@ export class DiscountService {
 
       if (!response.ok) {
         throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`
+          `API request failed: ${response.status} ${response.statusText}`,
         );
       }
 
       const data: MatchShoppingListResponse = await response.json();
-
-      console.log("Discount API response:", data);
 
       const itemNameToShoppingItem = new Map<string, ShoppingItem>();
       items.forEach((item) => {
@@ -85,7 +81,7 @@ export class DiscountService {
       for (const match of data.matches) {
         if (match.matched_products && match.matched_products.length > 0) {
           const shoppingItem = itemNameToShoppingItem.get(
-            match.shopping_list_item.item.toLowerCase()
+            match.shopping_list_item.item.toLowerCase(),
           );
           if (shoppingItem) {
             const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];

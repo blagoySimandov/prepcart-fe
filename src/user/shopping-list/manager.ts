@@ -132,9 +132,20 @@ export class ShoppingListService {
     try {
       const currentList = await this.loadList();
       const itemIndex = currentList.findIndex((item) => item.id === itemId);
+
       if (itemIndex > -1) {
+        const existingItem = currentList[itemIndex];
+
+        if (updatedData.quantity) {
+          const parsed = ItemParser.parse(
+            `${updatedData.name || existingItem.name} ${updatedData.quantity}`
+          );
+          updatedData.quantity = parsed.quantity;
+          updatedData.unit = parsed.unit;
+        }
+
         currentList[itemIndex] = {
-          ...currentList[itemIndex],
+          ...existingItem,
           ...updatedData,
         };
         await this.saveList(currentList);

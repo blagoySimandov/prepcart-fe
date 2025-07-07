@@ -1,6 +1,7 @@
 import { AddItemModal } from "@/app/(tabs)/shopping-list/components/add-item-modal";
 import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
 import { HomeHeader } from "@/app/components/home/HomeHeader";
+import { MealPlannerBanner } from "@/app/components/home/MealPlannerBanner";
 import { QuickActionsGrid } from "@/app/components/home/QuickActionsGrid";
 import { UserStatistics } from "@/app/components/home/UserStatistics";
 import { ThemedView } from "@/components/ThemedView";
@@ -66,7 +67,7 @@ export default function HomeScreen() {
       setIsModalVisible(false);
       router.push(SHOPPING_LIST_ROUTE);
     },
-    [addItem]
+    [addItem],
   );
 
   const handleCloseModal = useCallback(() => {
@@ -77,6 +78,7 @@ export default function HomeScreen() {
     <ThemedView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <HomeHeader />
+        <MealPlannerBanner />
         <QuickActionsGrid actions={quickActions} />
         <UserStatistics />
       </ScrollView>
