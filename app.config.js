@@ -11,9 +11,9 @@ export default {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/splash-screens/iPhone_16_Pro_portrait.png",
+      image: "./assets/splash-screens/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#FFF8F3",
+      backgroundColor: "#FFFFFF",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -24,7 +24,7 @@ export default {
     android: {
       package: "com.simandoff.prepcart",
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
+        foregroundImage: "./assets/splash-screens/icon.png",
         backgroundColor: "#FFF8F3",
       },
       googleServicesFile: "./google-services.json",
@@ -50,9 +50,13 @@ export default {
       [
         "expo-splash-screen",
         {
-          image: "./assets/splash-screens/iPhone_16_Pro_portrait.png",
-          resizeMode: "contain",
-          backgroundColor: "#FFF8F3",
+          backgroundColor: "#232323",
+          image: "./assets/splash-screens/splash.png",
+          dark: {
+            image: "./assets/splash-screens/splash.png",
+            backgroundColor: "#000000",
+          },
+          imageWidth: 200,
         },
       ],
     ],
