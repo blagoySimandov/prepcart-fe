@@ -1,17 +1,8 @@
-import { useStyles } from "@/app/(tabs)/styles";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { router } from "expo-router";
-import { SymbolViewProps } from "expo-symbols";
+import { RelativePathString, router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
-
-interface QuickAction {
-  title: string;
-  description: string;
-  icon: SymbolViewProps["name"];
-  route?: string;
-  onPress?: () => void;
-  color: string;
-}
+import { useStyles } from "../styles";
+import { QuickAction } from "../types";
 
 interface QuickActionsGridProps {
   actions: QuickAction[];
@@ -32,8 +23,11 @@ export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
               { backgroundColor: action.color + "20" },
             ]}
             onPress={() =>
-              action.route ? router.push(action.route) : action.onPress?.()
-            }>
+              action.route
+                ? router.push(action.route as RelativePathString) // Hack to fix type error...
+                : action.onPress?.()
+            }
+          >
             <View style={styles.quickActionIcon}>
               <IconSymbol name={action.icon} size={24} color={action.color} />
             </View>

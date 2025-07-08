@@ -1,5 +1,5 @@
-import { useStyles } from "@/app/(tabs)/styles";
 import { Text, View } from "react-native";
+import { useStyles } from "../styles";
 
 export function HomeHeader() {
   const { styles } = useStyles();

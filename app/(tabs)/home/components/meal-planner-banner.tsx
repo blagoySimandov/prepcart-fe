@@ -8,7 +8,8 @@ export function MealPlannerBanner() {
       <ImageBackground
         source={require("@/assets/images/food-on-the-table.jpg")}
         style={styles.imageBackground}
-        imageStyle={styles.imageStyle}>
+        imageStyle={styles.imageStyle}
+      >
         <View style={styles.overlay}>
           <ThemedText style={styles.title}>Meal Planner</ThemedText>
           <ThemedText style={styles.subtitle}>Coming Soon!</ThemedText>

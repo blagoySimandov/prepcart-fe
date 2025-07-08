@@ -45,7 +45,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -53,15 +53,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen */}
-      {/*   name="recipe-importer" */}
-      {/*   options={{ */}
-      {/*     title: "Recipes", */}
-      {/*     tabBarIcon: ({ color }) => ( */}
-      {/*       <IconSymbol size={28} name="book.fill" color={color} /> */}
-      {/*     ), */}
-      {/*   }} */}
-      {/* /> */}
       <Tabs.Screen
         name="shopping-list"
         options={{

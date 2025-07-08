@@ -1,6 +1,6 @@
-import { useStyles } from "@/app/(tabs)/styles";
 import { useUserStatistics } from "@/src/user/hooks";
 import { ActivityIndicator, Text, View } from "react-native";
+import { useStyles } from "../styles";
 
 export function UserStatistics() {
   const { styles, colors } = useStyles();

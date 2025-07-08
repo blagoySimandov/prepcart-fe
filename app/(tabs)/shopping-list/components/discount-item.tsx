@@ -18,14 +18,13 @@ export function DiscountItem({ discount }: DiscountItemProps) {
   const perUnitSavings =
     discount.price_before_discount_local * (discount.discount_percent / 100);
 
-  // Calculate total savings if quantity_multiplier is present
   const totalSavings = discount.quantity_multiplier
     ? discount.quantity_multiplier * perUnitSavings
     : null;
 
   const { getStoreName } = useStoreNames();
   const storeName = getStoreName(discount.store_id);
-  const currency = discount.currency_local || "BGN"; // Default to BGN if empty
+  const currency = discount.currency_local || "BGN";
 
   return (
     <View style={styles.discountItemCard}>
