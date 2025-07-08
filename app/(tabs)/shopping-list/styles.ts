@@ -452,7 +452,7 @@ export function useStyles() {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 8,
+      marginBottom: 4,
     },
     priceLabel: {
       fontSize: 14,

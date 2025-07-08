@@ -91,14 +91,6 @@ export function DiscountItem({ discount }: DiscountItemProps) {
           </Text>
         </View>
       </View>
-
-      {discount.similarity_score && (
-        <View style={styles.similarityContainer}>
-          <Text style={styles.similarityText}>
-            Match confidence: {discount.similarity_score.toFixed(1)}%
-          </Text>
-        </View>
-      )}
     </View>
   );
 }
