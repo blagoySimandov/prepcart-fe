@@ -36,7 +36,7 @@ export default function ShoppingListScreen() {
     closeModal,
   } = useStoreFilter();
 
-  const { findDiscounts, isFindingDiscounts, apiTotalSavings } = useDiscounts(
+  const { findDiscounts, isFindingDiscounts } = useDiscounts(
     items,
     isLoadingStores ? [] : selectedStores,
   );
@@ -74,7 +74,7 @@ export default function ShoppingListScreen() {
           onOpenStoreFilter={openModal}
         />
 
-        <SavingsSummary items={items} apiTotalSavings={apiTotalSavings} />
+        <SavingsSummary items={items} />
 
         <ShoppingListView
           items={items}

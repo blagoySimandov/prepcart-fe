@@ -2,6 +2,7 @@ import { ShoppingItem } from "../user/shopping-list/types";
 import {
   Discount,
   DiscountMatch,
+  FindDiscountsResponse,
   MatchShoppingListRequest,
   MatchShoppingListResponse,
   ShoppingListApiItem,
@@ -26,12 +27,7 @@ export class DiscountService {
     items: ShoppingItem[],
     maxResultsPerItem: number = 5,
     storeIds?: string[],
-  ): Promise<{
-    itemDiscounts: Map<string, Discount[]>;
-    totalSavings: Record<string, number>;
-    unmatchedItems: string[];
-    matches: DiscountMatch[];
-  }> {
+  ): Promise<FindDiscountsResponse> {
     const itemDiscounts = new Map<string, Discount[]>();
 
     if (items.length === 0) {

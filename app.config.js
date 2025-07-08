@@ -2,8 +2,8 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "prepcartv2",
-    slug: "prepcartv2",
+    name: "PrepCart",
+    slug: "PrepCart",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/splash-screens/icon.png",
@@ -13,7 +13,7 @@ export default {
     splash: {
       image: "./assets/splash-screens/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#FFFFFF",
+      backgroundColor: "#ff5630",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -54,7 +54,7 @@ export default {
           image: "./assets/splash-screens/splash.png",
           dark: {
             image: "./assets/splash-screens/splash.png",
-            backgroundColor: "#000000",
+            backgroundColor: "#232323",
           },
           imageWidth: 200,
         },

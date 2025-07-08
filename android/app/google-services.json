@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "60659278182",
+    "project_id": "prepcart-prod",
+    "storage_bucket": "prepcart-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60659278182:android:03a2bc132e2466d21968a7",
+        "android_client_info": {
+          "package_name": "com.simandoff.prepcart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "60659278182-4p760njp85f768skuh2mdg07npciihqu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8LtON0EWtX4UG4MpiAWSN8MpHKjvSbLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "60659278182-4p760njp85f768skuh2mdg07npciihqu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "60659278182-gn92s877jftqh18qih4h8s9k6f480krd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.simandoff.prepcart"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

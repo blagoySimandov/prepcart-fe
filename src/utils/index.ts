@@ -38,3 +38,4 @@ export function tryCatch<T, E = Error>(
 // Export the ItemParser for use in other parts of the app
 export { ItemParser, type ParsedItem } from "./item-parser";
 export { useOnceAsync } from "./once";
+export { removeUndefined } from "./remove-undefined";

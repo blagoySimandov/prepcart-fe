@@ -1,3 +1,5 @@
+import { BaseShoppingListItem } from "../user/shopping-list";
+
 /**
  * Represents a single discount for a product.
  * This is the canonical discount object used throughout the app.
@@ -83,4 +85,32 @@ export interface PdfAnalysisResult {
 export interface ShoppingListMatch {
   shopping_list_item: string;
   matched_products: Discount[];
+}
+
+// Search/retrieval types
+export interface ProductCandidate {
+  id: string;
+  product_name: string;
+  store_id: string;
+  country: string;
+  discount_percent: number;
+  price_before_discount_local: number;
+  currency_local: string;
+  quantity: string;
+  page_number: number;
+  similarity_score: number;
+  confidence_score?: number;
+  is_exact_match?: boolean;
+  requires_loyalty_card: boolean;
+  // Quantity information for client-side calculations
+  quantity_multiplier?: number;
+}
+export interface MatchedProduct {
+  shopping_list_item: BaseShoppingListItem;
+  matched_products: ProductCandidate[];
+}
+export interface FindDiscountsResponse {
+  matches: MatchedProduct[];
+  unmatched_items: string[];
+  processing_time_ms: number;
 }
