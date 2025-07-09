@@ -20,7 +20,8 @@ export function CatalogStoreFilterButton({
         padding: 8,
         borderRadius: 8,
       }}
-      onPress={onPress}>
+      onPress={onPress}
+    >
       <IconSymbol name="gearshape" size={20} color={colors.tabIconDefault} />
     </TouchableOpacity>
   );

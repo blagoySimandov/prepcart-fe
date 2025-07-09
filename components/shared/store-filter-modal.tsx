@@ -40,14 +40,16 @@ export function StoreFilterModal({
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}>
+      onRequestClose={onClose}
+    >
       <View
         style={{
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
           backgroundColor: "rgba(0,0,0,0.5)",
-        }}>
+        }}
+      >
         <View
           style={{
             backgroundColor: colors.background,
@@ -55,7 +57,8 @@ export function StoreFilterModal({
             width: "90%",
             maxWidth: 400,
             maxHeight: "80%",
-          }}>
+          }}
+        >
           {/* Header */}
           <View
             style={{
@@ -65,13 +68,15 @@ export function StoreFilterModal({
               padding: 20,
               borderBottomWidth: 1,
               borderBottomColor: colors.tabIconDefault + "20",
-            }}>
+            }}
+          >
             <Text
               style={{
                 fontSize: 18,
                 fontWeight: "600",
                 color: colors.text,
-              }}>
+              }}
+            >
               Filter by Store
             </Text>
             <TouchableOpacity onPress={onClose}>
@@ -91,7 +96,8 @@ export function StoreFilterModal({
               paddingHorizontal: 20,
               paddingVertical: 15,
               gap: 10,
-            }}>
+            }}
+          >
             <TouchableOpacity
               style={{
                 flex: 1,
@@ -101,13 +107,15 @@ export function StoreFilterModal({
                 alignItems: "center",
               }}
               onPress={onSelectAll}
-              disabled={isLoadingStoreNames}>
+              disabled={isLoadingStoreNames}
+            >
               <Text
                 style={{
                   color: "#FFFFFF",
                   fontWeight: "600",
                   fontSize: 14,
-                }}>
+                }}
+              >
                 Select All
               </Text>
             </TouchableOpacity>
@@ -120,13 +128,15 @@ export function StoreFilterModal({
                 alignItems: "center",
               }}
               onPress={onClearAll}
-              disabled={isLoadingStoreNames}>
+              disabled={isLoadingStoreNames}
+            >
               <Text
                 style={{
                   color: colors.text,
                   fontWeight: "600",
                   fontSize: 14,
-                }}>
+                }}
+              >
                 Clear All
               </Text>
             </TouchableOpacity>
@@ -137,21 +147,24 @@ export function StoreFilterModal({
             style={{
               maxHeight: 300,
               paddingHorizontal: 20,
-            }}>
+            }}
+          >
             {isLoadingStoreNames ? (
               <View
                 style={{
                   padding: 40,
                   alignItems: "center",
                   justifyContent: "center",
-                }}>
+                }}
+              >
                 <ActivityIndicator size="large" color={colors.tint} />
                 <Text
                   style={{
                     marginTop: 12,
                     fontSize: 14,
                     color: colors.tabIconDefault,
-                  }}>
+                  }}
+                >
                   Loading stores...
                 </Text>
               </View>
@@ -168,7 +181,8 @@ export function StoreFilterModal({
                       borderBottomWidth: 1,
                       borderBottomColor: colors.tabIconDefault + "10",
                     }}
-                    onPress={() => onStoreToggle(storeId)}>
+                    onPress={() => onStoreToggle(storeId)}
+                  >
                     <View
                       style={{
                         width: 20,
@@ -184,7 +198,8 @@ export function StoreFilterModal({
                         marginRight: 12,
                         alignItems: "center",
                         justifyContent: "center",
-                      }}>
+                      }}
+                    >
                       {isSelected && (
                         <IconSymbol
                           name="checkmark"
@@ -198,7 +213,8 @@ export function StoreFilterModal({
                         fontSize: 16,
                         color: colors.text,
                         flex: 1,
-                      }}>
+                      }}
+                    >
                       {getStoreName(storeId)}
                     </Text>
                   </TouchableOpacity>
@@ -216,13 +232,15 @@ export function StoreFilterModal({
                 borderRadius: 8,
                 alignItems: "center",
               }}
-              onPress={onClose}>
+              onPress={onClose}
+            >
               <Text
                 style={{
                   color: "#FFFFFF",
                   fontWeight: "600",
                   fontSize: 16,
-                }}>
+                }}
+              >
                 Done
               </Text>
             </TouchableOpacity>

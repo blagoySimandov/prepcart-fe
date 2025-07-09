@@ -28,7 +28,7 @@ export function useShoppingList() {
       (loadedItems: ShoppingItem[]) => {
         setItems(loadedItems);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => {
@@ -45,7 +45,7 @@ export function useShoppingList() {
 
       const firestoreDoc = ItemParser.toFirestoreDocument(
         parsedItem,
-        userService.userId
+        userService.userId,
       );
 
       firestoreDoc.name = item.name;
@@ -55,7 +55,7 @@ export function useShoppingList() {
       await userService.shoppingList.addParsedItem(firestoreDoc);
       analytics.logEvent("add_shopping_list_item", { name: item.name });
     },
-    [userService]
+    [userService],
   );
 
   const updateItem = useCallback(
@@ -64,7 +64,7 @@ export function useShoppingList() {
       await userService.shoppingList.updateItem(id, updatedData);
       analytics.logEvent("update_shopping_list_item");
     },
-    [userService]
+    [userService],
   );
 
   const toggleItem = useCallback(
@@ -78,7 +78,7 @@ export function useShoppingList() {
         });
       }
     },
-    [userService, items, updateItem]
+    [userService, items, updateItem],
   );
 
   const deleteItem = useCallback(
@@ -87,7 +87,7 @@ export function useShoppingList() {
       await userService.shoppingList.deleteItem(id);
       analytics.logEvent("delete_shopping_list_item");
     },
-    [userService]
+    [userService],
   );
 
   const clearCompleted = useCallback(async () => {
@@ -127,7 +127,7 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
       const result = await userService.discounts.findDiscountsForItems(
         items,
         5,
-        selectedStores
+        selectedStores,
       );
       const { matches, unmatched_items: unmatchedItems } = result;
 
@@ -138,7 +138,7 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
         if (foundDiscounts.length > 0) {
           const bestDiscount = foundDiscounts.find(
             (d: ProductCandidate) =>
-              d.quantity_multiplier && d.quantity_multiplier > 0
+              d.quantity_multiplier && d.quantity_multiplier > 0,
           );
           if (bestDiscount && bestDiscount.quantity_multiplier) {
             const savingsAmount =
@@ -165,7 +165,7 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
       updatedItems.forEach((item) => {
         if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
           const bestDiscount = item.detectedDiscounts.find(
-            (d) => d.quantity_multiplier && d.quantity_multiplier > 0
+            (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
           );
           if (bestDiscount && bestDiscount.quantity_multiplier) {
             const perUnitSavings =
@@ -207,12 +207,12 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
                   unmatchedCount > 1 ? "s" : ""
                 } had no matching discounts.`
               : ""
-          }`
+          }`,
         );
       } else {
         showAlert(
           "No Discounts Found",
-          "Sorry, we couldn't find any discounts for your current shopping list items."
+          "Sorry, we couldn't find any discounts for your current shopping list items.",
         );
         analytics.logEvent("find_discounts_no_results");
       }
@@ -242,7 +242,7 @@ export function useShoppingListModals() {
     const checkFirstTime = async () => {
       try {
         const hasSeenHelp = await AsyncStorage.getItem(
-          "hasSeenShoppingListHelp"
+          "hasSeenShoppingListHelp",
         );
         if (!hasSeenHelp) {
           timeoutId = setTimeout(() => {

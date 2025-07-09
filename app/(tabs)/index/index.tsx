@@ -12,6 +12,7 @@ import { useHomeData } from "./hooks";
 import { useStyles } from "./styles";
 
 const SHOPPING_LIST_ROUTE = "/(tabs)/shopping-list";
+
 export default function HomeScreen() {
   const { styles } = useStyles();
   const [isModalVisible, setIsModalVisible] = useState(false);

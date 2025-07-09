@@ -35,7 +35,8 @@ export function ShoppingListHeader({
           <TouchableOpacity
             style={styles.addButton}
             onPress={onFindDiscounts}
-            disabled={isFindingDiscounts}>
+            disabled={isFindingDiscounts}
+          >
             {isFindingDiscounts ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (

@@ -24,7 +24,8 @@ export function ProductActions({
       <TouchableOpacity
         style={[styles.addToListButton, { backgroundColor: themeColors.tint }]}
         onPress={() => onAddToList(item)}
-        disabled={isAdding}>
+        disabled={isAdding}
+      >
         {isAdding ? (
           <ActivityIndicator size={16} color="white" />
         ) : (
@@ -37,7 +38,8 @@ export function ProductActions({
       {item.sourceFileUri && (
         <TouchableOpacity
           style={[styles.pdfButton, { backgroundColor: themeColors.tint }]}
-          onPress={() => onViewPdf(item)}>
+          onPress={() => onViewPdf(item)}
+        >
           <IconSymbol size={16} name="doc.text" color="white" />
           <Text style={styles.pdfButtonText}>View Brochure</Text>
         </TouchableOpacity>

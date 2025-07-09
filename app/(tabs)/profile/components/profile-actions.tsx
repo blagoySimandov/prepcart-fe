@@ -33,7 +33,8 @@ export function ProfileActions({ signOut }: ProfileActionsProps) {
     <>
       <TouchableOpacity
         style={styles.actionButton}
-        onPress={handleHelpAndSupport}>
+        onPress={handleHelpAndSupport}
+      >
         <IconSymbol name="questionmark.circle" size={24} color={colors.icon} />
         <Text style={[styles.actionButtonText, { color: colors.text }]}>
           Help & Support

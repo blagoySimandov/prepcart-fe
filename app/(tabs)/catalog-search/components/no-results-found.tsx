@@ -10,7 +10,8 @@ export function NoResultsFound({ query }: { query: string }) {
     <ThemedView style={styles.container}>
       <IconSymbol name="xmark.circle" style={styles.icon} color={color} />
       <ThemedText
-        style={styles.text}>{`No results found for "${query}"`}</ThemedText>
+        style={styles.text}
+      >{`No results found for "${query}"`}</ThemedText>
       <ThemedText style={styles.subText}>
         Try searching for something else.
       </ThemedText>

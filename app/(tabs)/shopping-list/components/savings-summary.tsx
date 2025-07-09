@@ -16,7 +16,7 @@ export function SavingsSummary({ items }: SavingsSummaryProps) {
   items.forEach((item) => {
     if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
       const bestDiscount = item.detectedDiscounts.find(
-        (d) => d.quantity_multiplier && d.quantity_multiplier > 0
+        (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
       );
       if (bestDiscount && bestDiscount.quantity_multiplier) {
         const perUnitSavings =
