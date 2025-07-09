@@ -4,7 +4,7 @@ import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
+import { TabBarBackground } from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/src/auth/hooks";
@@ -42,8 +42,7 @@ export default function TabLayout() {
           },
           default: {},
         }),
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -53,15 +52,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen */}
-      {/*   name="recipe-importer" */}
-      {/*   options={{ */}
-      {/*     title: "Recipes", */}
-      {/*     tabBarIcon: ({ color }) => ( */}
-      {/*       <IconSymbol size={28} name="book.fill" color={color} /> */}
-      {/*     ), */}
-      {/*   }} */}
-      {/* /> */}
       <Tabs.Screen
         name="shopping-list"
         options={{

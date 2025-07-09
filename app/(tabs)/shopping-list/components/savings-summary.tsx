@@ -6,16 +6,33 @@ import { useStyles } from "../styles";
 
 interface SavingsSummaryProps {
   items: ShoppingItem[];
-  apiTotalSavings?: Record<string, number>;
 }
 
-export function SavingsSummary({
-  items,
-  apiTotalSavings,
-}: SavingsSummaryProps) {
+export function SavingsSummary({ items }: SavingsSummaryProps) {
   const { styles, colors } = useStyles();
 
-  const hasSavings = apiTotalSavings && Object.keys(apiTotalSavings).length > 0;
+  const itemSavingsByCurrency: Record<string, number> = {};
+  let itemsWithSavings = 0;
+  items.forEach((item) => {
+    if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
+      const bestDiscount = item.detectedDiscounts.find(
+        (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
+      );
+      if (bestDiscount && bestDiscount.quantity_multiplier) {
+        const perUnitSavings =
+          bestDiscount.price_before_discount_local *
+          (bestDiscount.discount_percent / 100);
+        const totalSavings = bestDiscount.quantity_multiplier * perUnitSavings;
+        const currency = bestDiscount.currency_local || "BGN";
+        itemSavingsByCurrency[currency] =
+          (itemSavingsByCurrency[currency] || 0) + totalSavings;
+        itemsWithSavings++;
+      }
+    }
+  });
+
+  const totalSavings = itemSavingsByCurrency;
+  const hasSavings = Object.keys(totalSavings).length > 0;
 
   if (!hasSavings) {
     return null;
@@ -23,7 +40,7 @@ export function SavingsSummary({
 
   const renderSavingsAmount = () => {
     if (hasSavings) {
-      const [currency, amount] = Object.entries(apiTotalSavings)[0] || [
+      const [currency, amount] = Object.entries(totalSavings)[0] || [
         null,
         null,
       ];
@@ -34,13 +51,9 @@ export function SavingsSummary({
     return "0.00";
   };
 
-  const itemsWithDiscounts = items.filter(
-    (item) => item.detectedDiscounts && item.detectedDiscounts.length > 0,
-  ).length;
-
   const totalItemsText =
-    itemsWithDiscounts > 0
-      ? `${itemsWithDiscounts} item${itemsWithDiscounts !== 1 ? "s" : ""}`
+    itemsWithSavings > 0
+      ? `${itemsWithSavings} item${itemsWithSavings !== 1 ? "s" : ""}`
       : "items";
 
   return (
@@ -51,7 +64,7 @@ export function SavingsSummary({
         <Text style={styles.savingsAmount}>{renderSavingsAmount()}</Text>
       </View>
       <Text style={styles.savingsSubtext}>
-        {totalItemsText} with discounts found
+        {totalItemsText} with savings calculated
       </Text>
     </View>
   );

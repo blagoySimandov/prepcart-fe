@@ -1,4 +1,4 @@
-import { getStoreName } from "@/src/catalog-search/constants";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Text, View } from "react-native";
@@ -13,6 +13,7 @@ export function LoyaltyCardIndicator({
   storeId,
   themeColors,
 }: LoyaltyCardIndicatorProps) {
+  const { getStoreName } = useStoreNames();
   const storeName = getStoreName(storeId);
 
   return (

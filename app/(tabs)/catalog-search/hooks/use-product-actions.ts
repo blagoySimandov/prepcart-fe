@@ -5,7 +5,7 @@ import { ProductCandidate } from "@/src/catalog-search/types";
 import { convertGsUrlToHttps } from "@/src/catalog-search/utils";
 import { useUserService } from "@/src/user";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export function useProductActions() {
   const [addingItems, setAddingItems] = useState<Set<string>>(new Set());
@@ -33,38 +33,41 @@ export function useProductActions() {
     }
   };
 
-  const handleAddToList = async (item: ProductCandidate) => {
-    if (!userService) {
-      showAlert("Error", "Please make sure you're logged in.");
-      return;
-    }
+  const handleAddToList = useCallback(
+    async (item: ProductCandidate) => {
+      if (!userService) {
+        showAlert("Error", "Please make sure you're logged in.");
+        return;
+      }
 
-    setAddingItems((prev) => new Set(prev).add(item.id));
+      setAddingItems((prev) => new Set(prev).add(item.id));
 
-    try {
-      await userService.shoppingList.addItemFromCatalog(
-        item,
-        userService.userId
-      );
+      try {
+        await userService.shoppingList.addItemFromCatalog(
+          item,
+          userService.userId,
+        );
 
-      showAlert(
-        "Added to Shopping List! 🛒",
-        `${item.productName} has been added to your shopping list with a ${item.discountPercent}% discount already detected!`
-      );
-    } catch (error) {
-      console.error("Error adding item to list:", error);
-      showAlert(
-        "Error",
-        "Could not add item to shopping list. Please try again."
-      );
-    } finally {
-      setAddingItems((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(item.id);
-        return newSet;
-      });
-    }
-  };
+        showAlert(
+          "Added to Shopping List! 🛒",
+          `${item.productName} has been added to your shopping list with a ${item.discountPercent}% discount already detected!`,
+        );
+      } catch (error) {
+        console.error("Error adding item to list:", error);
+        showAlert(
+          "Error",
+          "Could not add item to shopping list. Please try again.",
+        );
+      } finally {
+        setAddingItems((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(item.id);
+          return newSet;
+        });
+      }
+    },
+    [userService, showAlert],
+  );
 
   return { addingItems, handleViewPdf, handleAddToList };
 }

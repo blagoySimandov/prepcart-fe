@@ -40,7 +40,8 @@ export function NotificationSettings({
         style={[
           styles.settingItem,
           !notificationsEnabled && styles.disabledSetting,
-        ]}>
+        ]}
+      >
         <View style={styles.settingLeft}>
           <Text style={styles.settingTitle}>Shopping Reminders</Text>
           <Text style={styles.settingDescription}>

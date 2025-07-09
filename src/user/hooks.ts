@@ -1,63 +1,142 @@
 import { UserStatistics } from "@/app/(tabs)/profile/types";
 import { db } from "@/firebaseConfig";
-import { useAuth } from "@/src/auth/hooks";
 import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
-import { UserService } from "./service";
+import { useUserService } from "./context";
 import { ShoppingItem } from "./shopping-list/types";
+import { calculateSavingsFromItems } from "./util";
 
-/**
- * A hook that provides an instance of the UserService
- * for the currently authenticated user.
- *
- * @returns {UserService | null} An instance of UserService, or null if the user is not authenticated.
- */
-export function useUserService(): UserService | null {
-  const { user } = useAuth();
-  const [userService, setUserService] = useState<UserService | null>(null);
+type useUserStatisticsReturn = {
+  stats: UserStatistics | null;
+  loading: boolean;
+};
 
-  useEffect(() => {
-    if (user) {
-      setUserService(new UserService(user.uid));
-    } else {
-      setUserService(null);
-    }
-  }, [user]);
-
-  return userService;
+function createInitialState() {
+  return {
+    basicStats: { totalDiscoveredDiscounts: 0 } as Partial<UserStatistics>,
+    activeItems: [] as ShoppingItem[],
+    historyItems: [] as ShoppingItem[],
+    activeItemsLoading: true,
+    historyLoading: true,
+    statsLoading: true,
+  };
 }
 
-const calculateSavingsFromItems = (
-  items: ShoppingItem[],
-): Record<string, number> => {
-  const savings: Record<string, number> = {};
+function calculateTotalSavings(
+  activeItems: ShoppingItem[],
+  historyItems: ShoppingItem[],
+): Record<string, number> {
+  const completedItemsSavings = calculateSavingsFromItems(
+    activeItems.filter((i) => i.completed),
+  );
+  const historySavings = calculateSavingsFromItems(historyItems);
 
-  items.forEach((item) => {
-    if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
-      const bestDiscount = item.detectedDiscounts.reduce((best, current) =>
-        current.discount_percent > best.discount_percent ? current : best,
-      );
-      const itemSaving =
-        bestDiscount.price_before_discount_local *
-        (bestDiscount.discount_percent / 100);
-      const currency = bestDiscount.currency_local || "EUR"; // Default currency
+  const totalSavings: Record<string, number> = {};
+  Object.keys({ ...completedItemsSavings, ...historySavings }).forEach(
+    (currency) => {
+      totalSavings[currency] =
+        (completedItemsSavings[currency] || 0) +
+        (historySavings[currency] || 0);
+    },
+  );
 
-      savings[currency] = (savings[currency] || 0) + itemSaving;
+  return totalSavings;
+}
+
+function createUserStatistics(
+  basicStats: Partial<UserStatistics>,
+  totalSavings: Record<string, number>,
+): UserStatistics {
+  return {
+    totalDiscoveredDiscounts: basicStats.totalDiscoveredDiscounts || 0,
+    totalSavings: totalSavings,
+  };
+}
+
+function isAllDataLoaded(
+  activeItemsLoading: boolean,
+  historyLoading: boolean,
+  statsLoading: boolean,
+): boolean {
+  return !activeItemsLoading && !historyLoading && !statsLoading;
+}
+
+function setupStatsListener(
+  userService: any,
+  state: ReturnType<typeof createInitialState>,
+  recompute: () => void,
+) {
+  const userDocRef = doc(db, "users", userService.userId);
+  return onSnapshot(userDocRef, (doc) => {
+    state.statsLoading = false;
+    if (doc.exists()) {
+      const data = doc.data();
+      if (data && data.statistics) {
+        state.basicStats = data.statistics;
+      }
     }
+    recompute();
   });
+}
 
-  return savings;
-};
+function setupActiveItemsListener(
+  userService: any,
+  state: ReturnType<typeof createInitialState>,
+  recompute: () => void,
+) {
+  return userService.shoppingList.onListUpdate((items: ShoppingItem[]) => {
+    state.activeItemsLoading = false;
+    state.activeItems = items;
+    recompute();
+  });
+}
+
+function setupHistoryListener(
+  userService: any,
+  state: ReturnType<typeof createInitialState>,
+  recompute: () => void,
+) {
+  return userService.shoppingList.onHistoryUpdate((items: ShoppingItem[]) => {
+    state.historyLoading = false;
+    state.historyItems = items;
+    recompute();
+  });
+}
+
+function createRecomputeFunction(
+  state: ReturnType<typeof createInitialState>,
+  setStats: (stats: UserStatistics | null) => void,
+  setLoading: (loading: boolean) => void,
+) {
+  return () => {
+    if (
+      !isAllDataLoaded(
+        state.activeItemsLoading,
+        state.historyLoading,
+        state.statsLoading,
+      )
+    ) {
+      setLoading(true);
+      return;
+    }
+
+    const totalSavings = calculateTotalSavings(
+      state.activeItems,
+      state.historyItems,
+    );
+    const userStats = createUserStatistics(state.basicStats, totalSavings);
+
+    setStats(userStats);
+    setLoading(false);
+  };
+}
 
 /**
  * A hook that retrieves and provides real-time updates for the user's statistics.
  *
  * @returns {{ stats: UserStatistics | null, loading: boolean }}
  */
-export function useUserStatistics(): {
-  stats: UserStatistics | null;
-  loading: boolean;
-} {
+export function useUserStatistics(): useUserStatisticsReturn {
   const userService = useUserService();
   const [stats, setStats] = useState<UserStatistics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,66 +148,16 @@ export function useUserStatistics(): {
       return;
     }
 
-    let basicStats: Partial<UserStatistics> = {
-      totalDiscoveredDiscounts: 0,
-    };
-    let activeItems: ShoppingItem[] = [];
-    let historyItems: ShoppingItem[] = [];
-    let activeItemsLoading = true;
-    let historyLoading = true;
-    let statsLoading = true;
+    const state = createInitialState();
+    const recompute = createRecomputeFunction(state, setStats, setLoading);
 
-    const recompute = () => {
-      if (activeItemsLoading || historyLoading || statsLoading) {
-        setLoading(true);
-        return;
-      }
-
-      const completedItemsSavings = calculateSavingsFromItems(
-        activeItems.filter((i) => i.completed),
-      );
-      const historySavings = calculateSavingsFromItems(historyItems);
-
-      const totalSavings: Record<string, number> = {};
-
-      Object.keys({ ...completedItemsSavings, ...historySavings }).forEach(
-        (currency) => {
-          totalSavings[currency] =
-            (completedItemsSavings[currency] || 0) +
-            (historySavings[currency] || 0);
-        },
-      );
-
-      setStats({
-        totalDiscoveredDiscounts: basicStats.totalDiscoveredDiscounts || 0,
-        totalSavings: totalSavings,
-      });
-      setLoading(false);
-    };
-
-    const userDocRef = doc(db, "users", userService.userId);
-    const unsubStats = onSnapshot(userDocRef, (doc) => {
-      statsLoading = false;
-      if (doc.exists()) {
-        const data = doc.data();
-        if (data.statistics) {
-          basicStats = data.statistics;
-        }
-      }
-      recompute();
-    });
-
-    const unsubActiveList = userService.shoppingList.onListUpdate((items) => {
-      activeItemsLoading = false;
-      activeItems = items;
-      recompute();
-    });
-
-    const unsubHistory = userService.shoppingList.onHistoryUpdate((items) => {
-      historyLoading = false;
-      historyItems = items;
-      recompute();
-    });
+    const unsubStats = setupStatsListener(userService, state, recompute);
+    const unsubActiveList = setupActiveItemsListener(
+      userService,
+      state,
+      recompute,
+    );
+    const unsubHistory = setupHistoryListener(userService, state, recompute);
 
     return () => {
       unsubStats();

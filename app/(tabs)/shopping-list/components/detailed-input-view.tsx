@@ -10,7 +10,6 @@ interface DetailedInputViewProps {
   onQuantityChange: (quantity: string) => void;
   onUnitChange: (unit: string) => void;
   onAddItem: (item: { name: string; quantity: string }) => void;
-  isEditMode: boolean;
 }
 
 export interface DetailedInputViewRef {
@@ -30,9 +29,8 @@ export const DetailedInputView = forwardRef<
       onQuantityChange,
       onUnitChange,
       onAddItem,
-      isEditMode,
     },
-    ref
+    ref,
   ) => {
     const { styles, colors } = useStyles();
 
@@ -85,7 +83,7 @@ export const DetailedInputView = forwardRef<
         </View>
       </View>
     );
-  }
+  },
 );
 
 DetailedInputView.displayName = "DetailedInputView";

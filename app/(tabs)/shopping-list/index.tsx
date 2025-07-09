@@ -1,4 +1,5 @@
 import { ThemedView } from "@/components/ThemedView";
+import { StoreFilterModal } from "@/components/shared/store-filter-modal";
 import React from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { AddItemModal } from "./components/add-item-modal";
@@ -8,6 +9,7 @@ import { SavingsSummary } from "./components/savings-summary";
 import { ShoppingListHeader } from "./components/shopping-list-header";
 import { ShoppingListView } from "./components/shopping-list-view";
 import { useDiscounts, useShoppingList, useShoppingListModals } from "./hooks";
+import { useStoreFilter } from "./hooks/use-store-filter";
 import { useStyles } from "./styles";
 
 export default function ShoppingListScreen() {
@@ -21,8 +23,23 @@ export default function ShoppingListScreen() {
     deleteItem,
     clearCompleted,
   } = useShoppingList();
-  const { findDiscounts, isFindingDiscounts, apiTotalSavings } =
-    useDiscounts(items);
+
+  const {
+    selectedStores,
+    modalVisible,
+    allStores,
+    isLoading: isLoadingStores,
+    toggleStore,
+    selectAllStores,
+    clearAllStores,
+    openModal,
+    closeModal,
+  } = useStoreFilter();
+
+  const { findDiscounts, isFindingDiscounts } = useDiscounts(
+    items,
+    isLoadingStores ? [] : selectedStores,
+  );
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
 
   const handleAddItem = (item: { name: string; quantity: string }) => {
@@ -32,9 +49,9 @@ export default function ShoppingListScreen() {
 
   const handleUpdateItem = (
     id: string,
-    updatedData: { name: string; quantity: string }
+    updatedData: { name: string; quantity: string },
   ) => {
-    updateItem(id, updatedData);
+    updateItem(id, updatedData as any);
     itemModal.close();
   };
 
@@ -54,9 +71,10 @@ export default function ShoppingListScreen() {
           isFindingDiscounts={isFindingDiscounts}
           onAddItem={itemModal.openAdd}
           onShowHelp={helpModal.open}
+          onOpenStoreFilter={openModal}
         />
 
-        <SavingsSummary items={items} apiTotalSavings={apiTotalSavings} />
+        <SavingsSummary items={items} />
 
         <ShoppingListView
           items={items}
@@ -79,6 +97,16 @@ export default function ShoppingListScreen() {
           visible={discountModal.visible}
           onClose={discountModal.close}
           discounts={discountModal.discounts}
+        />
+
+        <StoreFilterModal
+          visible={modalVisible}
+          onClose={closeModal}
+          selectedStores={selectedStores}
+          allStores={allStores}
+          onStoreToggle={toggleStore}
+          onSelectAll={selectAllStores}
+          onClearAll={clearAllStores}
         />
 
         <HelpModal visible={helpModal.visible} onClose={helpModal.close} />

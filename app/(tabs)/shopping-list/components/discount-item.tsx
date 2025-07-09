@@ -1,6 +1,6 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { getStoreName } from "@/src/discounts/constants";
 import { Discount } from "@/src/discounts/types";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import React from "react";
 import { Text, View } from "react-native";
 import { useStyles } from "../styles";
@@ -15,8 +15,16 @@ export function DiscountItem({ discount }: DiscountItemProps) {
   const discountedPrice =
     discount.price_before_discount_local *
     (1 - discount.discount_percent / 100);
-  const savings = discount.price_before_discount_local - discountedPrice;
+  const perUnitSavings =
+    discount.price_before_discount_local * (discount.discount_percent / 100);
+
+  const totalSavings = discount.quantity_multiplier
+    ? discount.quantity_multiplier * perUnitSavings
+    : null;
+
+  const { getStoreName } = useStoreNames();
   const storeName = getStoreName(discount.store_id);
+  const currency = discount.currency_local || "BGN";
 
   return (
     <View style={styles.discountItemCard}>
@@ -28,6 +36,11 @@ export function DiscountItem({ discount }: DiscountItemProps) {
               {discount.discount_percent}% OFF
             </Text>
           </View>
+          {discount.quantity_multiplier && (
+            <View style={styles.bestMatchIndicator}>
+              <Text style={styles.bestMatchText}>BEST MATCH</Text>
+            </View>
+          )}
           {discount.requires_loyalty_card && (
             <View style={styles.loyaltyCardIndicator}>
               <IconSymbol name="creditcard" size={12} color={colors.accent} />
@@ -53,31 +66,30 @@ export function DiscountItem({ discount }: DiscountItemProps) {
         <View style={styles.priceItem}>
           <Text style={styles.priceLabel}>Original Price</Text>
           <Text style={styles.originalPrice}>
-            {discount.price_before_discount_local.toFixed(2)}{" "}
-            {discount.currency_local}
+            {discount.price_before_discount_local.toFixed(2)} {currency}
           </Text>
         </View>
         <View style={styles.priceItem}>
-          <Text style={styles.priceLabel}>Discount</Text>
+          <Text style={styles.priceLabel}>Per-Unit Savings</Text>
           <Text style={styles.savingsAmount}>
-            - {savings.toFixed(2)} {discount.currency_local}
+            - {perUnitSavings.toFixed(2)} {currency}
           </Text>
         </View>
+        {totalSavings && (
+          <View style={styles.priceItem}>
+            <Text style={styles.priceLabel}>Total Savings</Text>
+            <Text style={styles.savingsAmount}>
+              - {totalSavings.toFixed(2)} {currency}
+            </Text>
+          </View>
+        )}
         <View style={styles.priceItem}>
           <Text style={styles.priceLabel}>Final Price</Text>
           <Text style={styles.discountedPrice}>
-            {discountedPrice.toFixed(2)} {discount.currency_local}
+            {discountedPrice.toFixed(2)} {currency}
           </Text>
         </View>
       </View>
-
-      {discount.similarity_score && (
-        <View style={styles.similarityContainer}>
-          <Text style={styles.similarityText}>
-            Match confidence: {discount.similarity_score.toFixed(1)}%
-          </Text>
-        </View>
-      )}
     </View>
   );
 }

@@ -2,18 +2,18 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "prepcartv2",
-    slug: "prepcartv2",
+    name: "PrepCart",
+    slug: "PrepCart",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/splash-screens/icon.png",
     scheme: "prepcart",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/splash-icon.png",
+      image: "./assets/splash-screens/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#ff5630",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -24,8 +24,8 @@ export default {
     android: {
       package: "com.simandoff.prepcart",
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff",
+        foregroundImage: "./assets/splash-screens/icon.png",
+        backgroundColor: "#FFF8F3",
       },
       googleServicesFile: "./google-services.json",
     },
@@ -50,10 +50,13 @@ export default {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
+          backgroundColor: "#232323",
+          image: "./assets/splash-screens/splash.png",
+          dark: {
+            image: "./assets/splash-screens/splash.png",
+            backgroundColor: "#232323",
+          },
           imageWidth: 200,
-          resizeMode: "contain",
-          backgroundColor: "#ffffff",
         },
       ],
     ],
@@ -71,6 +74,7 @@ export default {
       firebaseMessagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.FIREBASE_APP_ID,
       firebaseMeasurementId: process.env.FIREBASE_MEASUREMENT_ID,
+      typesenseApiKey: process.env.EXPO_PUBLIC_TYPESENSE_API_KEY,
     },
   },
 };

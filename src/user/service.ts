@@ -48,12 +48,8 @@ export class UserService {
   /**
    * Updates the user's aggregated statistics in Firestore.
    * @param {number} discoveredDiscounts - The number of new discounts found.
-   * @param {Record<string, number>} savings - The potential savings from the new discounts.
    */
-  async updateUserStatistics(
-    discoveredDiscounts: number,
-    savings: Record<string, number>
-  ): Promise<void> {
+  async updateUserStatistics(discoveredDiscounts: number): Promise<void> {
     const userDocRef = doc(db, "users", this.userId);
 
     try {
@@ -64,7 +60,6 @@ export class UserService {
       }
     } catch (error) {
       console.error("Error updating user statistics:", error);
-      // Attempt to recover if the statistics object doesn't exist.
       try {
         const userDoc = await getDoc(userDocRef);
         if (!userDoc.exists()) {
@@ -93,7 +88,6 @@ export class UserService {
     try {
       const docSnap = await getDoc(userDocRef);
       if (!docSnap.exists()) {
-        // Document doesn't exist, so this is a new user. Create the profile.
         await setDoc(userDocRef, {
           id: this.userId,
           email: userData.email,

@@ -31,7 +31,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
         buttons: buttons || [{ text: "OK" }],
       });
     },
-    []
+    [],
   );
 
   const hideAlert = useCallback(() => {

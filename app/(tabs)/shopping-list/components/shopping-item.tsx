@@ -1,6 +1,7 @@
 import { useAlert } from "@/components/providers/AlertProvider";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Discount } from "@/src/discounts/types";
+import { useStoreNames } from "@/src/shared/hooks/use-store-names";
 import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -13,7 +14,7 @@ interface ShoppingItemProps {
   onEdit: (item: ShoppingItemType) => void;
   onShowDiscounts: (discounts: Discount[]) => void;
   discounts: Discount[];
-  bestDiscount?: number;
+  bestDiscountData?: Discount;
 }
 
 export function ShoppingItem({
@@ -23,10 +24,11 @@ export function ShoppingItem({
   onEdit,
   onShowDiscounts,
   discounts,
-  bestDiscount,
+  bestDiscountData,
 }: ShoppingItemProps) {
   const { styles, colors } = useStyles();
   const { showAlert } = useAlert();
+  const { getStoreName } = useStoreNames();
   const hasDiscounts = discounts.length > 0;
 
   const handleDeleteItem = (id: string, name: string) => {
@@ -41,17 +43,20 @@ export function ShoppingItem({
       style={[
         styles.itemCard,
         { backgroundColor: colors.card, borderColor: colors.border },
-      ]}>
+      ]}
+    >
       <TouchableOpacity
         style={styles.itemContent}
-        onPress={() => onToggle(item.id)}>
+        onPress={() => onToggle(item.id)}
+      >
         <View style={styles.itemLeft}>
           <View
             style={[
               styles.checkbox,
               { borderColor: colors.tint },
               item.completed && { backgroundColor: colors.tint },
-            ]}>
+            ]}
+          >
             {item.completed && (
               <IconSymbol name="checkmark" size={16} color="#FFFFFF" />
             )}
@@ -62,7 +67,8 @@ export function ShoppingItem({
                 styles.itemName,
                 { color: colors.text },
                 item.completed && styles.completedText,
-              ]}>
+              ]}
+            >
               {item.name}
             </Text>
             <Text style={[styles.itemDetails, { color: colors.icon }]}>
@@ -72,12 +78,17 @@ export function ShoppingItem({
         </View>
       </TouchableOpacity>
 
-      {hasDiscounts && (
+      {hasDiscounts && bestDiscountData && (
         <TouchableOpacity
           style={styles.storeDiscountBadge}
-          onPress={() => onShowDiscounts(discounts)}>
-          <Text style={styles.storeDiscountStoreName}>LIDL</Text>
-          <Text style={styles.storeDiscountPercentage}>{bestDiscount}%</Text>
+          onPress={() => onShowDiscounts(discounts)}
+        >
+          <Text style={styles.storeDiscountStoreName}>
+            {getStoreName(bestDiscountData.store_id)}
+          </Text>
+          <Text style={styles.storeDiscountPercentage}>
+            {bestDiscountData.discount_percent}%
+          </Text>
         </TouchableOpacity>
       )}
 
@@ -86,7 +97,8 @@ export function ShoppingItem({
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => handleDeleteItem(item.id, item.name)}>
+        onPress={() => handleDeleteItem(item.id, item.name)}
+      >
         <IconSymbol name="trash" size={20} color={colors.error} />
       </TouchableOpacity>
     </View>

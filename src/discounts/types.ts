@@ -1,3 +1,5 @@
+import { BaseShoppingListItem } from "../user/shopping-list";
+
 /**
  * Represents a single discount for a product.
  * This is the canonical discount object used throughout the app.
@@ -13,12 +15,13 @@ export interface Discount {
   page_number: number;
   similarity_score?: number;
   requires_loyalty_card?: boolean;
+  quantity_multiplier?: number;
 }
 
 /**
  * Represents a shopping list item for the Cloud Function API
  */
-export interface ShoppingListApiItem {
+export interface ApiShoppingItem {
   item: string;
   quantity: number;
   unit: string;
@@ -27,8 +30,8 @@ export interface ShoppingListApiItem {
 /**
  * Request structure for the matchShoppingList Cloud Function
  */
-export interface MatchShoppingListRequest {
-  shopping_list: ShoppingListApiItem[];
+export interface ApiMatchRequest {
+  shopping_list: ApiShoppingItem[];
   country?: string;
   store_ids?: string[];
   max_results_per_item?: number;
@@ -38,8 +41,8 @@ export interface MatchShoppingListRequest {
 /**
  * Individual match result from the Cloud Function
  */
-export interface DiscountMatch {
-  shopping_list_item: ShoppingListApiItem;
+export interface ApiDiscountMatch {
+  shopping_list_item: ApiShoppingItem;
   matched_products: Discount[];
   confidence_score: number;
   match_reasoning: string;
@@ -49,10 +52,9 @@ export interface DiscountMatch {
 /**
  * Response structure from the matchShoppingList Cloud Function
  */
-export interface MatchShoppingListResponse {
-  matches: DiscountMatch[];
+export interface ApiMatchResponse {
+  matches: ApiDiscountMatch[];
   unmatched_items: string[];
-  total_potential_savings_by_currency: Record<string, number>;
   processing_time_ms: number;
 }
 
@@ -83,4 +85,31 @@ export interface PdfAnalysisResult {
 export interface ShoppingListMatch {
   shopping_list_item: string;
   matched_products: Discount[];
+}
+
+// Search/retrieval types
+export interface ProductCandidate {
+  id: string;
+  product_name: string;
+  store_id: string;
+  country: string;
+  discount_percent: number;
+  price_before_discount_local: number;
+  currency_local: string;
+  page_number: number;
+  similarity_score: number;
+  confidence_score?: number;
+  is_exact_match?: boolean;
+  requires_loyalty_card: boolean;
+  // Quantity information for client-side calculations
+  quantity_multiplier?: number;
+}
+export interface DiscountSearchResult {
+  shopping_list_item: BaseShoppingListItem;
+  matched_products: ProductCandidate[];
+}
+export interface FindDiscountsResult {
+  matches: DiscountSearchResult[];
+  unmatched_items: string[];
+  processing_time_ms: number;
 }

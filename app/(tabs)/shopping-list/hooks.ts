@@ -1,32 +1,39 @@
 import { useAlert } from "@/components/providers/AlertProvider";
 import { analytics } from "@/firebaseConfig";
-import { Discount } from "@/src/discounts/types";
+import { Discount, ProductCandidate } from "@/src/discounts/types";
 import { useUserService } from "@/src/user";
 import { ShoppingItem } from "@/src/user/shopping-list/types";
+import { removeUndefined } from "@/src/utils";
 import { ItemParser } from "@/src/utils/item-parser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
+const DEFAULT_CURRENCY = "BGN";
+
 export function useShoppingList() {
   const userService = useUserService();
   const [items, setItems] = useState<ShoppingItem[]>([]);
-  console.log(items?.[0]?.detectedDiscounts);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!userService) return;
+    if (!userService) {
+      setIsLoading(false);
+      setItems([]);
+      return;
+    }
 
     setIsLoading(true);
-    const unsubscribe = userService.shoppingList.onListUpdate((loadedItems) => {
-      setItems(loadedItems);
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    });
 
-    return () => unsubscribe();
-    // //TODO: Figure out why this causes a rerender
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const unsubscribe = userService.shoppingList.onListUpdate(
+      (loadedItems: ShoppingItem[]) => {
+        setItems(loadedItems);
+        setIsLoading(false);
+      },
+    );
+
+    return () => {
+      unsubscribe();
+    };
   }, [userService]);
 
   const addItem = useCallback(
@@ -103,12 +110,9 @@ export function useShoppingList() {
   };
 }
 
-export function useDiscounts(items: ShoppingItem[]) {
+export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
   const userService = useUserService();
   const [isFindingDiscounts, setIsFindingDiscounts] = useState(false);
-  const [apiTotalSavings, setApiTotalSavings] = useState<
-    Record<string, number>
-  >({});
   const { showAlert } = useAlert();
 
   const findDiscounts = useCallback(async () => {
@@ -117,38 +121,78 @@ export function useDiscounts(items: ShoppingItem[]) {
     setIsFindingDiscounts(true);
     analytics.logEvent("find_discounts_for_shopping_list", {
       item_count: items.length,
+      selected_stores: selectedStores?.length || 0,
     });
     try {
       const result = await userService.discounts.findDiscountsForItems(
         items,
         5,
+        selectedStores,
       );
-      const { itemDiscounts, totalSavings, unmatchedItems, matches } = result;
+      const { matches, unmatched_items: unmatchedItems } = result;
 
       const updatedItems = items.map((item) => {
-        const foundDiscounts = itemDiscounts.get(item.id);
-        return foundDiscounts
-          ? { ...item, detectedDiscounts: foundDiscounts }
-          : { ...item, detectedDiscounts: [] };
+        const match = matches.find((m) => m.shopping_list_item.id === item.id);
+        const foundDiscounts = match ? match.matched_products : [];
+        let calculatedSavings: ShoppingItem["calculatedSavings"] = undefined;
+        if (foundDiscounts.length > 0) {
+          const bestDiscount = foundDiscounts.find(
+            (d: ProductCandidate) =>
+              d.quantity_multiplier && d.quantity_multiplier > 0,
+          );
+          if (bestDiscount && bestDiscount.quantity_multiplier) {
+            const savingsAmount =
+              bestDiscount.price_before_discount_local *
+              bestDiscount.quantity_multiplier;
+            calculatedSavings = {
+              amount: savingsAmount,
+              currency: bestDiscount.currency_local || DEFAULT_CURRENCY,
+              bestDiscountId: bestDiscount.id,
+            };
+          }
+        }
+
+        const base = {
+          ...item,
+          detectedDiscounts: foundDiscounts as unknown as Discount[],
+        };
+        return calculatedSavings !== undefined
+          ? { ...base, calculatedSavings }
+          : base;
       });
 
-      setApiTotalSavings(totalSavings);
-      await userService.shoppingList.saveList(updatedItems);
+      const itemSavingsByCurrency: Record<string, number> = {};
+      updatedItems.forEach((item) => {
+        if (item.detectedDiscounts && item.detectedDiscounts.length > 0) {
+          const bestDiscount = item.detectedDiscounts.find(
+            (d) => d.quantity_multiplier && d.quantity_multiplier > 0,
+          );
+          if (bestDiscount && bestDiscount.quantity_multiplier) {
+            const perUnitSavings =
+              bestDiscount.price_before_discount_local *
+              (bestDiscount.discount_percent / 100);
+            const total = bestDiscount.quantity_multiplier * perUnitSavings;
+            const currency = bestDiscount.currency_local || "BGN";
+            itemSavingsByCurrency[currency] =
+              (itemSavingsByCurrency[currency] || 0) + total;
+          }
+        }
+      });
+      const totalSavingsText = Object.entries(itemSavingsByCurrency)
+        .map(([currency, amount]) => `${amount.toFixed(2)} ${currency}`)
+        .join(", ");
+
+      await userService.shoppingList.saveList(removeUndefined(updatedItems));
 
       analytics.logEvent("find_discounts_success", {
         matched_count: matches.length,
         unmatched_count: unmatchedItems.length,
-        total_savings: totalSavings,
+        total_savings: JSON.stringify(itemSavingsByCurrency),
+        filtered_stores: selectedStores?.length || 0,
       });
 
       const matchedCount = matches.length;
       const unmatchedCount = unmatchedItems.length;
-      const totalSavingsText = Object.entries(totalSavings)
-        .map(
-          ([currency, amount]) =>
-            `${(amount as number).toFixed(2)} ${currency}`,
-        )
-        .join(", ");
 
       if (matchedCount > 0) {
         showAlert(
@@ -181,9 +225,9 @@ export function useDiscounts(items: ShoppingItem[]) {
     } finally {
       setIsFindingDiscounts(false);
     }
-  }, [userService, items, showAlert]);
+  }, [userService, items, selectedStores, showAlert]);
 
-  return { findDiscounts, isFindingDiscounts, apiTotalSavings };
+  return { findDiscounts, isFindingDiscounts };
 }
 
 export function useShoppingListModals() {
@@ -194,13 +238,14 @@ export function useShoppingListModals() {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
 
   useEffect(() => {
+    let timeoutId: number;
     const checkFirstTime = async () => {
       try {
         const hasSeenHelp = await AsyncStorage.getItem(
           "hasSeenShoppingListHelp",
         );
         if (!hasSeenHelp) {
-          setTimeout(() => {
+          timeoutId = setTimeout(() => {
             setHelpModalVisible(true);
           }, 500);
         }
@@ -210,6 +255,12 @@ export function useShoppingListModals() {
     };
 
     checkFirstTime();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   const openAddModal = useCallback(() => {

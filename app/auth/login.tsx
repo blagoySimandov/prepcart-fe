@@ -30,9 +30,9 @@ export default function LoginScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={{ ...styles.container }}>
       <Image
-        source={require("../../assets/images/icon.png")}
+        source={require("../../assets/splash-screens/icon-circle.png")}
         style={styles.logo}
       />
       <ThemedText type="title" style={styles.title}>
@@ -44,7 +44,8 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         style={[styles.button, { backgroundColor: tint }]}
-        onPress={handleSignIn}>
+        onPress={handleSignIn}
+      >
         <ThemedText type="defaultSemiBold" lightColor="#fff" darkColor="#000">
           Sign in with Google
         </ThemedText>
@@ -61,8 +62,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     marginBottom: 40,
   },
   title: {
