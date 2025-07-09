@@ -29,7 +29,7 @@ export function ShoppingListView({
     const bestDiscountData =
       discounts.length > 0
         ? discounts.reduce((best, current) =>
-            current.discount_percent > best.discount_percent ? current : best
+            current.discount_percent > best.discount_percent ? current : best,
           )
         : undefined;
 
@@ -62,8 +62,9 @@ export function ShoppingListView({
   return (
     <ScrollView
       style={styles.listContainer}
-      contentContainerStyle={{ paddingBottom: 100 }} // give space if needed
-      showsVerticalScrollIndicator={false}>
+      contentContainerStyle={{ paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}
+    >
       {pendingItems.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>
@@ -81,7 +82,8 @@ export function ShoppingListView({
             </Text>
             <TouchableOpacity
               style={styles.clearButton}
-              onPress={onClearCompleted}>
+              onPress={onClearCompleted}
+            >
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>

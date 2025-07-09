@@ -1,10 +1,10 @@
 import { ShoppingItem } from "../user/shopping-list/types";
 import {
-  Discount,
-  DiscountMatch,
   FindDiscountsResponse,
   MatchShoppingListRequest,
   MatchShoppingListResponse,
+  MatchedProduct,
+  ProductCandidate,
   ShoppingListApiItem,
 } from "./types";
 
@@ -28,14 +28,11 @@ export class DiscountService {
     maxResultsPerItem: number = 5,
     storeIds?: string[],
   ): Promise<FindDiscountsResponse> {
-    const itemDiscounts = new Map<string, Discount[]>();
-
     if (items.length === 0) {
       return {
-        itemDiscounts,
-        totalSavings: {},
-        unmatchedItems: [],
         matches: [],
+        unmatched_items: [],
+        processing_time_ms: 0,
       };
     }
 
@@ -68,48 +65,51 @@ export class DiscountService {
       }
 
       const data: MatchShoppingListResponse = await response.json();
+      console.log("data", data.matches[0].matched_products);
 
       const itemNameToShoppingItem = new Map<string, ShoppingItem>();
       items.forEach((item) => {
         itemNameToShoppingItem.set(item.name.toLowerCase(), item);
       });
 
-      const totalSavingsByCurrency: Record<string, number> = {};
-
-      for (const match of data.matches) {
-        if (match.matched_products && match.matched_products.length > 0) {
+      const matches: MatchedProduct[] = data.matches
+        .map((match): MatchedProduct | null => {
           const shoppingItem = itemNameToShoppingItem.get(
             match.shopping_list_item.item.toLowerCase(),
           );
-          if (shoppingItem) {
-            const existingDiscounts = itemDiscounts.get(shoppingItem.id) || [];
-            for (const product of match.matched_products) {
-              if (product.discount_percent > 0) {
-                // Calculate and add savings if quantity_multiplier is present (best match)
-                if (
-                  product.quantity_multiplier &&
-                  product.quantity_multiplier > 0
-                ) {
-                  const savings =
-                    product.price_before_discount_local *
-                    product.quantity_multiplier;
-                  const currency = product.currency_local || "BGN"; // Default to BGN if empty
-                  totalSavingsByCurrency[currency] =
-                    (totalSavingsByCurrency[currency] || 0) + savings;
-                }
-                existingDiscounts.push(product);
-              }
-            }
-            itemDiscounts.set(shoppingItem.id, existingDiscounts);
+
+          if (!shoppingItem) {
+            return null;
           }
-        }
-      }
+
+          const matched_products: ProductCandidate[] = match.matched_products
+            .map((p): ProductCandidate | null => {
+              if (!p.id) {
+                return null;
+              }
+              return {
+                ...p,
+                id: p.id,
+                similarity_score: p.similarity_score ?? 0,
+                quantity: p.quantity_multiplier?.toString() ?? "",
+                requires_loyalty_card: p.requires_loyalty_card ?? false,
+                confidence_score: match.confidence_score,
+                is_exact_match: match.is_exact_match,
+              };
+            })
+            .filter((p): p is ProductCandidate => p !== null);
+
+          return {
+            shopping_list_item: shoppingItem,
+            matched_products,
+          };
+        })
+        .filter((m): m is MatchedProduct => m !== null);
 
       return {
-        itemDiscounts,
-        totalSavings: totalSavingsByCurrency,
-        unmatchedItems: data.unmatched_items,
-        matches: data.matches,
+        matches,
+        unmatched_items: data.unmatched_items,
+        processing_time_ms: data.processing_time_ms,
       };
     } catch (error) {
       console.error("Failed to fetch discounts from API:", error);
