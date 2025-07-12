@@ -27,7 +27,7 @@ export function useStoreNames(): UseStoreNamesResult {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
     },
-    [storeNames]
+    [storeNames],
   );
 
   const availableStoreIds = Object.keys(storeNames);

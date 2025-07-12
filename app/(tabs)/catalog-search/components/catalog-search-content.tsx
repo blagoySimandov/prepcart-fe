@@ -1,7 +1,7 @@
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import React from "react";
-import { FlatList, Text, TextInput, View } from "react-native";
+import { FlatList, ListRenderItem, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useProductActions } from "../hooks/use-product-actions";
 import { useTypesenseSearch } from "../hooks/use-typesense-search";
@@ -11,6 +11,7 @@ import { InitialSearchPrompt } from "./initial-search-prompt";
 import { NoResultsFound } from "./no-results-found";
 import { ProductCard } from "./product-card";
 import { SearchStats } from "./search-stats";
+import { ProductCandidate } from "@/src/catalog-search/types";
 
 interface CatalogSearchContentProps {
   onOpenStoreFilter: () => void;
@@ -26,12 +27,31 @@ export function CatalogSearchContent({
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
 
-  console.log("[CatalogSearchContent] Component render:", {
-    query,
-    resultsCount: results.length,
-    queryLength: query.length,
-    colorScheme,
-  });
+  const renderContent = () => {
+    if (query.length === 0) return <InitialSearchPrompt />;
+    if (results.length === 0) return <NoResultsFound query={query} />;
+
+    const renderItem: ListRenderItem<ProductCandidate> = ({ item }) => (
+      <ProductCard
+        item={item}
+        isAdding={addingItems.has(item.id)}
+        onAddToList={handleAddToList}
+        onViewPdf={handleViewPdf}
+      />
+    );
+
+    return (
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.1}
+      />
+    );
+  };
 
   return (
     <SafeAreaView
@@ -64,51 +84,7 @@ export function CatalogSearchContent({
         value={query}
         onChangeText={handleInputChange}
       />
-      {(() => {
-        console.log("[CatalogSearchContent] Rendering content based on:", {
-          queryLength: query.length,
-          resultsLength: results.length,
-        });
-
-        if (query.length === 0) {
-          console.log("[CatalogSearchContent] Showing initial search prompt");
-          return <InitialSearchPrompt />;
-        } else if (results.length === 0) {
-          console.log("[CatalogSearchContent] Showing no results found");
-          return <NoResultsFound query={query} />;
-        } else {
-          console.log(
-            "[CatalogSearchContent] Showing results list with",
-            results.length,
-            "items",
-          );
-          return (
-            <FlatList
-              data={results}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => {
-                console.log(
-                  "[CatalogSearchContent] Rendering item:",
-                  item.id,
-                  item.productName,
-                );
-                return (
-                  <ProductCard
-                    item={item}
-                    isAdding={addingItems.has(item.id)}
-                    onAddToList={handleAddToList}
-                    onViewPdf={handleViewPdf}
-                  />
-                );
-              }}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.1}
-            />
-          );
-        }
-      })()}
+      {renderContent()}
     </SafeAreaView>
   );
 }

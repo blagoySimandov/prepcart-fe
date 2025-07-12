@@ -4,24 +4,42 @@ import { remoteConfigService } from "./index";
 interface RemoteConfigContextType {
   storeNames: Record<string, string>;
   isHighlightingEnabled: boolean;
+  isLoading: boolean;
 }
 
 const RemoteConfigContext = createContext<RemoteConfigContextType>({
   storeNames: {},
   isHighlightingEnabled: true,
+  isLoading: true,
 });
-const configPromise = remoteConfigService.initializeIfNot().then(() => ({
-  storeNames: remoteConfigService.getStoreNames(),
-  isHighlightingEnabled: remoteConfigService.isHighlightingEnabled(),
-}));
+
+function useRemoteConfigValue() {
+  const [config, setConfig] = React.useState<{
+    storeNames: Record<string, string>;
+    isHighlightingEnabled: boolean;
+  }>({ storeNames: {}, isHighlightingEnabled: true });
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    remoteConfigService.initializeIfNot().then(() => {
+      setConfig({
+        storeNames: remoteConfigService.getStoreNames(),
+        isHighlightingEnabled: remoteConfigService.isHighlightingEnabled(),
+      });
+      setIsLoading(false);
+    });
+  }, []);
+
+  return { ...config, isLoading };
+}
 export function RemoteConfigProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { storeNames, isHighlightingEnabled } = use(configPromise);
+  const value = useRemoteConfigValue();
   return (
-    <RemoteConfigContext.Provider value={{ storeNames, isHighlightingEnabled }}>
+    <RemoteConfigContext.Provider value={value}>
       {children}
     </RemoteConfigContext.Provider>
   );

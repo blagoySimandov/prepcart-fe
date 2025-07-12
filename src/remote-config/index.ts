@@ -43,6 +43,12 @@ class RemoteConfigService {
       return JSON.parse(DEFAULTS[CONFIG.StoreNames] as string);
     }
   }
+  getLatestVersion(): string {
+    return remoteConfig.getValue(CONFIG.LatestVersion).asString();
+  }
+  getMinVersion(): string {
+    return remoteConfig.getValue(CONFIG.MinVersion).asString();
+  }
 
   getAvailableStoreIds(): string[] {
     return Object.keys(this.getStoreNames());
