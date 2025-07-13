@@ -7,15 +7,13 @@ import React from "react";
 import { Configure, InstantSearch } from "react-instantsearch-core";
 import { CatalogSearchContent } from "./components/catalog-search-content";
 import { useCatalogStoreFilter } from "./hooks/use-catalog-store-filter";
+import { getTypesenseFilters } from "./utils/get-typesense-filters";
 
 export default function CatalogSearchScreen() {
-  const now = Math.floor(Date.now()) / 1000;
-
   const {
     selectedStores,
     modalVisible,
     allStores,
-    isLoading,
     toggleStore,
     selectAllStores,
     clearAllStores,
@@ -23,16 +21,7 @@ export default function CatalogSearchScreen() {
     closeModal,
   } = useCatalogStoreFilter();
 
-  const numericFilters = [`validUntil:>${now}`, `validFrom:<${now}`];
-  const storeFilter =
-    !isLoading &&
-    selectedStores.length > 0 &&
-    selectedStores.length < allStores.length
-      ? `(${selectedStores
-          .map((storeId) => `storeId:=${storeId}`)
-          .join(" || ")})`
-      : undefined;
-
+  const filters = getTypesenseFilters(selectedStores, allStores);
   return (
     <>
       <InstantSearch
@@ -43,8 +32,7 @@ export default function CatalogSearchScreen() {
           highlightPreTag="<mark>"
           highlightPostTag="</mark>"
           hitsPerPage={20}
-          numericFilters={numericFilters}
-          filters={storeFilter}
+          filters={filters}
         />
         <CatalogSearchContent onOpenStoreFilter={openModal} />
       </InstantSearch>
