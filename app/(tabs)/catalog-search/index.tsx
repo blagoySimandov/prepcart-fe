@@ -17,11 +17,13 @@ export default function CatalogSearchScreen() {
     toggleStore,
     selectAllStores,
     clearAllStores,
+    isLoading,
     openModal,
     closeModal,
   } = useCatalogStoreFilter();
 
-  const filters = getTypesenseFilters(selectedStores, allStores);
+  const filters = getTypesenseFilters(selectedStores, allStores, isLoading);
+  console.log(filters);
   return (
     <>
       <InstantSearch

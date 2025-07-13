@@ -1,14 +1,14 @@
 export const getTypesenseFilters = (
   selectedStores: string[],
   allStores: string[],
+  isLoadingStores: boolean,
 ) => {
   const now = Math.floor(Date.now() / 1000);
 
   const storeFilter =
-    !selectedStores.length &&
-    allStores.length > 0 &&
-    allStores.length < selectedStores.length
-      ? `(${allStores.map((storeId) => `storeId:=${storeId}`).join(" || ")})`
+    !isLoadingStores ||
+    (allStores.length > 0 && allStores.length < selectedStores.length)
+      ? `storeId:=[${selectedStores}]`
       : undefined;
 
   const filters = [
