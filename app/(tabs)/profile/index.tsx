@@ -68,7 +68,7 @@ export default function ProfileScreen() {
             toggleNotifications={toggleNotifications}
             setShoppingReminders={setShoppingReminders}
           />
-          {/* <ThemeSwitcher /> Will add the theme switcher after fixing the catalog search theme bug*/}
+          {/* <ThemeSwitcher /> //Disabling the theme swithcer until dark theme flickering is fixed*/}
           <ProfileActions signOut={signOut} />
         </SafeAreaView>
       </ScrollView>

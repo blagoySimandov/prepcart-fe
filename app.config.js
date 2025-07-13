@@ -1,10 +1,19 @@
 import "dotenv/config";
+import { version } from "./package.json";
+const runtimeVersion = version;
 
 export default {
   expo: {
+    runtimeVersion: "1.0.0",
+    updates: {
+      url: "https://u.expo.dev/bf57ef5d-3e73-4242-9426-3537b1a08a77",
+      runtimeVersion: {
+        policy: version,
+      },
+    },
     name: "PrepCart",
     slug: "PrepCart",
-    version: "1.0.0",
+    version: runtimeVersion,
     orientation: "portrait",
     icon: "./assets/splash-screens/icon.png",
     scheme: "prepcart",
@@ -17,6 +26,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
+      runtimeVersion: runtimeVersion,
       supportsTablet: true,
       bundleIdentifier: "com.simandoff.prepcart",
       googleServicesFile: "./GoogleService-Info.plist",

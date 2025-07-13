@@ -1,8 +1,7 @@
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { ProductCandidate } from "@/src/catalog-search/types";
 import React from "react";
-import { FlatList, ListRenderItem, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useProductActions } from "../hooks/use-product-actions";
 import { useTypesenseSearch } from "../hooks/use-typesense-search";
@@ -10,7 +9,7 @@ import { styles } from "../styles";
 import { CatalogStoreFilterButton } from "./catalog-store-filter-button";
 import { InitialSearchPrompt } from "./initial-search-prompt";
 import { NoResultsFound } from "./no-results-found";
-import { ProductCard } from "./product-card";
+import { ProductList } from "./product-list";
 import { SearchStats } from "./search-stats";
 
 interface CatalogSearchContentProps {
@@ -31,24 +30,13 @@ export function CatalogSearchContent({
     if (query.length === 0) return <InitialSearchPrompt />;
     if (results.length === 0) return <NoResultsFound query={query} />;
 
-    const renderItem: ListRenderItem<ProductCandidate> = ({ item }) => (
-      <ProductCard
-        item={item}
-        isAdding={addingItems.has(item.id)}
+    return (
+      <ProductList
+        results={results}
+        addingItems={addingItems}
         onAddToList={handleAddToList}
         onViewPdf={handleViewPdf}
-      />
-    );
-
-    return (
-      <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
+        onLoadMore={handleLoadMore}
       />
     );
   };
