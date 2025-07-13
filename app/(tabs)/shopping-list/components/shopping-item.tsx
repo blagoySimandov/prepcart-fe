@@ -43,22 +43,23 @@ export function ShoppingItem({
       style={[
         styles.itemCard,
         { backgroundColor: colors.card, borderColor: colors.border },
-      ]}
-    >
+      ]}>
       <TouchableOpacity
         style={styles.itemContent}
-        onPress={() => onToggle(item.id)}
-      >
+        onPress={() => onToggle(item.id)}>
         <View style={styles.itemLeft}>
           <View
             style={[
               styles.checkbox,
               { borderColor: colors.tint },
               item.completed && { backgroundColor: colors.tint },
-            ]}
-          >
+            ]}>
             {item.completed && (
-              <IconSymbol name="checkmark" size={16} color="#FFFFFF" />
+              <IconSymbol
+                name="checkmark"
+                size={16}
+                color={colors.buttonText}
+              />
             )}
           </View>
           <View style={styles.itemInfo}>
@@ -67,8 +68,7 @@ export function ShoppingItem({
                 styles.itemName,
                 { color: colors.text },
                 item.completed && styles.completedText,
-              ]}
-            >
+              ]}>
               {item.name}
             </Text>
             <Text style={[styles.itemDetails, { color: colors.icon }]}>
@@ -81,8 +81,7 @@ export function ShoppingItem({
       {hasDiscounts && bestDiscountData && (
         <TouchableOpacity
           style={styles.storeDiscountBadge}
-          onPress={() => onShowDiscounts(discounts)}
-        >
+          onPress={() => onShowDiscounts(discounts)}>
           <Text style={styles.storeDiscountStoreName}>
             {getStoreName(bestDiscountData.store_id)}
           </Text>
@@ -97,8 +96,7 @@ export function ShoppingItem({
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => handleDeleteItem(item.id, item.name)}
-      >
+        onPress={() => handleDeleteItem(item.id, item.name)}>
         <IconSymbol name="trash" size={20} color={colors.error} />
       </TouchableOpacity>
     </View>

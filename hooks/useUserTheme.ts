@@ -1,12 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { useColorScheme } from "react-native";
+import { Appearance, useColorScheme } from "react-native";
 
 const THEME_KEY = "user_theme";
-
+export type UserTheme = "light" | "dark";
 export function useUserTheme() {
   const systemTheme = useColorScheme() ?? "light";
-  const [, setTheme] = useState<"light" | "dark">(systemTheme);
+
+  const [theme, setTheme] = useState<UserTheme>(systemTheme);
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY).then((storedTheme) => {
@@ -18,10 +19,11 @@ export function useUserTheme() {
     });
   }, [systemTheme]);
 
-  const setUserTheme = async (newTheme: "light" | "dark") => {
+  const setUserTheme = async (newTheme: UserTheme) => {
     await AsyncStorage.setItem(THEME_KEY, newTheme);
+    Appearance.setColorScheme(newTheme);
     setTheme(newTheme);
   };
-  //Hardcoding the theme to light for now
-  return ["light", setUserTheme] as const;
+
+  return [theme!, setUserTheme] as const;
 }

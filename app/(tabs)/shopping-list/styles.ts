@@ -64,7 +64,7 @@ export function useStyles() {
       alignItems: "center",
     },
     addButtonText: {
-      color: "#FFFFFF",
+      color: colors.buttonText,
       fontWeight: "600",
       marginLeft: 5,
     },
@@ -75,7 +75,7 @@ export function useStyles() {
       backgroundColor: colors.warning,
     },
     clearButtonText: {
-      color: "#FFFFFF",
+      color: colors.buttonText,
       fontSize: 12,
       fontWeight: "600",
     },
@@ -165,7 +165,7 @@ export function useStyles() {
       elevation: 2,
     },
     discountText: {
-      color: "#FFFFFF",
+      color: colors.badgeText,
       fontSize: 10,
       fontWeight: "700",
       marginLeft: 1,
@@ -182,18 +182,18 @@ export function useStyles() {
       minWidth: 50,
     },
     storeDiscountStoreName: {
-      color: "#FFFFFF",
+      color: colors.badgeText,
       fontSize: 9,
       fontWeight: "600",
       textTransform: "uppercase",
     },
     storeDiscountPercentage: {
-      color: "#FFFFFF",
+      color: colors.badgeText,
       fontSize: 14,
       fontWeight: "800",
     },
     storeDiscountSavings: {
-      color: "#FFFFFF",
+      color: colors.badgeText,
       fontSize: 10,
       fontWeight: "600",
       marginTop: 2,
@@ -344,7 +344,7 @@ export function useStyles() {
     modalButtonText: {
       textAlign: "center",
       fontWeight: "600",
-      color: "#FFFFFF",
+      color: colors.buttonText,
     },
 
     // Quantity row styles for manual input
@@ -421,7 +421,7 @@ export function useStyles() {
       color: colors.tint,
     },
     discountBadgeText: {
-      color: "#FFFFFF",
+      color: colors.badgeText,
       fontSize: 12,
       fontWeight: "bold",
     },
@@ -433,7 +433,7 @@ export function useStyles() {
       marginLeft: 4,
     },
     bestMatchText: {
-      color: "#FFFFFF",
+      color: colors.buttonText,
       fontSize: 10,
       fontWeight: "bold",
     },
@@ -546,7 +546,7 @@ export function useStyles() {
     },
     quantityText: {
       backgroundColor: colors.quantity,
-      color: "#FFFFFF",
+      color: colors.buttonText,
       paddingHorizontal: 4,
       paddingVertical: 1,
       borderRadius: 3,
@@ -556,7 +556,7 @@ export function useStyles() {
     },
     unitText: {
       backgroundColor: colors.unit,
-      color: "#FFFFFF",
+      color: colors.buttonText,
       paddingHorizontal: 4,
       paddingVertical: 1,
       borderRadius: 3,
@@ -566,7 +566,7 @@ export function useStyles() {
     },
     nameText: {
       backgroundColor: colors.name,
-      color: "#FFFFFF",
+      color: colors.buttonText,
       paddingHorizontal: 4,
       paddingVertical: 1,
       borderRadius: 3,
@@ -721,7 +721,7 @@ export function useStyles() {
       alignItems: "center",
     },
     gotItButtonText: {
-      color: "#FFFFFF",
+      color: colors.buttonText,
       fontSize: 14,
       fontWeight: "600",
     },
@@ -758,7 +758,7 @@ export function useStyles() {
       fontSize: 11,
     },
     demoPart: {
-      color: "#FFFFFF",
+      color: colors.buttonText,
       fontSize: 10,
       fontWeight: "600",
       paddingHorizontal: 3,

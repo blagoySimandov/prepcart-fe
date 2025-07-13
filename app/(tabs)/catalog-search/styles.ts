@@ -85,7 +85,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   discountText: {
-    color: "white",
     fontSize: 14,
     fontWeight: "600",
   },

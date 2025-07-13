@@ -25,24 +25,32 @@ export const Colors = {
     quantity: "#4A90E2",
     unit: "#F5A623",
     name: "#7ED321",
+    // High contrast colors for badges and buttons
+    badgeText: "#FFFFFF", // White for good contrast on orange
+    buttonText: "#FFFFFF", // White for button text
+    contrastText: "#1A1A1A", // Near black for high contrast needs
   },
   dark: {
-    text: "#F0F0F0", // Much lighter, better contrast
-    background: "#0F0F0F", // True dark background
-    tint: tintColorDark, // Brighter orange for visibility
-    icon: "#B8B8B8", // Neutral gray instead of brown
-    tabIconDefault: "#6B6B6B", // Muted gray for inactive tabs
+    text: "#FFFFFF", // Pure white for better readability
+    background: "#1C1C1E", // Warmer dark background (similar to iOS dark mode)
+    tint: tintColorDark,
+    icon: "#A8A8A8", // Lighter icon color for better visibility
+    tabIconDefault: "#8A8A8A", // Lighter inactive tab icons
     tabIconSelected: tintColorDark,
-    card: "#1A1A1A", // Dark gray instead of brown
-    border: "#2A2A2A", // Subtle gray border
-    accent: "#E67E22", // Warmer, more muted orange
-    secondary: "#4A4A4A", // Neutral gray instead of brown
-    success: "#4CAF50", // Modern green
-    warning: "#FFA726", // Bright orange warning
-    error: "#F44336", // Clear red error
-    disabled: "#424242", // Darker disabled state
-    quantity: "#64B5F6", // Brighter blue for readability
-    unit: "#FFB74D", // Warmer orange for units
-    name: "#81C784", // Softer green for names
+    card: "#2C2C2E", // Lighter card background
+    border: "#38383A", // More visible border
+    accent: "#FF9F40", // Slightly warmer accent
+    secondary: "#5A5A5C", // Lighter secondary color
+    success: "#32D74B", // iOS-style green
+    warning: "#FF9F0A", // iOS-style orange
+    error: "#FF453A", // iOS-style red
+    disabled: "#48484A", // Lighter disabled state
+    quantity: "#007AFF", // iOS-style blue
+    unit: "#FF9F0A", // Consistent with warning
+    name: "#30D158", // iOS-style green for names
+    // High contrast colors for badges and buttons
+    badgeText: "#1A1A1A", // Dark color for good contrast on orange
+    buttonText: "#FFFFFF", // White for button text
+    contrastText: "#FFFFFF", // White for high contrast needs in dark mode
   },
 };

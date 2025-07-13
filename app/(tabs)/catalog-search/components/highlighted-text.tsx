@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
 import { Text, TextStyle } from "react-native";
 
@@ -16,8 +17,14 @@ export function HighlightedText({
   text,
   highlightResult,
   style,
-  highlightStyle = { fontWeight: "bold", backgroundColor: "#ffeb3b" },
+  highlightStyle,
 }: HighlightedTextProps) {
+  const warningColor = useThemeColor({}, "warning");
+  const defaultHighlightStyle: TextStyle = {
+    fontWeight: "bold",
+    backgroundColor: warningColor + "40",
+  };
+
   if (!highlightResult || !highlightResult.value) {
     return <Text style={style}>{text}</Text>;
   }
@@ -32,10 +39,9 @@ export function HighlightedText({
     <Text style={style}>
       {parts.map((part, index) => {
         if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
-          // Remove <mark> tags and apply highlight style
           const highlightedText = part.replace(/<\/?mark>/g, "");
           return (
-            <Text key={index} style={[style, highlightStyle]}>
+            <Text key={index} style={highlightStyle || defaultHighlightStyle}>
               {highlightedText}
             </Text>
           );

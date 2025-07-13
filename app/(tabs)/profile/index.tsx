@@ -68,7 +68,7 @@ export default function ProfileScreen() {
             toggleNotifications={toggleNotifications}
             setShoppingReminders={setShoppingReminders}
           />
-          {/* <ThemeSwitcher /> //Disabling the theme swithcer until dark theme flickering is fixed*/}
+          <ThemeSwitcher />
           <ProfileActions signOut={signOut} />
         </SafeAreaView>
       </ScrollView>

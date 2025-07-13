@@ -35,6 +35,7 @@ export function CustomAlert({
 }: CustomAlertProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
+  const styles = useStyles();
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -158,54 +159,58 @@ export function CustomAlert({
 
 const { width } = Dimensions.get("window");
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  alertContainer: {
-    width: Math.min(width - 40, 320),
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  message: {
-    fontSize: 14,
-    textAlign: "center",
-    paddingHorizontal: 20,
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "#E8D5C4",
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  cancelButtonText: {
-    fontWeight: "400",
-  },
-});
+const useStyles = () => {
+  const colors = Colors[useColorScheme() ?? "light"];
+
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    alertContainer: {
+      width: Math.min(width - 40, 320),
+      borderRadius: 12,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: "600",
+      textAlign: "center",
+      paddingTop: 20,
+      paddingHorizontal: 20,
+      marginBottom: 8,
+    },
+    message: {
+      fontSize: 14,
+      textAlign: "center",
+      paddingHorizontal: 20,
+      lineHeight: 20,
+      marginBottom: 20,
+    },
+    buttonsContainer: {
+      flexDirection: "row",
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: {
+      flex: 1,
+      paddingVertical: 16,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: "500",
+    },
+    cancelButtonText: {
+      fontWeight: "400",
+    },
+  });
+};

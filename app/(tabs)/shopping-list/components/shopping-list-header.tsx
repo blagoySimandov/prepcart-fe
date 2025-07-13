@@ -35,12 +35,11 @@ export function ShoppingListHeader({
           <TouchableOpacity
             style={styles.addButton}
             onPress={onFindDiscounts}
-            disabled={isFindingDiscounts}
-          >
+            disabled={isFindingDiscounts}>
             {isFindingDiscounts ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.buttonText} />
             ) : (
-              <IconSymbol name="sparkles" size={16} color="#FFFFFF" />
+              <IconSymbol name="sparkles" size={16} color={colors.buttonText} />
             )}
             <Text style={styles.addButtonText}>
               {isFindingDiscounts ? "Searching..." : "Find Discounts"}
@@ -51,7 +50,7 @@ export function ShoppingListHeader({
         </View>
 
         <TouchableOpacity style={styles.addButton} onPress={onAddItem}>
-          <IconSymbol name="plus" size={16} color="#FFFFFF" />
+          <IconSymbol name="plus" size={16} color={colors.buttonText} />
           <Text style={styles.addButtonText}>Add Item</Text>
         </TouchableOpacity>
       </View>
