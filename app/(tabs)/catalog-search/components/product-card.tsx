@@ -30,7 +30,8 @@ export function ProductCard({
       style={[
         styles.itemCard,
         {
-          backgroundColor: themeColors.background,
+          backgroundColor: themeColors.card,
+          borderColor: themeColors.border,
           shadowColor: themeColors.text,
         },
       ]}>

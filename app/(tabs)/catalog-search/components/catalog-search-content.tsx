@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { ProductCandidate } from "@/src/catalog-search/types";
 import React from "react";
 import { FlatList, ListRenderItem, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,7 +12,6 @@ import { InitialSearchPrompt } from "./initial-search-prompt";
 import { NoResultsFound } from "./no-results-found";
 import { ProductCard } from "./product-card";
 import { SearchStats } from "./search-stats";
-import { ProductCandidate } from "@/src/catalog-search/types";
 
 interface CatalogSearchContentProps {
   onOpenStoreFilter: () => void;
@@ -55,8 +55,7 @@ export function CatalogSearchContent({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-    >
+      style={[styles.container, { backgroundColor: themeColors.background }]}>
       <View
         style={{
           flexDirection: "row",
@@ -64,8 +63,7 @@ export function CatalogSearchContent({
           justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingVertical: 8,
-        }}
-      >
+        }}>
         <Text style={[styles.title, { color: themeColors.text, flex: 1 }]}>
           Catalog Search
         </Text>

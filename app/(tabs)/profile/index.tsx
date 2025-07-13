@@ -14,6 +14,7 @@ import { ProfileActions } from "./components/profile-actions";
 import { ProfileHeader } from "./components/profile-header";
 import { UserStatistics } from "./components/user-statistics";
 import useStyles from "./styles";
+import { ThemeSwitcher } from "./components/theme-switcher";
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
@@ -53,7 +54,8 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <SafeAreaView>
           <ProfileHeader profile={profile} />
           <UserStatistics userStats={userStats || undefined} />
@@ -63,6 +65,7 @@ export default function ProfileScreen() {
             toggleNotifications={toggleNotifications}
             setShoppingReminders={setShoppingReminders}
           />
+          <ThemeSwitcher />
           <ProfileActions signOut={signOut} />
         </SafeAreaView>
       </ScrollView>

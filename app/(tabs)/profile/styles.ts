@@ -1,5 +1,5 @@
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
 
 export default function useStyles() {

@@ -4,7 +4,7 @@ import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { TabBarBackground } from "@/components/ui/TabBarBackground";
+import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/src/auth/hooks";
@@ -53,20 +53,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="shopping-list"
-        options={{
-          title: "Shopping",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="cart.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="catalog-search"
         options={{
           title: "Search",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="shopping-list"
+        options={{
+          title: "Shopping",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={SIZE} name="cart.fill" color={color} />
           ),
         }}
       />

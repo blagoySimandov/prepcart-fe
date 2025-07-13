@@ -4,7 +4,7 @@
  */
 
 const tintColorLight = "#D4742A";
-const tintColorDark = "#F7B373";
+const tintColorDark = "#E67E22";
 
 export const Colors = {
   light: {
@@ -27,22 +27,22 @@ export const Colors = {
     name: "#7ED321",
   },
   dark: {
-    text: "#F5E6D3",
-    background: "#1A0F08",
-    tint: tintColorDark,
-    icon: "#CD853F",
-    tabIconDefault: "#A0522D",
+    text: "#F0F0F0", // Much lighter, better contrast
+    background: "#0F0F0F", // True dark background
+    tint: tintColorDark, // Brighter orange for visibility
+    icon: "#B8B8B8", // Neutral gray instead of brown
+    tabIconDefault: "#6B6B6B", // Muted gray for inactive tabs
     tabIconSelected: tintColorDark,
-    card: "#2D1B0E",
-    border: "#4A3426",
-    accent: "#FF8C42",
-    secondary: "#8B4513",
-    success: "#556B2F",
-    warning: "#B8860B",
-    error: "#A0522D",
-    disabled: "#555555",
-    quantity: "#5DADE2",
-    unit: "#F8C471",
-    name: "#A3E4D7",
+    card: "#1A1A1A", // Dark gray instead of brown
+    border: "#2A2A2A", // Subtle gray border
+    accent: "#E67E22", // Warmer, more muted orange
+    secondary: "#4A4A4A", // Neutral gray instead of brown
+    success: "#4CAF50", // Modern green
+    warning: "#FFA726", // Bright orange warning
+    error: "#F44336", // Clear red error
+    disabled: "#424242", // Darker disabled state
+    quantity: "#64B5F6", // Brighter blue for readability
+    unit: "#FFB74D", // Warmer orange for units
+    name: "#81C784", // Softer green for names
   },
 };

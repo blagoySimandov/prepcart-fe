@@ -1,6 +1,6 @@
 import { ShoppingItem } from "@/src/user/shopping-list/types";
 import React, { useRef } from "react";
-import { Modal, View } from "react-native";
+import { Modal, TouchableWithoutFeedback, View } from "react-native";
 import { useItemActions } from "../hooks/use-item-actions";
 import { useItemForm } from "../hooks/use-item-form";
 import { useStyles } from "../styles";
@@ -28,7 +28,6 @@ export function AddItemModal({
   const simpleInputRef = useRef<SimpleInputViewRef>(null);
   const detailedInputRef = useRef<DetailedInputViewRef>(null);
 
-  // Custom hooks for form state and actions
   const {
     isExpanded,
     isEditMode,
@@ -70,42 +69,43 @@ export function AddItemModal({
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modal}>
-        <View style={styles.addItemModalContent}>
-          <ModalHeader
-            isEditMode={isEditMode}
-            isExpanded={isExpanded}
-            onToggleExpand={toggleExpand}
-          />
-
-          {!isExpanded ? (
-            <SimpleInputView
-              ref={simpleInputRef}
-              value={simpleText}
-              onValueChange={setSimpleText}
-              onParseAndAdd={handleParseAndAdd}
-            />
-          ) : (
-            <DetailedInputView
-              ref={detailedInputRef}
-              name={detailedName}
-              quantity={detailedQuantity}
-              unit={detailedUnit}
-              onNameChange={setDetailedName}
-              onQuantityChange={setDetailedQuantity}
-              onUnitChange={setDetailedUnit}
-              onAddItem={handleDetailedAdd}
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modal}>
+          <View style={styles.addItemModalContent}>
+            <ModalHeader
               isEditMode={isEditMode}
+              isExpanded={isExpanded}
+              onToggleExpand={toggleExpand}
             />
-          )}
 
-          <ModalActions
-            onCancel={onClose}
-            onSave={handleSave}
-            saveText={saveButtonText}
-          />
+            {!isExpanded ? (
+              <SimpleInputView
+                ref={simpleInputRef}
+                value={simpleText}
+                onValueChange={setSimpleText}
+                onParseAndAdd={handleParseAndAdd}
+              />
+            ) : (
+              <DetailedInputView
+                ref={detailedInputRef}
+                name={detailedName}
+                quantity={detailedQuantity}
+                unit={detailedUnit}
+                onNameChange={setDetailedName}
+                onQuantityChange={setDetailedQuantity}
+                onUnitChange={setDetailedUnit}
+                onAddItem={handleDetailedAdd}
+              />
+            )}
+
+            <ModalActions
+              onCancel={onClose}
+              onSave={handleSave}
+              saveText={saveButtonText}
+            />
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }

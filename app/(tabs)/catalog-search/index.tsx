@@ -9,7 +9,7 @@ import { CatalogSearchContent } from "./components/catalog-search-content";
 import { useCatalogStoreFilter } from "./hooks/use-catalog-store-filter";
 
 export default function CatalogSearchScreen() {
-  const now = Math.floor(Date.now());
+  const now = Math.floor(Date.now()) / 1000;
 
   const {
     selectedStores,

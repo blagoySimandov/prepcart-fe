@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/colors";
-import { StyleSheet, useColorScheme } from "react-native";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { StyleSheet } from "react-native";
 
 export function useStyles() {
   const colorScheme = useColorScheme();
@@ -282,7 +283,6 @@ export function useStyles() {
       fontStyle: "italic",
     },
 
-    // Generic Add Item Modal Styles
     modal: {
       flex: 1,
       justifyContent: "center",
@@ -295,6 +295,7 @@ export function useStyles() {
       borderRadius: 15,
       width: "90%",
       maxWidth: 400,
+      marginBottom: 140, //offset for keyboard
     },
     addItemHeader: {
       flexDirection: "row",

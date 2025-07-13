@@ -13,7 +13,7 @@ export default {
     splash: {
       image: "./assets/splash-screens/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#ff5630",
+      backgroundColor: "#FF5631",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -23,10 +23,6 @@ export default {
     },
     android: {
       package: "com.simandoff.prepcart",
-      adaptiveIcon: {
-        foregroundImage: "./assets/splash-screens/icon.png",
-        backgroundColor: "#FFF8F3",
-      },
       googleServicesFile: "./google-services.json",
     },
     web: {
@@ -50,11 +46,11 @@ export default {
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#232323",
+          backgroundColor: "#FF5631",
           image: "./assets/splash-screens/splash.png",
           dark: {
             image: "./assets/splash-screens/splash.png",
-            backgroundColor: "#232323",
+            backgroundColor: "#FF5631",
           },
           imageWidth: 200,
         },

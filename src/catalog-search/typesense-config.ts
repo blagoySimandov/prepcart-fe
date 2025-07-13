@@ -23,5 +23,3 @@ export const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 });
 
 export const searchClient = typesenseInstantsearchAdapter.searchClient;
-
-console.log("[Typesense Config] Search client initialized:", !!searchClient);

@@ -150,8 +150,6 @@ export class DiscountService {
         );
       const apiResponse = await DiscountService.callEndpoint(requestBody);
 
-      console.log("data", apiResponse.matches[0].matched_products);
-
       const shoppingItemMap = DiscountService.createShoppingItemMap(items);
       const matches = DiscountService.transformApiResponse(
         apiResponse,

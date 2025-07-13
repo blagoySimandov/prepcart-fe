@@ -13,6 +13,8 @@ export const DEFAULTS = {
     "lidl-bg": "Lidl",
     "kaufland-bg": "Kaufland",
     "cba-bg": "CBA",
+    "fantastico-bg": "Fantastico",
+    "tmarket-bg": "T-Market",
   }),
   [CONFIG.CatalogSearchDebounceTime]: 100,
   [CONFIG.LatestVersion]: "1.0.0",
