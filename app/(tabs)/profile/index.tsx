@@ -15,6 +15,7 @@ import { ProfileHeader } from "./components/profile-header";
 import { UserStatistics } from "./components/user-statistics";
 import useStyles from "./styles";
 import { ThemeSwitcher } from "./components/theme-switcher";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
@@ -42,6 +43,7 @@ export default function ProfileScreen() {
     fetchProfile();
   }, [userService]);
 
+  const insets = useSafeAreaInsets();
   if (isLoadingProfile || !profile) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -54,6 +56,7 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 64 }}
         showsVerticalScrollIndicator={false}
       >
         <SafeAreaView>
@@ -65,7 +68,7 @@ export default function ProfileScreen() {
             toggleNotifications={toggleNotifications}
             setShoppingReminders={setShoppingReminders}
           />
-          <ThemeSwitcher />
+          {/* <ThemeSwitcher /> Will add the theme switcher after fixing the catalog search theme bug*/}
           <ProfileActions signOut={signOut} />
         </SafeAreaView>
       </ScrollView>

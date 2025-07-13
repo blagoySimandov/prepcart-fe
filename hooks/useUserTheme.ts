@@ -6,7 +6,7 @@ const THEME_KEY = "user_theme";
 
 export function useUserTheme() {
   const systemTheme = useColorScheme() ?? "light";
-  const [theme, setTheme] = useState<string>(systemTheme);
+  const [, setTheme] = useState<string>(systemTheme);
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY).then((storedTheme) => {
@@ -22,5 +22,6 @@ export function useUserTheme() {
     await AsyncStorage.setItem(THEME_KEY, newTheme);
     setTheme(newTheme);
   };
-  return [theme as "light" | "dark", setUserTheme] as const;
+  //Hardcoding the theme to light for now
+  return ["light", setUserTheme] as const;
 }
