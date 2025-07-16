@@ -5,15 +5,9 @@ import { useAuth } from "@/src/auth/hooks";
 import { AppleButton } from "@invertase/react-native-apple-authentication";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Image,
-  Modal,
-  Platform,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, Platform, View } from "react-native";
+import { DisplayNameModal } from "./components/display-name-modal";
+import { GoogleSignButton } from "./components/google-sign-button";
 import { useStyles } from "./styles";
 
 export default function LoginScreen() {
@@ -25,14 +19,10 @@ export default function LoginScreen() {
     loading,
   } = useAuth();
   const router = useRouter();
-  const tint = useThemeColor({}, "tint");
   const styles = useStyles();
   const [isAnonymous, setIsAnonymous] = useState<boolean | null>(null);
   const [showDisplayNamePrompt, setShowDisplayNamePrompt] = useState(false);
-  const [displayName, setDisplayName] = useState("");
   const backgroundColor = useThemeColor({}, "background");
-  const borderColor = useThemeColor({}, "border");
-  const textColor = useThemeColor({}, "text");
 
   useEffect(() => {
     if (!loading && user && !showDisplayNamePrompt) {
@@ -62,20 +52,10 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSaveDisplayName = async () => {
-    if (!displayName.trim()) {
-      Alert.alert("Invalid Name", "Please enter a valid display name.");
-      return;
-    }
-
-    try {
-      await updateDisplayName(displayName.trim());
-      setShowDisplayNamePrompt(false);
-      router.replace("/(tabs)" as any);
-    } catch (error) {
-      console.error("Error updating display name:", error);
-      Alert.alert("Error", "Failed to update display name. Please try again.");
-    }
+  const handleSaveDisplayName = async (displayName: string) => {
+    await updateDisplayName(displayName);
+    setShowDisplayNamePrompt(false);
+    router.replace("/(tabs)" as any);
   };
 
   const handleSkipDisplayName = () => {
@@ -102,16 +82,7 @@ export default function LoginScreen() {
         </ThemedText>
 
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: tint }]}
-            onPress={handleGoogleSignIn}>
-            <ThemedText
-              type="defaultSemiBold"
-              lightColor="#fff"
-              darkColor="#000">
-              Sign in with Google
-            </ThemedText>
-          </TouchableOpacity>
+          <GoogleSignButton onPress={handleGoogleSignIn} />
 
           {Platform.OS === "ios" && (
             <AppleButton
@@ -124,69 +95,11 @@ export default function LoginScreen() {
         </View>
       </ThemedView>
 
-      {/* Display Name Prompt Modal */}
-      <Modal
+      <DisplayNameModal
         visible={showDisplayNamePrompt}
-        transparent
-        animationType="fade"
-        onRequestClose={handleSkipDisplayName}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor }]}>
-            <ThemedText type="title" style={styles.modalTitle}>
-              Add Your Name
-            </ThemedText>
-            <ThemedText type="default" style={styles.modalSubtitle}>
-              Help others recognize you by adding your display name (optional)
-            </ThemedText>
-
-            <TextInput
-              style={[
-                styles.textInput,
-                {
-                  borderColor: borderColor || "#ccc",
-                  color: textColor,
-                  backgroundColor: backgroundColor,
-                },
-              ]}
-              value={displayName}
-              onChangeText={setDisplayName}
-              placeholder="Enter your name"
-              placeholderTextColor={textColor ? `${textColor}80` : "#999"}
-              autoCapitalize="words"
-              autoCorrect={false}
-              returnKeyType="done"
-              onSubmitEditing={handleSaveDisplayName}
-            />
-
-            <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  styles.skipButton,
-                  { borderColor: borderColor || "#ccc" },
-                ]}
-                onPress={handleSkipDisplayName}>
-                <ThemedText type="defaultSemiBold">Skip</ThemedText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  styles.saveButton,
-                  { backgroundColor: tint },
-                ]}
-                onPress={handleSaveDisplayName}>
-                <ThemedText
-                  type="defaultSemiBold"
-                  lightColor="#fff"
-                  darkColor="#000">
-                  Save
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onSave={handleSaveDisplayName}
+        onSkip={handleSkipDisplayName}
+      />
     </>
   );
 }

@@ -42,9 +42,10 @@ export function useStyles() {
     modalOverlay: {
       flex: 1,
       backgroundColor: "rgba(0, 0, 0, 0.5)",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       alignItems: "center",
       padding: 20,
+      paddingTop: "45%",
     },
     modalContent: {
       borderRadius: 16,
