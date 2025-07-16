@@ -2,23 +2,24 @@ import { ThemedView } from "@/components/ThemedView";
 import { useAuth } from "@/src/auth/hooks";
 import { useNotificationSettings } from "@/src/notifications";
 import { useUserService, useUserStatistics } from "@/src/user";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NotificationSettings } from "./components/notification-settings";
 import { ProfileActions } from "./components/profile-actions";
 import { ProfileHeader } from "./components/profile-header";
+import { ThemeSwitcher } from "./components/theme-switcher";
 import { UserStatistics } from "./components/user-statistics";
 import useStyles from "./styles";
-import { ThemeSwitcher } from "./components/theme-switcher";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { signOut, deleteAccount, updateDisplayName, reauthenticateUser } =
+    useAuth();
   const userService = useUserService();
   const [profile, setProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -31,17 +32,23 @@ export default function ProfileScreen() {
     setShoppingReminders,
   } = useNotificationSettings();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (userService) {
-        setIsLoadingProfile(true);
-        const userProfile = await userService.getProfile();
-        setProfile(userProfile);
-        setIsLoadingProfile(false);
-      }
-    };
-    fetchProfile();
+  const fetchProfile = useCallback(async () => {
+    if (userService) {
+      setIsLoadingProfile(true);
+      const userProfile = await userService.getProfile();
+      setProfile(userProfile);
+      setIsLoadingProfile(false);
+    }
   }, [userService]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const handleUpdateDisplayName = async (displayName: string) => {
+    await updateDisplayName(displayName);
+    await fetchProfile();
+  };
 
   const insets = useSafeAreaInsets();
   if (isLoadingProfile || !profile) {
@@ -57,10 +64,12 @@ export default function ProfileScreen() {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: insets.bottom + 64 }}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <SafeAreaView>
-          <ProfileHeader profile={profile} />
+          <ProfileHeader
+            profile={profile}
+            onUpdateDisplayName={handleUpdateDisplayName}
+          />
           <UserStatistics userStats={userStats || undefined} />
           <NotificationSettings
             notificationsEnabled={notificationsEnabled}
@@ -69,7 +78,11 @@ export default function ProfileScreen() {
             setShoppingReminders={setShoppingReminders}
           />
           <ThemeSwitcher />
-          <ProfileActions signOut={signOut} />
+          <ProfileActions
+            signOut={signOut}
+            deleteAccount={deleteAccount}
+            reauthenticateUser={reauthenticateUser}
+          />
         </SafeAreaView>
       </ScrollView>
     </ThemedView>

@@ -39,6 +39,51 @@ export default function useStyles() {
       color: colors.text,
       marginBottom: 5,
     },
+    userNameContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 5,
+    },
+    editButton: {
+      marginLeft: 8,
+      padding: 4,
+    },
+    editContainer: {
+      width: "100%",
+      alignItems: "center",
+      marginBottom: 5,
+    },
+    editInput: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: colors.text,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.tint,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      minWidth: 200,
+      textAlign: "center",
+      marginBottom: 10,
+    },
+    editActions: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    editActionButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+      minWidth: 60,
+      alignItems: "center",
+    },
+    cancelButton: {
+      backgroundColor: "transparent",
+      borderWidth: 1,
+      borderColor: colors.icon,
+    },
+    saveButton: {
+      backgroundColor: colors.tint,
+    },
     userEmail: {
       fontSize: 16,
       color: colors.icon,

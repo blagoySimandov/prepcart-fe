@@ -30,6 +30,7 @@ export default {
       supportsTablet: true,
       bundleIdentifier: "com.simandoff.prepcart",
       googleServicesFile: "./GoogleService-Info.plist",
+      usesAppleSignIn: true,
     },
     android: {
       package: "com.simandoff.prepcart",
