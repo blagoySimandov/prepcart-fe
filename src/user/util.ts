@@ -23,3 +23,21 @@ export const calculateSavingsFromItems = (
 
   return savings;
 };
+
+interface FormatTimeOptions {
+  showSeconds: boolean;
+}
+
+export const formatTime = (
+  seconds: number,
+  options: FormatTimeOptions = { showSeconds: true },
+) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (options.showSeconds) {
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  }
+  return mins.toString().padStart(2, "0");
+};
