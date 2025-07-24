@@ -1,12 +1,15 @@
 import { Recipe } from "./types";
 
 const MOCK_RECIPE: Recipe = {
+  id: "1",
   displayTitle: "Easy & Delicious Fudgy Brownies",
   displayDescription:
     "This recipe delivers incredibly fudgy and moist brownies with a perfect crackly top. It's easy to follow and guaranteed to be a crowd-pleaser!",
   cookTimeMinutes: 40,
+  videoLink:
+    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/videos%2FoEr5NAeuUSge9DokTC8bDBgaaBs8KWQtRFncE4?generation=1753365924922247&alt=media",
   thumbnail:
-    "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300&h=200&fit=crop&crop=center",
+    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/thumbnails%2F6a799365103e4cde9f264c27b882eb58_1678329400~tplv-tiktokx-cropcenter-q:300:400:q72.heic?generation=1753365924117489&alt=media",
   ingredients: [
     {
       name: "butter",

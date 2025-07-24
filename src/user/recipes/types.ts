@@ -14,6 +14,7 @@ export type Instruction = {
 };
 
 export type Recipe = {
+  id: string;
   displayTitle: string;
   displayDescription: string;
   cookTimeMinutes: number;

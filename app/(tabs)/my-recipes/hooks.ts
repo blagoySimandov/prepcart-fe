@@ -1,5 +1,6 @@
 import { useUserRecipes } from "@/src/user/recipes";
 import { Recipe } from "@/src/user/recipes/types";
+import { router } from "expo-router";
 import { useState } from "react";
 
 export type FilterOption = "all" | "quick" | "medium" | "long";
@@ -77,8 +78,7 @@ export function useRecipeFilters() {
 
 export function useRecipeActions() {
   const handleRecipePress = (recipe: Recipe, _index: number) => {
-    // TODO: Navigate to recipe detail screen
-    console.log("Recipe pressed:", recipe.displayTitle);
+    router.push(`/(tabs)/my-recipes/${recipe.id}`);
   };
 
   return {
