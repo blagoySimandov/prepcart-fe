@@ -39,7 +39,7 @@ export default function RecipeScreen() {
       <SafeAreaView style={styles.safeArea}>
         <RecipeDetails>
           <Header>
-            <Thumbnail />
+            <Thumbnail imageUrl={recipe.thumbnail} />
             <Header.Title>{recipe.displayTitle}</Header.Title>
           </Header>
           <Description>{recipe.displayDescription}</Description>

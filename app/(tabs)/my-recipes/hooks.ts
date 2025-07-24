@@ -81,7 +81,16 @@ export function useRecipeActions() {
     router.push(`/(tabs)/my-recipes/${recipe.id}`);
   };
 
+  const handleImportRecipe = async (url: string) => {
+    // TODO: Implement actual import functionality
+    // For now, show a success message
+    console.log("Importing recipe from:", url);
+    // Here you would typically call an API to process the TikTok URL
+    // and extract recipe information
+  };
+
   return {
     handleRecipePress,
+    handleImportRecipe,
   };
 }

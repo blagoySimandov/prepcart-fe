@@ -2,35 +2,28 @@ import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
 
-export function useStyles() {
+export function useFabStyles() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
   const styles = StyleSheet.create({
-    container: {
-      width: "100%",
-      height: 200,
-      borderRadius: 20,
-      overflow: "hidden",
+    fab: {
+      position: "absolute",
+      bottom: 110,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 8,
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
-        height: 2,
+        height: 4,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.3,
       shadowRadius: 8,
-      elevation: 4,
-      marginBottom: 16,
-    },
-    placeholder: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    image: {
-      width: "100%",
-      height: "100%",
-      borderRadius: 16,
     },
   });
 

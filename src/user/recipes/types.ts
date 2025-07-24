@@ -15,6 +15,7 @@ export type Instruction = {
 
 export type Recipe = {
   id: string;
+  source: string;
   displayTitle: string;
   displayDescription: string;
   cookTimeMinutes: number;
@@ -22,4 +23,5 @@ export type Recipe = {
   instructions: Instruction[];
   thumbnail?: string;
   videoLink?: string;
+  dynamicCover?: string;
 };

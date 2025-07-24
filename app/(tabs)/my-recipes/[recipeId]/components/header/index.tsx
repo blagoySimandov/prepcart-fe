@@ -19,6 +19,5 @@ export function HeaderTitle({ children }: TitleProps) {
     </ThemedText>
   );
 }
-
 // Attach Title as a property for compound component pattern
 Header.Title = HeaderTitle;

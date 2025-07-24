@@ -1,15 +1,23 @@
 import { Recipe } from "./types";
 
+export function useUserRecipes() {
+  return [MOCK_RECIPE];
+}
+
 const MOCK_RECIPE: Recipe = {
-  id: "1",
-  displayTitle: "Easy & Delicious Fudgy Brownies",
-  displayDescription:
-    "This recipe delivers incredibly fudgy and moist brownies with a perfect crackly top. It's easy to follow and guaranteed to be a crowd-pleaser!",
-  cookTimeMinutes: 40,
   videoLink:
-    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/videos%2FoEr5NAeuUSge9DokTC8bDBgaaBs8KWQtRFncE4?generation=1753365924922247&alt=media",
+    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/videos%2FoEr5NAeuUSge9DokTC8bDBgaaBs8KWQtRFncE4?generation=1753390847760855&alt=media",
   thumbnail:
-    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/thumbnails%2F6a799365103e4cde9f264c27b882eb58_1678329400~tplv-tiktokx-cropcenter-q:300:400:q72.heic?generation=1753365924117489&alt=media",
+    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/thumbnails%2F6a799365103e4cde9f264c27b882eb58_1678329400~tplv-tiktokx-cropcenter-q:300:400:q72.heic?generation=1753390846430964&alt=media",
+  dynamicCover:
+    "https://storage.googleapis.com/download/storage/v1/b/prepcart-prod-videos/o/dynamic-covers%2F6a799365103e4cde9f264c27b882eb58_1678329400~tplv-tiktokx-cropcenter-q:300:400:q72.heic?generation=1753390845690183&alt=media",
+  id: "94301f6e-3aa3-48e7-bccc-5abbc96eb527",
+  source:
+    "https://www.tiktok.com/@thelittlecake.la/video/7208369840007007531?lang=en",
+  displayTitle: "Easy Fudgy Brownies",
+  displayDescription:
+    "A simple and delicious brownie recipe that is sure to become a favorite. These brownies are rich, fudgy, and perfect for any occasion.",
+  cookTimeMinutes: 40,
   ingredients: [
     {
       name: "butter",
@@ -17,7 +25,7 @@ const MOCK_RECIPE: Recipe = {
       unit: "cup",
     },
     {
-      name: "sugar",
+      name: "granulated sugar",
       quantity: "1",
       unit: "cup",
     },
@@ -33,11 +41,11 @@ const MOCK_RECIPE: Recipe = {
     },
     {
       name: "vegetable oil",
-      quantity: "1/4",
+      quantity: "1/2",
       unit: "cup",
     },
     {
-      name: "cocoa powder",
+      name: "unsweetened cocoa powder",
       quantity: "1/3",
       unit: "cup",
     },
@@ -47,13 +55,8 @@ const MOCK_RECIPE: Recipe = {
       unit: "cup",
     },
     {
-      name: "cornstarch",
-      quantity: "1",
-      unit: "tablespoon",
-    },
-    {
       name: "baking soda",
-      quantity: "1/2",
+      quantity: "1/4",
       unit: "teaspoon",
     },
     {
@@ -63,106 +66,102 @@ const MOCK_RECIPE: Recipe = {
     },
     {
       name: "chocolate chips",
-      quantity: "1",
+      quantity: "1/2",
       unit: "cup",
     },
   ],
   instructions: [
     {
-      instruction: "Melt butter in a bowl.",
+      instruction: "Melt the butter in a bowl.",
       startTimestamp: 5,
-      endTimestamp: 7,
-      timer: null,
-    },
-    {
-      instruction: "Add sugar to the melted butter and whisk until combined.",
-      startTimestamp: 7,
-      endTimestamp: 10,
-      timer: null,
-    },
-    {
-      instruction: "Add eggs and vanilla extract to the bowl.",
-      startTimestamp: 11,
-      endTimestamp: 15,
-      timer: null,
-    },
-    {
-      instruction: "Whisk until the mixture is smooth.",
-      startTimestamp: 15,
-      endTimestamp: 17,
-      timer: null,
-    },
-    {
-      instruction: "Add vegetable oil to the mixture.",
-      startTimestamp: 17,
-      endTimestamp: 19,
+      endTimestamp: 6,
       timer: null,
     },
     {
       instruction:
-        "Add cocoa powder, flour, cornstarch, baking soda, and salt.",
+        "Add the granulated sugar to the melted butter and whisk until combined.",
+      startTimestamp: 6,
+      endTimestamp: 10,
+      timer: {
+        durationMinutes: 1,
+      },
+    },
+    {
+      instruction: "Add the eggs and vanilla extract to the bowl.",
+      startTimestamp: 11,
+      endTimestamp: 14,
+      timer: null,
+    },
+    {
+      instruction: "Whisk until the mixture is smooth.",
+      startTimestamp: 14,
+      endTimestamp: 16,
+      timer: {
+        durationMinutes: 1,
+      },
+    },
+    {
+      instruction: "Pour in the vegetable oil and whisk until combined.",
+      startTimestamp: 17,
+      endTimestamp: 18,
+      timer: null,
+    },
+    {
+      instruction: "Add the cocoa powder and gently stir with a spatula.",
       startTimestamp: 19,
+      endTimestamp: 22,
+      timer: null,
+    },
+    {
+      instruction: "Add the flour, baking soda, and salt.",
+      startTimestamp: 24,
       endTimestamp: 27,
       timer: null,
     },
     {
-      instruction: "Gently stir with a spatula until just combined.",
-      startTimestamp: 27,
+      instruction: "Stir gently with a spatula until just combined.",
+      startTimestamp: 28,
       endTimestamp: 30,
       timer: null,
     },
     {
-      instruction: "Fold in chocolate chips.",
+      instruction: "Fold in the chocolate chips.",
       startTimestamp: 30,
       endTimestamp: 31,
       timer: null,
     },
     {
       instruction:
-        "Preheat oven to 325 degrees Fahrenheit (160 degrees Celsius).",
+        "Preheat your oven to 325°F (160°C) and grease an 8x8 inch pan.",
       startTimestamp: 33,
-      endTimestamp: 35,
-      timer: {
-        durationMinutes: null,
-      },
+      endTimestamp: 36,
+      timer: null,
     },
     {
-      instruction:
-        "Grease and line an 8x8 inch baking pan with parchment paper.",
-      startTimestamp: 35,
-      endTimestamp: 41,
+      instruction: "Line the pan with parchment paper.",
+      startTimestamp: 36,
+      endTimestamp: 40,
       timer: null,
     },
     {
       instruction: "Pour the batter into the prepared pan.",
-      startTimestamp: 41,
-      endTimestamp: 42,
+      startTimestamp: 40,
+      endTimestamp: 41,
       timer: null,
     },
     {
-      instruction:
-        "Bake for 40 minutes, or until a toothpick inserted into the center comes out with moist crumbs.",
+      instruction: "Bake for 40 minutes.",
       startTimestamp: 42,
-      endTimestamp: 44,
+      endTimestamp: 43,
       timer: {
         durationMinutes: 40,
       },
     },
     {
-      instruction: "Let the brownies cool completely before cutting.",
-      startTimestamp: 44,
+      instruction: "Let the brownies cool before cutting.",
+      startTimestamp: 43,
       endTimestamp: 46,
-      timer: null,
-    },
-    {
-      instruction: "Cut into squares and enjoy!",
-      startTimestamp: 46,
-      endTimestamp: 47,
       timer: null,
     },
   ],
 };
-
-export function useUserRecipes() {
-  return [MOCK_RECIPE];
-}

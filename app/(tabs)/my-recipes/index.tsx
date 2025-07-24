@@ -6,6 +6,7 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
+  Fab,
   FilterIcon,
   FilterModal,
   SmallRecipeCard,
@@ -28,7 +29,7 @@ export default function MyRecipesScreen() {
     getFilterStatusText,
   } = useRecipeFilters();
 
-  const { handleRecipePress } = useRecipeActions();
+  const { handleRecipePress, handleImportRecipe } = useRecipeActions();
   const { styles, colors } = useStyles();
 
   return (
@@ -89,6 +90,8 @@ export default function MyRecipesScreen() {
           selectedFilter={selectedFilter}
           onFilterSelect={setSelectedFilter}
         />
+
+        <Fab onImport={handleImportRecipe} />
       </SafeAreaView>
     </ThemedView>
   );

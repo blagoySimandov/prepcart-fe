@@ -46,6 +46,7 @@ export default {
       "@react-native-firebase/app",
       "expo-router",
       "expo-web-browser",
+      "expo-av",
       [
         "expo-build-properties",
         {
