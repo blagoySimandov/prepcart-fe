@@ -1,19 +1,76 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Video as ExpoVideo, ResizeMode } from "expo-av";
-import React from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, TouchableOpacity, View, Modal, TouchableWithoutFeedback } from "react-native";
 import { useStepVideo, useTimer } from "./hooks";
 import { useStyles } from "./styles";
 import { InstructionProps, TextProps, TimerProps, VideoProps } from "./types";
 
-function InstructionBase({ children }: InstructionProps) {
+function InstructionBase({ children, isModified, modificationDetail }: InstructionProps) {
   const { styles, colors } = useStyles();
+  const [showDetail, setShowDetail] = useState(false);
 
   return (
-    <View style={[styles.container, { borderColor: colors.border }]}>
-      {children}
-    </View>
+    <>
+      <View style={[
+        styles.container, 
+        { borderColor: colors.border },
+        isModified && styles.modifiedContainer
+      ]}>
+        {isModified && (
+          <TouchableOpacity 
+            style={styles.modifiedIndicator}
+            onPress={() => setShowDetail(true)}
+          >
+            <MaterialIcons name="edit" size={16} color="#FF9944" />
+            <ThemedText style={styles.modifiedText}>Modified</ThemedText>
+            <MaterialIcons name="info" size={14} color="#FF9944" style={{ marginLeft: 4 }} />
+          </TouchableOpacity>
+        )}
+        {children}
+      </View>
+      
+      {modificationDetail && (
+        <Modal
+          visible={showDetail}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDetail(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setShowDetail(false)}>
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.detailModal}>
+                  <View style={styles.detailModalHeader}>
+                    <ThemedText style={styles.detailModalTitle}>
+                      Modified Instruction
+                    </ThemedText>
+                    <TouchableOpacity onPress={() => setShowDetail(false)}>
+                      <MaterialIcons name="close" size={20} color={colors.icon} />
+                    </TouchableOpacity>
+                  </View>
+                  
+                  <View style={styles.detailSection}>
+                    <ThemedText style={styles.detailLabel}>Original:</ThemedText>
+                    <ThemedText style={[styles.detailText, styles.strikethroughText]}>
+                      {modificationDetail.originalInstruction}
+                    </ThemedText>
+                  </View>
+                  
+                  <View style={styles.detailSection}>
+                    <ThemedText style={styles.detailLabel}>Reason:</ThemedText>
+                    <ThemedText style={styles.detailText}>
+                      {modificationDetail.reason}
+                    </ThemedText>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
+    </>
   );
 }
 

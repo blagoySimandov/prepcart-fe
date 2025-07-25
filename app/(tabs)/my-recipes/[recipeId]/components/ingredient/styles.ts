@@ -24,6 +24,49 @@ export function useStyles() {
       shadowRadius: 4,
       elevation: 2,
       marginBottom: 2,
+      position: "relative",
+      overflow: "hidden",
+    },
+    statusIndicator: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: 4,
+    },
+    addedIndicator: {
+      backgroundColor: "#44BB44",
+    },
+    modifiedIndicator: {
+      backgroundColor: "#FF9944",
+    },
+    addedContainer: {
+      borderWidth: 1.5,
+      borderColor: "#44BB44",
+    },
+    modifiedContainer: {
+      borderWidth: 1.5,
+      borderColor: "#FF9944",
+    },
+    statusBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 12,
+      marginRight: 8,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    addedBadge: {
+      backgroundColor: "#44BB44",
+    },
+    modifiedBadge: {
+      backgroundColor: "#FF9944",
+    },
+    statusBadgeText: {
+      fontSize: 10,
+      fontWeight: "600",
+      color: "white",
+      textTransform: "uppercase",
     },
     baseContainer: {
       flex: 1,
@@ -63,6 +106,51 @@ export function useStyles() {
       shadowOpacity: 0.1,
       shadowRadius: 2,
       elevation: 1,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    detailModal: {
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      padding: 20,
+      width: "100%",
+      maxWidth: 350,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    detailModalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    detailModalTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+    },
+    detailSection: {
+      marginBottom: 12,
+    },
+    detailLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.tabIconDefault,
+      marginBottom: 4,
+    },
+    detailText: {
+      fontSize: 14,
+      lineHeight: 20,
     },
   });
 

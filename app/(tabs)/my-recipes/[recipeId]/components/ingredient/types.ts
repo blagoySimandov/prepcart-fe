@@ -2,6 +2,12 @@ import { ReactNode } from "react";
 
 export interface IngredientProps {
   children: ReactNode;
+  status?: "added" | "modified";
+  modificationDetail?: {
+    reason: string;
+    originalQuantity?: string;
+    originalUnit?: string;
+  };
 }
 
 export interface BaseContainerProps {

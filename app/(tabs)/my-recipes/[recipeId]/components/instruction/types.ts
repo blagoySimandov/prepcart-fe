@@ -2,6 +2,11 @@ import { ReactNode } from "react";
 
 export interface InstructionProps {
   children: ReactNode;
+  isModified?: boolean;
+  modificationDetail?: {
+    originalInstruction: string;
+    reason: string;
+  };
 }
 
 export interface VideoProps {

@@ -12,6 +12,29 @@ export function useStyles() {
       borderWidth: 1,
       backgroundColor: colors.card,
       overflow: "hidden",
+      position: "relative",
+    },
+    modifiedContainer: {
+      borderWidth: 2,
+      borderColor: "#FF9944",
+    },
+    modifiedIndicator: {
+      position: "absolute",
+      top: 12,
+      right: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: "rgba(255, 153, 68, 0.1)",
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+      zIndex: 1,
+    },
+    modifiedText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: "#FF9944",
     },
     videoContainer: {
       height: 400,
@@ -123,6 +146,55 @@ export function useStyles() {
     startText: {
       fontSize: 16,
       fontWeight: "600",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    detailModal: {
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      padding: 20,
+      width: "100%",
+      maxWidth: 350,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    detailModalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    detailModalTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+    },
+    detailSection: {
+      marginBottom: 12,
+    },
+    detailLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.tabIconDefault,
+      marginBottom: 4,
+    },
+    detailText: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    strikethroughText: {
+      textDecorationLine: "line-through",
+      color: colors.tabIconDefault,
     },
   });
 
