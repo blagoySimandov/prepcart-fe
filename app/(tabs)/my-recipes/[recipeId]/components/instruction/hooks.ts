@@ -1,6 +1,6 @@
 import { useAlert } from "@/components/providers/AlertProvider";
 import { AVPlaybackStatus, Video as ExpoVideo } from "expo-av";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useReducer, useRef, useState } from "react";
 
 export function useStepVideo({
   startTimestamp,
@@ -63,12 +63,119 @@ export function useStepVideo({
   };
 }
 
-export function useTimer(durationMinutes: number) {
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+interface TimerState {
+  timeLeft: number | null;
+  isRunning: boolean;
+  isPaused: boolean;
+  intervalId: NodeJS.Timeout | null;
+}
 
-  // Convert minutes to seconds for countdown
+type TimerAction =
+  | { type: "START"; totalSeconds: number }
+  | { type: "RESUME" }
+  | { type: "PAUSE" }
+  | { type: "RESET" }
+  | { type: "TICK"; onComplete: () => void }
+  | { type: "SET_INTERVAL"; intervalId: NodeJS.Timeout }
+  | { type: "COMPLETE" };
+
+const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
+  switch (action.type) {
+    case "START":
+      // Clear existing interval if any
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+      return {
+        ...state,
+        timeLeft:
+          state.timeLeft === null ? action.totalSeconds : state.timeLeft,
+        isRunning: true,
+        isPaused: false,
+        intervalId: null,
+      };
+
+    case "RESUME":
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+      return {
+        ...state,
+        isRunning: true,
+        isPaused: false,
+        intervalId: null,
+      };
+
+    case "PAUSE":
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+      return {
+        ...state,
+        isRunning: false,
+        isPaused: true,
+        intervalId: null,
+      };
+
+    case "RESET":
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+      return {
+        timeLeft: null,
+        isRunning: false,
+        isPaused: false,
+        intervalId: null,
+      };
+
+    case "SET_INTERVAL":
+      return {
+        ...state,
+        intervalId: action.intervalId,
+      };
+
+    case "TICK":
+      if (state.timeLeft === null || state.timeLeft <= 1) {
+        if (state.intervalId) {
+          clearInterval(state.intervalId);
+        }
+        action.onComplete();
+        return {
+          timeLeft: null,
+          isRunning: false,
+          isPaused: false,
+          intervalId: null,
+        };
+      }
+      return {
+        ...state,
+        timeLeft: state.timeLeft - 1,
+      };
+
+    case "COMPLETE":
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+      return {
+        timeLeft: null,
+        isRunning: false,
+        isPaused: false,
+        intervalId: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+export function useTimer(durationMinutes: number) {
+  const [state, dispatch] = useReducer(timerReducer, {
+    timeLeft: null,
+    isRunning: false,
+    isPaused: false,
+    intervalId: null,
+  });
+
   const totalSeconds = durationMinutes * 60;
 
   // Format time display (MM:SS)
@@ -83,10 +190,7 @@ export function useTimer(durationMinutes: number) {
   const { showAlert } = useAlert();
 
   const handleTimerComplete = useCallback(() => {
-    setIsRunning(false);
-    setIsPaused(false);
-    setTimeLeft(null);
-    //TODO: bettter Timer completion flow
+    dispatch({ type: "COMPLETE" });
     showAlert(
       "Timer Complete! ⏰",
       `Your ${durationMinutes} minute timer has finished.`,
@@ -94,64 +198,59 @@ export function useTimer(durationMinutes: number) {
     );
   }, [durationMinutes, showAlert]);
 
+  const startInterval = useCallback(() => {
+    const intervalId = setInterval(() => {
+      dispatch({ type: "TICK", onComplete: handleTimerComplete });
+    }, 1000);
+    dispatch({ type: "SET_INTERVAL", intervalId });
+  }, [handleTimerComplete]);
+
   const handleStart = useCallback(() => {
-    if (timeLeft === null) {
-      setTimeLeft(totalSeconds);
-    }
-    setIsRunning(true);
-    setIsPaused(false);
-  }, [timeLeft, totalSeconds]);
+    dispatch({ type: "START", totalSeconds });
+    startInterval();
+  }, [totalSeconds, startInterval]);
+
+  const handleResume = useCallback(() => {
+    dispatch({ type: "RESUME" });
+    startInterval();
+  }, [startInterval]);
 
   const handlePause = useCallback(() => {
-    setIsRunning(false);
-    setIsPaused(true);
+    dispatch({ type: "PAUSE" });
   }, []);
 
   const handleReset = useCallback(() => {
-    setIsRunning(false);
-    setIsPaused(false);
-    setTimeLeft(null);
+    dispatch({ type: "RESET" });
   }, []);
 
+  // Combined start/resume logic
+  const handleStartOrResume = useCallback(() => {
+    if (state.timeLeft === null) {
+      handleStart();
+    } else {
+      handleResume();
+    }
+  }, [state.timeLeft, handleStart, handleResume]);
+
   const getDisplayText = useCallback(() => {
-    if (timeLeft !== null) {
-      return formatTime(timeLeft);
+    if (state.timeLeft !== null) {
+      return formatTime(state.timeLeft);
     }
     return `Set Timer: ${durationMinutes} min`;
-  }, [timeLeft, formatTime, durationMinutes]);
+  }, [state.timeLeft, formatTime, durationMinutes]);
 
   const getTimerState = useCallback(() => {
-    if (isRunning) return "running";
-    if (isPaused) return "paused";
-    if (timeLeft !== null) return "ready";
+    if (state.isRunning) return "running";
+    if (state.isPaused) return "paused";
+    if (state.timeLeft !== null) return "ready";
     return "initial";
-  }, [isRunning, isPaused, timeLeft]);
-
-  useEffect(() => {
-    if (!isRunning || timeLeft === null) return;
-
-    if (timeLeft <= 0) {
-      handleTimerComplete();
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      setTimeLeft((prev: number | null) => {
-        if (prev === null || prev <= 1) {
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [isRunning, timeLeft, handleTimerComplete]);
+  }, [state.isRunning, state.isPaused, state.timeLeft]);
 
   return {
-    timeLeft,
-    isRunning,
-    isPaused,
-    handleStart,
+    timeLeft: state.timeLeft,
+    isRunning: state.isRunning,
+    isPaused: state.isPaused,
+    handleStart: handleStartOrResume, // This now handles both start and resume
     handlePause,
     handleReset,
     getDisplayText,
