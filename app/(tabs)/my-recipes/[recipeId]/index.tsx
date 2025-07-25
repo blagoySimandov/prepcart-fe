@@ -7,6 +7,7 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
   Description,
   Header,
@@ -103,24 +104,24 @@ export default function RecipeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        {appliedModifications && (
-          <View style={styles.modificationBanner}>
-            <ThemedText style={styles.modificationBannerText}>
-              Recipe modified with substitutions
-            </ThemedText>
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={handleClearModifications}
-            >
-              <ThemedText style={styles.clearButtonText}>Clear</ThemedText>
-            </TouchableOpacity>
-          </View>
-        )}
         <RecipeDetails>
           <Header>
             <Thumbnail imageUrl={displayRecipe.thumbnail} />
-            <Header.Title>{displayRecipe.displayTitle}</Header.Title>
+            <Header.Title isModified={!!appliedModifications}>
+              {displayRecipe.displayTitle}
+            </Header.Title>
           </Header>
+          {appliedModifications && (
+            <View style={styles.resetSection}>
+              <TouchableOpacity
+                style={styles.resetButton}
+                onPress={handleClearModifications}
+              >
+                <MaterialIcons name="refresh" size={20} color="#FF9944" />
+                <ThemedText style={styles.resetButtonText}>Reset to Original Recipe</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
           <Description>{displayRecipe.displayDescription}</Description>
           <Ingredients>
             {displayRecipe.ingredients.map(

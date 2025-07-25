@@ -6,4 +6,5 @@ export interface HeaderProps {
 
 export interface TitleProps {
   children: ReactNode;
+  isModified?: boolean;
 }

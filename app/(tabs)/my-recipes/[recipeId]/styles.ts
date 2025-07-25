@@ -13,31 +13,26 @@ export function useStyles() {
     safeArea: {
       flex: 1,
     },
-    modificationBanner: {
-      backgroundColor: "#FF9944",
+    resetSection: {
+      paddingHorizontal: 20,
+      paddingBottom: 16,
+    },
+    resetButton: {
+      backgroundColor: colors.background,
       paddingHorizontal: 16,
       paddingVertical: 12,
+      borderRadius: 12,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 8,
+      justifyContent: "center",
+      gap: 8,
+      borderWidth: 1.5,
+      borderColor: "#FF9944",
     },
-    modificationBannerText: {
-      color: "white",
-      fontSize: 14,
+    resetButtonText: {
+      fontSize: 16,
       fontWeight: "600",
-      flex: 1,
-    },
-    clearButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      backgroundColor: "rgba(255, 255, 255, 0.2)",
-      borderRadius: 16,
-    },
-    clearButtonText: {
-      color: "white",
-      fontSize: 12,
-      fontWeight: "600",
+      color: "#FF9944",
     },
   });
 
