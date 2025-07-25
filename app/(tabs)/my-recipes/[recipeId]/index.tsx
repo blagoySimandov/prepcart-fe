@@ -18,11 +18,11 @@ import {
   RecipeDetails,
   Thumbnail,
 } from "./components";
-import { SubstitutionModal } from "./components/substitution-modal";
-import { useSubstitutionOptions } from "./components/substitution-modal/hooks";
-import { SubstitutionOption } from "./components/substitution-modal/types";
+import { SubstitutionSelectorModal } from "./components/substitution-selector";
+import { SubstitutionSelection } from "./components/substitution-selector/types";
 import { SubstitutionChangesModal } from "./components/substitution-changes";
 import { useSubstitutionChanges } from "./components/substitution-changes/hooks";
+import { fetchReplacementCandidates, SubstitutionTarget } from "./services/substitution-webhook";
 import {
   reconcileRecipeWithModifications,
   ModificationTracker,
@@ -35,35 +35,51 @@ export default function RecipeScreen() {
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const recipe = useRecipe(recipeId || "");
   const { styles } = useStyles();
-  const [modalVisible, setModalVisible] = useState(false);
+  const [selectorModalVisible, setSelectorModalVisible] = useState(false);
   const [changesModalVisible, setChangesModalVisible] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] =
-    useState<IngredientType | null>(null);
-  const [selectedSubstitution, setSelectedSubstitution] =
-    useState<SubstitutionOption | null>(null);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [selectedSubstitutions, setSelectedSubstitutions] = useState<SubstitutionSelection[]>([]);
+  const [replacementCandidates, setReplacementCandidates] = useState<SubstitutionTarget[]>([]);
+  const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
+  const [candidatesError, setCandidatesError] = useState<string | null>(null);
   const [appliedModifications, setAppliedModifications] = useState<
     typeof substitutionChanges | null
   >(null);
   const [modificationTracker, setModificationTracker] =
     useState<ModificationTracker | null>(null);
 
-  const substitutionOptions = useSubstitutionOptions(
-    selectedIngredient?.name || "",
-  );
   const substitutionChanges = useSubstitutionChanges(
-    selectedIngredient?.name || "",
-    selectedSubstitution?.name || null,
+    selectedSubstitutions[0]?.ingredient || "",
+    selectedSubstitutions[0]?.selectedCandidate || null,
   );
 
-  const handleSwapPress = (ingredient: IngredientType) => {
-    setSelectedIngredient(ingredient);
-    setModalVisible(true);
+  const handleSwapPress = async (ingredient: IngredientType) => {
+    if (!recipe) return;
+    
+    setSelectedIngredients([ingredient.name]);
+    setSelectorModalVisible(true);
+    setIsLoadingCandidates(true);
+    setCandidatesError(null);
+    
+    try {
+      const response = await fetchReplacementCandidates(recipe, [ingredient.name]);
+      setReplacementCandidates(response.replacementCandidates);
+    } catch (error) {
+      setCandidatesError("Failed to load substitution options");
+      console.error("Error fetching candidates:", error);
+    } finally {
+      setIsLoadingCandidates(false);
+    }
   };
 
-  const handleSubstitutionSelect = (option: SubstitutionOption) => {
-    setSelectedSubstitution(option);
-    setModalVisible(false);
-    setChangesModalVisible(true);
+  const handleSubstitutionsConfirm = (selections: SubstitutionSelection[]) => {
+    setSelectedSubstitutions(selections);
+    setSelectorModalVisible(false);
+    
+    const hasSubstitutions = selections.some(s => s.selectedCandidate !== null);
+    if (hasSubstitutions) {
+      setChangesModalVisible(true);
+    }
   };
 
   const handleApplyChanges = () => {
@@ -186,23 +202,23 @@ export default function RecipeScreen() {
           </Instructions>
         </RecipeDetails>
       </SafeAreaView>
-      {selectedIngredient && (
-        <>
-          <SubstitutionModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            ingredientName={selectedIngredient.name}
-            onSelect={handleSubstitutionSelect}
-            substitutionOptions={substitutionOptions}
-          />
-          <SubstitutionChangesModal
-            visible={changesModalVisible}
-            onClose={() => setChangesModalVisible(false)}
-            changes={substitutionChanges}
-            onApply={handleApplyChanges}
-            ingredientName={selectedIngredient.name}
-          />
-        </>
+      <SubstitutionSelectorModal
+        visible={selectorModalVisible}
+        onClose={() => setSelectorModalVisible(false)}
+        ingredientsToReplace={selectedIngredients}
+        replacementCandidates={replacementCandidates}
+        onConfirm={handleSubstitutionsConfirm}
+        isLoading={isLoadingCandidates}
+        error={candidatesError}
+      />
+      {selectedSubstitutions.length > 0 && (
+        <SubstitutionChangesModal
+          visible={changesModalVisible}
+          onClose={() => setChangesModalVisible(false)}
+          changes={substitutionChanges}
+          onApply={handleApplyChanges}
+          ingredientName={selectedSubstitutions[0]?.ingredient || ""}
+        />
       )}
     </ThemedView>
   );

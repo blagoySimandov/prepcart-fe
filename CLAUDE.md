@@ -10,3 +10,4 @@
 
 - Never hardcode any strings or magic numbers. If needed always use constants.ts and put the constants in there
 - Limit the use of comments in the codebase as much as possible. Let the code speak for itself.
+- When creating components if it makes sense group them by using the compound components pattern
