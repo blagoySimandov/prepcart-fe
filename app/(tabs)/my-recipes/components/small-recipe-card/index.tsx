@@ -9,6 +9,7 @@ export function SmallRecipeCard({
   recipe,
   index: _index,
   onPress,
+  onDelete,
 }: SmallRecipeCardProps) {
   const { styles, colors } = useStyles();
 
@@ -117,6 +118,20 @@ export function SmallRecipeCard({
       <View
         style={[styles.recipeAccentLine, { backgroundColor: colors.tint }]}
       />
+
+      {/* Delete button */}
+      {onDelete && (
+        <TouchableOpacity
+          style={[styles.deleteButton, { backgroundColor: colors.card }]}
+          onPress={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          activeOpacity={0.8}
+        >
+          <MaterialIcons name="close" size={20} color={colors.error} />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }

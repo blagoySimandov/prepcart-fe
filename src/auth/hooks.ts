@@ -118,7 +118,7 @@ export function useAuth() {
         if (identityToken) {
           const appleCredential = AppleAuthProvider.credential(
             identityToken,
-            nonce
+            nonce,
           );
           await reauthenticateWithCredential(currentUser, appleCredential);
           return true;
@@ -126,7 +126,7 @@ export function useAuth() {
       }
 
       throw new Error(
-        `Unsupported provider for reauthentication: ${providerId}`
+        `Unsupported provider for reauthentication: ${providerId}`,
       );
     } catch (error) {
       console.error("Error during reauthentication:", error);
@@ -152,7 +152,7 @@ export function useAuth() {
         db,
         "users",
         userId,
-        "shoppingHistory"
+        "shoppingHistory",
       );
       const historySnapshot = await getDocs(historyCollectionRef);
       historySnapshot.forEach((historyDoc) => {

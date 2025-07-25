@@ -12,6 +12,7 @@ import {
   SmallRecipeCard,
   SmallRecipeCards,
 } from "./components";
+import { ImportProgressModal } from "./components/import-progress";
 import { useRecipeActions, useRecipeFilters } from "./hooks";
 import { useStyles } from "./styles";
 
@@ -29,7 +30,7 @@ export default function MyRecipesScreen() {
     getFilterStatusText,
   } = useRecipeFilters();
 
-  const { handleRecipePress, handleImportRecipe } = useRecipeActions();
+  const { handleRecipePress, handleImportRecipe, handleDeleteRecipe, currentImport } = useRecipeActions();
   const { styles, colors } = useStyles();
 
   return (
@@ -60,6 +61,7 @@ export default function MyRecipesScreen() {
               recipe={recipe}
               index={index}
               onPress={() => handleRecipePress(recipe, index)}
+              onDelete={() => handleDeleteRecipe(recipe)}
             />
           ))}
           {filteredRecipes.length === 0 && (
@@ -92,6 +94,12 @@ export default function MyRecipesScreen() {
         />
 
         <Fab onImport={handleImportRecipe} />
+        
+        <ImportProgressModal 
+          visible={!!currentImport}
+          thumbnail={currentImport?.thumbnail}
+          title="Importing Recipe..."
+        />
       </SafeAreaView>
     </ThemedView>
   );

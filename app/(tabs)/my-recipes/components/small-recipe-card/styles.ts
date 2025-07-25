@@ -8,6 +8,7 @@ export function useStyles() {
 
   const styles = StyleSheet.create({
     recipeCard: {
+      position: "relative",
       marginBottom: 20,
       borderRadius: 16,
       borderWidth: 1,
@@ -89,6 +90,25 @@ export function useStyles() {
     recipeAccentLine: {
       height: 4,
       width: "100%",
+    },
+    deleteButton: {
+      position: "absolute",
+      top: 12,
+      right: 12,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+      borderWidth: 1,
+      borderColor: "rgba(0,0,0,0.1)",
     },
   });
 

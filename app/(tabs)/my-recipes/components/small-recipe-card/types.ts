@@ -4,4 +4,5 @@ export interface SmallRecipeCardProps {
   recipe: Recipe;
   index: number;
   onPress?: () => void;
+  onDelete?: () => void;
 }
