@@ -9,6 +9,7 @@ import {
   IngredientProps,
   NameProps,
   UnitProps,
+  SwapIngredientBtnProps,
 } from "./types";
 
 function IngredientBase({ children }: IngredientProps) {
@@ -47,11 +48,11 @@ function Name({ children }: NameProps) {
   return <ThemedText style={styles.name}>{children}</ThemedText>;
 }
 
-function SwapIngredientBtn() {
+function SwapIngredientBtn({ onPress }: SwapIngredientBtnProps) {
   const { styles, colors } = useStyles();
 
   return (
-    <TouchableOpacity style={styles.swapButton}>
+    <TouchableOpacity style={styles.swapButton} onPress={onPress}>
       <MaterialIcons name="swap-horiz" size={18} color={colors.icon} />
     </TouchableOpacity>
   );

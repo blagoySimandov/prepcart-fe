@@ -19,3 +19,7 @@ export interface UnitProps {
 export interface NameProps {
   children: ReactNode;
 }
+
+export interface SwapIngredientBtnProps {
+  onPress?: () => void;
+}

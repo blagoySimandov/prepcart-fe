@@ -4,7 +4,7 @@ import {
   Instruction as InstructionType,
 } from "@/src/user/recipes/types";
 import { useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Description,
@@ -16,6 +16,9 @@ import {
   RecipeDetails,
   Thumbnail,
 } from "./components";
+import { SubstitutionModal } from "./components/substitution-modal";
+import { useSubstitutionOptions } from "./components/substitution-modal/hooks";
+import { SubstitutionOption } from "./components/substitution-modal/types";
 import { useRecipe } from "./hooks";
 import { useStyles } from "./styles";
 
@@ -23,6 +26,20 @@ export default function RecipeScreen() {
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const recipe = useRecipe(recipeId || "");
   const { styles } = useStyles();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedIngredient, setSelectedIngredient] = useState<IngredientType | null>(null);
+  
+  const substitutionOptions = useSubstitutionOptions(selectedIngredient?.name || "");
+  
+  const handleSwapPress = (ingredient: IngredientType) => {
+    setSelectedIngredient(ingredient);
+    setModalVisible(true);
+  };
+  
+  const handleSubstitutionSelect = (option: SubstitutionOption) => {
+    console.log("Selected substitution:", option);
+    setModalVisible(false);
+  };
 
   if (!recipe) {
     return (
@@ -52,7 +69,9 @@ export default function RecipeScreen() {
                     <Ingredient.Unit>{ingredient.unit}</Ingredient.Unit>
                     <Ingredient.Name>{ingredient.name}</Ingredient.Name>
                   </Ingredient.BaseContainer>
-                  <Ingredient.SwapIngredientBtn />
+                  <Ingredient.SwapIngredientBtn
+                    onPress={() => handleSwapPress(ingredient)}
+                  />
                 </Ingredient>
               ),
             )}
@@ -80,6 +99,15 @@ export default function RecipeScreen() {
           </Instructions>
         </RecipeDetails>
       </SafeAreaView>
+      {selectedIngredient && (
+        <SubstitutionModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          ingredientName={selectedIngredient.name}
+          onSelect={handleSubstitutionSelect}
+          substitutionOptions={substitutionOptions}
+        />
+      )}
     </ThemedView>
   );
 }
