@@ -1,6 +1,13 @@
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
+import {
+  BORDER_RADIUS,
+  FONT_SIZES,
+  FONT_WEIGHTS,
+  SPACING,
+} from "@/constants/ui";
+import { MODIFICATION_COLORS, MODIFICATION_STATUS } from "./constants";
 
 export function useStyles() {
   const colorScheme = useColorScheme();
@@ -14,25 +21,25 @@ export function useStyles() {
       flex: 1,
     },
     resetSection: {
-      paddingHorizontal: 20,
-      paddingBottom: 16,
+      paddingHorizontal: SPACING.xl,
+      paddingBottom: SPACING.large,
     },
     resetButton: {
       backgroundColor: colors.background,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderRadius: 12,
+      paddingHorizontal: SPACING.large,
+      paddingVertical: SPACING.medium,
+      borderRadius: BORDER_RADIUS.medium,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
+      gap: SPACING.small,
       borderWidth: 1.5,
-      borderColor: "#FF9944",
+      borderColor: MODIFICATION_COLORS[MODIFICATION_STATUS.modify],
     },
     resetButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: "#FF9944",
+      fontSize: FONT_SIZES.medium,
+      fontWeight: FONT_WEIGHTS.semiBold,
+      color: MODIFICATION_COLORS[MODIFICATION_STATUS.modify],
     },
   });
 

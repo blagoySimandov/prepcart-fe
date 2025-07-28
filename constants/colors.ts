@@ -6,6 +6,13 @@
 const tintColorLight = "#D4742A";
 const tintColorDark = "#E67E22";
 
+export const COMMON_COLORS = {
+  white: "#FFFFFF",
+  success: "#44BB44",
+  warning: "#FF9944",
+  error: "#FF4444",
+} as const;
+
 export const Colors = {
   light: {
     text: "#2D1B0E",
@@ -54,3 +61,4 @@ export const Colors = {
     contrastText: "#FFFFFF", // White for high contrast needs in dark mode
   },
 };
+

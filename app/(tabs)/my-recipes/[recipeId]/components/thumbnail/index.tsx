@@ -3,6 +3,8 @@ import React from "react";
 import { Image, View } from "react-native";
 import { useStyles } from "./styles";
 import { ThumbnailProps } from "./types";
+import { ICON_NAMES } from "@/constants/icons";
+import { RESIZE_MODE } from "@/constants/ui";
 
 export function Thumbnail({ imageUrl }: ThumbnailProps = {}) {
   const { styles, colors } = useStyles();
@@ -13,12 +15,12 @@ export function Thumbnail({ imageUrl }: ThumbnailProps = {}) {
         <Image
           source={{ uri: imageUrl }}
           style={styles.image}
-          resizeMode="cover"
+          resizeMode={RESIZE_MODE.cover}
           accessibilityLabel="Recipe step thumbnail"
         />
       ) : (
         <View style={styles.placeholder}>
-          <MaterialIcons name="restaurant" size={32} color={colors.icon} />
+          <MaterialIcons name={ICON_NAMES.restaurant} size={32} color={colors.icon} />
         </View>
       )}
     </View>

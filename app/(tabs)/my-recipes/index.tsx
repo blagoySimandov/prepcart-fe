@@ -30,7 +30,12 @@ export default function MyRecipesScreen() {
     getFilterStatusText,
   } = useRecipeFilters();
 
-  const { handleRecipePress, handleImportRecipe, handleDeleteRecipe, currentImport } = useRecipeActions();
+  const {
+    handleRecipePress,
+    handleImportRecipe,
+    handleDeleteRecipe,
+    currentImport,
+  } = useRecipeActions();
   const { styles, colors } = useStyles();
 
   return (
@@ -75,9 +80,11 @@ export default function MyRecipesScreen() {
               {(searchQuery || selectedFilter !== "all") && (
                 <TouchableOpacity
                   style={styles.clearFiltersButton}
-                  onPress={clearFilters}>
+                  onPress={clearFilters}
+                >
                   <Text
-                    style={[styles.clearFiltersText, { color: colors.tint }]}>
+                    style={[styles.clearFiltersText, { color: colors.tint }]}
+                  >
                     Clear filters
                   </Text>
                 </TouchableOpacity>
@@ -94,8 +101,8 @@ export default function MyRecipesScreen() {
         />
 
         <Fab onImport={handleImportRecipe} />
-        
-        <ImportProgressModal 
+
+        <ImportProgressModal
           visible={!!currentImport}
           thumbnail={currentImport?.thumbnail}
           title="Importing Recipe..."

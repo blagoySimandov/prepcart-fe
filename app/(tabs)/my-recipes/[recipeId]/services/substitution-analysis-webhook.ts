@@ -19,6 +19,76 @@ export interface SubstitutionAnalysisRequest {
   substitutionRequests: SubstitutionRequest[];
 }
 
+function normalizeSubstitutionChanges(
+  data: any,
+  originalRecipe: Recipe,
+): SubstitutionChanges {
+  console.log("Normalizing substitution changes");
+  console.log(
+    "Original recipe ingredients:",
+    originalRecipe.ingredients.map((i) => i.name),
+  );
+  console.log(
+    "Modifications from webhook:",
+    data.recipeModifications.updatedIngredients,
+  );
+
+  const normalizedData = {
+    ...data,
+    recipeModifications: {
+      ...data.recipeModifications,
+      updatedIngredients: data.recipeModifications.updatedIngredients
+        .map((mod: any) => {
+          const normalized: any = {
+            ...mod,
+          };
+
+          // For modified ingredients, find and store the original values
+          if (mod.action === "modify") {
+            const originalIngredient = originalRecipe.ingredients.find(
+              (ing) => ing.name.toLowerCase() === mod.name.toLowerCase(),
+            );
+            if (originalIngredient) {
+              normalized.originalQuantity = originalIngredient.quantity;
+              normalized.originalUnit = originalIngredient.unit;
+              console.log(
+                `Found original values for ${mod.name}: ${originalIngredient.quantity} ${originalIngredient.unit}`,
+              );
+            } else {
+              console.log(
+                `Warning: Could not find original ingredient for modification: ${mod.name}`,
+              );
+            }
+          }
+
+          // For removed ingredients that don't exist in the original recipe, change to "skip"
+          if (mod.action === "remove") {
+            const exists = originalRecipe.ingredients.some(
+              (ing) => ing.name.toLowerCase() === mod.name.toLowerCase(),
+            );
+            if (!exists) {
+              console.log(
+                `Skipping removal of non-existent ingredient: ${mod.name}`,
+              );
+              // Skip this modification as the ingredient doesn't exist
+              return null;
+            }
+          }
+
+          return normalized;
+        })
+        .filter(Boolean), // Remove null entries
+    },
+  };
+
+  console.log(
+    "Normalized ingredients:",
+    normalizedData.recipeModifications.updatedIngredients,
+  );
+
+  return normalizedData as SubstitutionChanges;
+}
+
 export async function fetchSubstitutionAnalysis(
   recipe: Recipe,
   substitutionRequests: SubstitutionRequest[],
@@ -53,7 +123,7 @@ export async function fetchSubstitutionAnalysis(
     }
 
     const data = await response.json();
-    return data as SubstitutionChanges;
+    return normalizeSubstitutionChanges(data, recipe);
   } catch (error) {
     console.error("Error fetching substitution analysis:", error);
     throw error;

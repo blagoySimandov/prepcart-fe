@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { SPACING } from "@/constants/ui";
 
 export const useStyles = () => {
   const backgroundColor = useThemeColor({}, "background");
@@ -56,7 +57,7 @@ export const useStyles = () => {
       marginBottom: 12,
     },
     candidatesContainer: {
-      gap: 8,
+      gap: SPACING.small,
     },
     candidateButton: {
       backgroundColor,
@@ -84,7 +85,7 @@ export const useStyles = () => {
     removeButtonContent: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
+      gap: SPACING.small,
     },
     removeText: {
       color: "#FF4444",
@@ -167,5 +168,9 @@ export const useStyles = () => {
     },
   });
 
-  return { styles, colors: { backgroundColor, borderColor, textColor, secondaryText, tint } };
+  return {
+    styles,
+    colors: { backgroundColor, borderColor, textColor, secondaryText, tint },
+  };
 };
+

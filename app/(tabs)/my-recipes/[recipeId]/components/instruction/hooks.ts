@@ -1,4 +1,5 @@
-import { useAlert } from "@/components/providers/AlertProvider";
+import { useAlert } from "@/components/providers/alert-provider";
+import { formatTime } from "@/src/utils/formatters";
 import { AVPlaybackStatus, Video as ExpoVideo } from "expo-av";
 import { useCallback, useReducer, useRef, useState } from "react";
 
@@ -67,7 +68,7 @@ interface TimerState {
   timeLeft: number | null;
   isRunning: boolean;
   isPaused: boolean;
-  intervalId: NodeJS.Timeout | null;
+  intervalId: NodeJS.Timeout | number | null;
 }
 
 type TimerAction =
@@ -76,7 +77,7 @@ type TimerAction =
   | { type: "PAUSE" }
   | { type: "RESET" }
   | { type: "TICK"; onComplete: () => void }
-  | { type: "SET_INTERVAL"; intervalId: NodeJS.Timeout }
+  | { type: "SET_INTERVAL"; intervalId: NodeJS.Timeout | number }
   | { type: "COMPLETE" };
 
 const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
@@ -178,15 +179,6 @@ export function useTimer(durationMinutes: number) {
 
   const totalSeconds = durationMinutes * 60;
 
-  // Format time display (MM:SS)
-  const formatTime = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  }, []);
-
   const { showAlert } = useAlert();
 
   const handleTimerComplete = useCallback(() => {
@@ -237,7 +229,7 @@ export function useTimer(durationMinutes: number) {
       return formatTime(state.timeLeft);
     }
     return `Set Timer: ${durationMinutes} min`;
-  }, [state.timeLeft, formatTime, durationMinutes]);
+  }, [state.timeLeft, durationMinutes]);
 
   const getTimerState = useCallback(() => {
     if (state.isRunning) return "running";
@@ -250,7 +242,7 @@ export function useTimer(durationMinutes: number) {
     timeLeft: state.timeLeft,
     isRunning: state.isRunning,
     isPaused: state.isPaused,
-    handleStart: handleStartOrResume, // This now handles both start and resume
+    handleStart: handleStartOrResume,
     handlePause,
     handleReset,
     getDisplayText,

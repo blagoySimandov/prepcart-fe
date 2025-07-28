@@ -1,5 +1,5 @@
 import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
-import { useAlert } from "@/components/providers/AlertProvider";
+import { useAlert } from "@/components/providers/alert-provider";
 import { analytics } from "@/firebaseConfig";
 import { ProductCandidate } from "@/src/catalog-search/types";
 import { convertGsUrlToHttps } from "@/src/catalog-search/utils";

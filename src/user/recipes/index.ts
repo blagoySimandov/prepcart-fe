@@ -4,10 +4,10 @@ import { useFirestoreCollection } from "@/src/hooks/use-firestore-collection";
 import { collection, query } from "@react-native-firebase/firestore";
 import { Recipe } from "./types";
 
-export function useUserRecipes(): Recipe[] {
+export function useUserRecipes(): { recipes: Recipe[]; isLoading: boolean } {
   const { user } = useAuth();
 
-  const { data: recipes } = useFirestoreCollection<Recipe>({
+  const { data: recipes, isLoading } = useFirestoreCollection<Recipe>({
     queryFn: () => {
       if (!user?.uid) return null;
       return query(collection(db, "users", user.uid, "recipes"));
@@ -19,12 +19,7 @@ export function useUserRecipes(): Recipe[] {
         const data = doc.data();
         if (!data) return;
 
-        if ("originalRecipe" in data && data.originalRecipe) {
-          recipesData.push({
-            ...data.originalRecipe,
-            id: doc.id,
-          });
-        } else if (
+        if (
           "displayTitle" in data &&
           "ingredients" in data &&
           data.displayTitle &&
@@ -41,6 +36,10 @@ export function useUserRecipes(): Recipe[] {
             thumbnail: data.thumbnail,
             videoLink: data.videoLink,
             dynamicCover: data.dynamicCover,
+            // Include modification tracking fields
+            hasModifications: data.hasModifications,
+            substitutionChanges: data.substitutionChanges,
+            modifiedAt: data.modifiedAt,
           });
         }
       });
@@ -57,5 +56,5 @@ export function useUserRecipes(): Recipe[] {
     dependencies: [user?.uid],
   });
 
-  return recipes;
+  return { recipes, isLoading };
 }

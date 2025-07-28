@@ -24,4 +24,8 @@ export type Recipe = {
   thumbnail?: string;
   videoLink?: string;
   dynamicCover?: string;
+  // Modification tracking fields
+  hasModifications?: boolean;
+  substitutionChanges?: any; // Using any to avoid circular dependency
+  modifiedAt?: Date;
 };

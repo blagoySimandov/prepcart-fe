@@ -1,4 +1,4 @@
-import { useAlert } from "@/components/providers/AlertProvider";
+import { useAlert } from "@/components/providers/alert-provider";
 import { analytics } from "@/firebaseConfig";
 import { Discount, ProductCandidate } from "@/src/discounts/types";
 import { useUserService } from "@/src/user";

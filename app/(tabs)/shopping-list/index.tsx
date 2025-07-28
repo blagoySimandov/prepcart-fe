@@ -51,7 +51,11 @@ export default function ShoppingListScreen() {
     id: string,
     updatedData: { name: string; quantity: string },
   ) => {
-    updateItem(id, updatedData as any);
+    const updatedDataWithNumberQuantity = {
+      name: updatedData.name,
+      quantity: parseInt(updatedData.quantity, 10),
+    };
+    updateItem(id, updatedDataWithNumberQuantity);
     itemModal.close();
   };
 

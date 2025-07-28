@@ -8,8 +8,13 @@ import {
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useStyles } from "./styles";
+import { ANIMATION } from "@/constants/ui";
 import { CHANGES_CONSTANTS } from "./constants";
-import { SubstitutionChangesModalProps, IngredientModification, InstructionModification } from "./types";
+import {
+  SubstitutionChangesModalProps,
+  IngredientModification,
+  InstructionModification,
+} from "./types";
 
 function IngredientChange({ change }: { change: IngredientModification }) {
   const { styles, colors } = useStyles();
@@ -43,17 +48,17 @@ function InstructionChange({ change }: { change: InstructionModification }) {
       <ThemedText style={styles.instructionStep}>
         Step {change.stepNumber}
       </ThemedText>
-      
+
       <ThemedText style={styles.instructionLabel}>Original:</ThemedText>
       <ThemedText style={[styles.instructionText, styles.strikethrough]}>
         {change.originalInstruction}
       </ThemedText>
-      
+
       <ThemedText style={styles.instructionLabel}>Modified:</ThemedText>
       <ThemedText style={styles.instructionText}>
         {change.modifiedInstruction}
       </ThemedText>
-      
+
       <ThemedText style={styles.changeReason}>
         {change.reasonForChange}
       </ThemedText>
@@ -66,7 +71,6 @@ export function SubstitutionChangesModal({
   onClose,
   changes,
   onApply,
-  ingredientName,
 }: SubstitutionChangesModalProps) {
   const { styles } = useStyles();
 
@@ -76,7 +80,7 @@ export function SubstitutionChangesModal({
     <Modal
       visible={visible}
       onRequestClose={onClose}
-      animationType="slide"
+      animationType={ANIMATION.slide}
       transparent
     >
       <View style={styles.container}>
@@ -115,9 +119,11 @@ export function SubstitutionChangesModal({
               <ThemedText style={styles.sectionTitle}>
                 {CHANGES_CONSTANTS.INGREDIENTS_SECTION}
               </ThemedText>
-              {changes.recipeModifications.updatedIngredients.map((change, index) => (
-                <IngredientChange key={index} change={change} />
-              ))}
+              {changes.recipeModifications.updatedIngredients.map(
+                (change, index) => (
+                  <IngredientChange key={index} change={change} />
+                ),
+              )}
             </View>
 
             {changes.recipeModifications.updatedInstructions.length > 0 && (
@@ -125,9 +131,11 @@ export function SubstitutionChangesModal({
                 <ThemedText style={styles.sectionTitle}>
                   {CHANGES_CONSTANTS.INSTRUCTIONS_SECTION}
                 </ThemedText>
-                {changes.recipeModifications.updatedInstructions.map((change, index) => (
-                  <InstructionChange key={index} change={change} />
-                ))}
+                {changes.recipeModifications.updatedInstructions.map(
+                  (change, index) => (
+                    <InstructionChange key={index} change={change} />
+                  ),
+                )}
               </View>
             )}
 
@@ -137,7 +145,8 @@ export function SubstitutionChangesModal({
                   {CHANGES_CONSTANTS.COOKING_TIME_ADJUSTMENT}
                 </ThemedText>
                 <ThemedText style={styles.cookingTimeValue}>
-                  +{changes.recipeModifications.cookingTimeAdjustment} {CHANGES_CONSTANTS.MINUTES_SUFFIX}
+                  +{changes.recipeModifications.cookingTimeAdjustment}{" "}
+                  {CHANGES_CONSTANTS.MINUTES_SUFFIX}
                 </ThemedText>
               </View>
             )}
@@ -156,16 +165,16 @@ export function SubstitutionChangesModal({
           </ScrollView>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={[styles.button, styles.cancelButton]} 
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
               onPress={onClose}
             >
               <ThemedText style={[styles.buttonText, styles.cancelButtonText]}>
                 {CHANGES_CONSTANTS.CANCEL_BUTTON}
               </ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.button, styles.applyButton]} 
+            <TouchableOpacity
+              style={[styles.button, styles.applyButton]}
               onPress={onApply}
             >
               <ThemedText style={[styles.buttonText, styles.applyButtonText]}>

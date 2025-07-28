@@ -1,6 +1,7 @@
-import { Colors } from "@/constants/colors";
+import { Colors, COMMON_COLORS } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
+import { SPACING, FONT_SIZES, FONT_WEIGHTS, BORDER_RADIUS } from "@/constants/ui";
 
 export function useStyles() {
   const colorScheme = useColorScheme();
@@ -9,32 +10,32 @@ export function useStyles() {
   const styles = StyleSheet.create({
     container: {
       flexDirection: "column",
-      marginBottom: 24,
-      paddingHorizontal: 20,
-      paddingTop: 20,
+      marginBottom: SPACING.xxl,
+      paddingHorizontal: SPACING.xl,
+      paddingTop: SPACING.xl,
     },
     titleContainer: {
       flexDirection: "row",
       alignItems: "flex-start",
-      gap: 8,
+      gap: SPACING.small,
     },
     title: {
       fontSize: 32,
-      fontWeight: "bold",
+      fontWeight: FONT_WEIGHTS.bold,
       lineHeight: 38,
       flex: 1,
     },
     modifiedBadge: {
-      backgroundColor: "rgba(255, 153, 68, 0.1)",
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
-      marginTop: 8,
+      backgroundColor: COMMON_COLORS.warning,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: BORDER_RADIUS.medium,
+      marginTop: SPACING.small,
     },
     modifiedBadgeText: {
       fontSize: 11,
-      fontWeight: "600",
-      color: "#FF9944",
+      fontWeight: FONT_WEIGHTS.semiBold,
+      color: COMMON_COLORS.white,
       textTransform: "uppercase",
     },
   });

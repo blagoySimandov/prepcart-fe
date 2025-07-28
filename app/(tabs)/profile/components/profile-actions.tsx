@@ -1,8 +1,8 @@
-import { useAlert } from "@/components/providers/AlertProvider";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import React from "react";
 import { Linking, Text, TouchableOpacity } from "react-native";
 import useStyles from "../styles";
+import { useAlert } from "@/components/providers/alert-provider";
 
 const HELP_AND_SUPPORT_LINK = "https://prepcart.it.com";
 
@@ -55,7 +55,7 @@ export function ProfileActions({
                     showAlert(
                       "Authentication Failed",
                       "Could not verify your identity. Please try again.",
-                      [{ text: "OK", style: "default" }]
+                      [{ text: "OK", style: "default" }],
                     );
                   }
                 } catch (reauthError) {
@@ -63,18 +63,18 @@ export function ProfileActions({
                   showAlert(
                     "Authentication Failed",
                     "Could not verify your identity. Please try again.",
-                    [{ text: "OK", style: "default" }]
+                    [{ text: "OK", style: "default" }],
                   );
                 }
               },
             },
-          ]
+          ],
         );
       } else {
         showAlert(
           "Error",
           "Failed to delete account. Please try again or contact support.",
-          [{ text: "OK", style: "default" }]
+          [{ text: "OK", style: "default" }],
         );
       }
     }
@@ -91,7 +91,7 @@ export function ProfileActions({
           style: "destructive",
           onPress: attemptAccountDeletion,
         },
-      ]
+      ],
     );
   };
 
@@ -103,7 +103,8 @@ export function ProfileActions({
     <>
       <TouchableOpacity
         style={styles.actionButton}
-        onPress={handleHelpAndSupport}>
+        onPress={handleHelpAndSupport}
+      >
         <IconSymbol name="questionmark.circle" size={24} color={colors.icon} />
         <Text style={[styles.actionButtonText, { color: colors.text }]}>
           Help & Support
@@ -112,7 +113,8 @@ export function ProfileActions({
 
       <TouchableOpacity
         style={styles.actionButton}
-        onPress={handleDeleteAccount}>
+        onPress={handleDeleteAccount}
+      >
         <IconSymbol name="trash" size={24} color={colors.error} />
         <Text style={[styles.actionButtonText, styles.signOutText]}>
           Delete Account

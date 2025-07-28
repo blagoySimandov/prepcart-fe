@@ -1,4 +1,5 @@
-import { Colors } from "@/constants/colors";
+import { FONT_WEIGHTS } from "@/constants";
+import { Colors, COMMON_COLORS } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
 
@@ -23,7 +24,7 @@ export function useStyles() {
       shadowOpacity: 0.05,
       shadowRadius: 4,
       elevation: 2,
-      marginBottom: 2,
+      marginBottom: 8,
       position: "relative",
       overflow: "hidden",
     },
@@ -34,38 +35,49 @@ export function useStyles() {
       bottom: 0,
       width: 4,
     },
-    addedIndicator: {
-      backgroundColor: "#44BB44",
+    addIndicator: {
+      backgroundColor: COMMON_COLORS.success,
     },
-    modifiedIndicator: {
-      backgroundColor: "#FF9944",
+    modifyIndicator: {
+      backgroundColor: COMMON_COLORS.warning,
     },
-    addedContainer: {
+    removeIndicator: {
+      backgroundColor: COMMON_COLORS.error,
+    },
+    addContainer: {
       borderWidth: 1.5,
-      borderColor: "#44BB44",
+      borderColor: COMMON_COLORS.success,
     },
-    modifiedContainer: {
+    modifyContainer: {
       borderWidth: 1.5,
-      borderColor: "#FF9944",
+      borderColor: COMMON_COLORS.warning,
+    },
+    removeContainer: {
+      borderWidth: 1.5,
+      borderColor: COMMON_COLORS.error,
+      opacity: 0.7,
     },
     statusBadge: {
       paddingHorizontal: 8,
-      paddingVertical: 2,
+      paddingVertical: 4,
       borderRadius: 12,
       marginRight: 8,
       flexDirection: "row",
       alignItems: "center",
     },
-    addedBadge: {
-      backgroundColor: "#44BB44",
+    addBadge: {
+      backgroundColor: COMMON_COLORS.success,
     },
-    modifiedBadge: {
-      backgroundColor: "#FF9944",
+    modifyBadge: {
+      backgroundColor: COMMON_COLORS.warning,
+    },
+    removeBadge: {
+      backgroundColor: COMMON_COLORS.error,
     },
     statusBadgeText: {
       fontSize: 10,
       fontWeight: "600",
-      color: "white",
+      color: COMMON_COLORS.white,
       textTransform: "uppercase",
     },
     baseContainer: {
@@ -91,8 +103,13 @@ export function useStyles() {
     name: {
       fontSize: 17,
       flex: 1,
-      fontWeight: "500",
+      fontWeight: FONT_WEIGHTS.medium,
       letterSpacing: 0.2,
+    },
+    removeName: {
+      textDecorationLine: "line-through",
+      textDecorationStyle: "solid",
+      opacity: 0.6,
     },
     swapButton: {
       padding: 8,
@@ -106,51 +123,6 @@ export function useStyles() {
       shadowOpacity: 0.1,
       shadowRadius: 2,
       elevation: 1,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-    },
-    detailModal: {
-      backgroundColor: colors.background,
-      borderRadius: 16,
-      padding: 20,
-      width: "100%",
-      maxWidth: 350,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    detailModalHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 16,
-    },
-    detailModalTitle: {
-      fontSize: 18,
-      fontWeight: "600",
-    },
-    detailSection: {
-      marginBottom: 12,
-    },
-    detailLabel: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: colors.tabIconDefault,
-      marginBottom: 4,
-    },
-    detailText: {
-      fontSize: 14,
-      lineHeight: 20,
     },
   });
 

@@ -22,6 +22,7 @@ import { SubstitutionSelectorModal } from "./components/substitution-selector";
 import { SubstitutionSelection } from "./components/substitution-selector/types";
 import { SubstitutionChangesModal } from "./components/substitution-changes";
 import { SubstitutionChanges } from "./components/substitution-changes/types";
+import { AnalysisLoadingModal } from "./components/analysis-loading-modal";
 import {
   fetchReplacementCandidates,
   SubstitutionTarget,
@@ -32,18 +33,21 @@ import {
 } from "./services/substitution-analysis-webhook";
 import {
   saveRecipeModification,
-  getRecipeModification,
   deleteRecipeModification,
 } from "./services/recipe-modifications-firestore";
 import { useAuth } from "@/src/auth/hooks";
-import {
-  reconcileRecipeWithModifications,
-  ModificationTracker,
-} from "./utils/recipe-reconciliation";
+import { ModificationTracker } from "./utils/recipe-reconciliation";
+import { createModificationTracker } from "./utils/modification-tracker";
+import { applyModificationsToRecipe } from "./utils/apply-modifications";
+import { MESSAGES, BUTTON_LABELS } from "./messages";
+import { ICON_NAMES } from "@/constants/icons";
+import { COMMON_COLORS } from "@/constants/colors";
+import { ICON_SIZES } from "@/constants/ui";
+import { MODIFICATION_STATUS } from "./constants";
 import { useRecipe } from "./hooks";
 import { useStyles } from "./styles";
 import { ThemedText } from "@/components/ThemedText";
-import { useOnceAsync } from "@/src/utils";
+import { useAlert } from "@/components/providers/alert-provider";
 
 export default function RecipeScreen() {
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
@@ -67,7 +71,10 @@ export default function RecipeScreen() {
 
   const [substitutionChanges, setSubstitutionChanges] =
     useState<SubstitutionChanges | null>(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [isApplyingChanges, setIsApplyingChanges] = useState(false);
   const { user } = useAuth();
+  const { showAlert } = useAlert();
 
   const handleSwapPress = async (ingredient: IngredientType) => {
     if (!recipe) return;
@@ -83,7 +90,7 @@ export default function RecipeScreen() {
       ]);
       setReplacementCandidates(response.replacementCandidates);
     } catch (error) {
-      setCandidatesError("Failed to load substitution options");
+      setCandidatesError(MESSAGES.failedToLoadSubstitutions);
       console.error("Error fetching candidates:", error);
     } finally {
       setIsLoadingCandidates(false);
@@ -98,6 +105,7 @@ export default function RecipeScreen() {
 
     // Include both substitutions and removals
     if (selections.length > 0 && recipe) {
+      setIsLoadingAnalysis(true);
       try {
         const substitutionRequests: SubstitutionRequest[] = selections.map(
           (s) => ({
@@ -111,25 +119,28 @@ export default function RecipeScreen() {
           substitutionRequests,
         );
         setSubstitutionChanges(analysis);
+        setIsLoadingAnalysis(false);
         setChangesModalVisible(true);
       } catch (error) {
         console.error("Error fetching analysis:", error);
-      } finally {
+        setIsLoadingAnalysis(false);
+        // Small delay to ensure modal is closed before showing alert
+        setTimeout(() => {
+          showAlert(
+            MESSAGES.analysisFailedTitle,
+            MESSAGES.analysisFailedMessage,
+            [{ text: BUTTON_LABELS.ok }],
+          );
+        }, 100);
       }
     }
   };
 
   const handleApplyChanges = async () => {
-    if (recipe && substitutionChanges && user?.uid) {
-      const result = reconcileRecipeWithModifications(
-        recipe,
-        substitutionChanges.recipeModifications,
-      );
-      setAppliedModifications(substitutionChanges);
-      setModificationTracker(result.tracker);
+    if (recipe && substitutionChanges && user?.uid && !isApplyingChanges) {
+      setIsApplyingChanges(true);
       setChangesModalVisible(false);
 
-      // Save to Firestore
       try {
         await saveRecipeModification(
           user.uid,
@@ -137,57 +148,79 @@ export default function RecipeScreen() {
           recipe,
           substitutionChanges,
         );
+
+        const tracker = createModificationTracker(substitutionChanges);
+
+        // Update UI state
+        setAppliedModifications(substitutionChanges);
+        setModificationTracker(tracker);
+
+        // Small delay before showing success
+        setTimeout(() => {
+          showAlert(MESSAGES.successTitle, MESSAGES.successMessage, [
+            { text: BUTTON_LABELS.ok },
+          ]);
+        }, 100);
       } catch (error) {
         console.error("Error saving modification:", error);
+        // Small delay before showing error
+        setTimeout(() => {
+          showAlert(MESSAGES.saveFailedTitle, MESSAGES.saveFailedMessage, [
+            {
+              text: BUTTON_LABELS.ok,
+              onPress: () => {
+                // Re-open the changes modal so user can try again
+                setChangesModalVisible(true);
+              },
+            },
+          ]);
+        }, 100);
+      } finally {
+        setIsApplyingChanges(false);
       }
     }
   };
 
-  const displayRecipe =
-    appliedModifications && recipe
-      ? reconcileRecipeWithModifications(
-          recipe,
-          appliedModifications.recipeModifications,
-        ).modifiedRecipe
-      : recipe;
+  const displayRecipe = recipe && appliedModifications 
+    ? applyModificationsToRecipe(recipe, appliedModifications)
+    : recipe;
 
-  // Load saved modifications on mount
-  useOnceAsync(async () => {
-    if (recipe && user?.uid && !appliedModifications) {
+  React.useEffect(() => {
+    if (recipe && recipe.hasModifications && recipe.substitutionChanges) {
       try {
-        const savedModification = await getRecipeModification(
-          user.uid,
-          recipe.id,
-        );
-        if (savedModification) {
-          const result = reconcileRecipeWithModifications(
-            recipe,
-            savedModification.substitutionChanges.recipeModifications,
-          );
-          setAppliedModifications(savedModification.substitutionChanges);
-          setModificationTracker(result.tracker);
-        }
+        const tracker = createModificationTracker(recipe.substitutionChanges);
+
+        setAppliedModifications(recipe.substitutionChanges);
+        setModificationTracker(tracker);
       } catch (error) {
         console.error("Error loading saved modifications:", error);
       }
     }
-  });
+  }, [recipe]);
 
   const handleClearModifications = async () => {
-    setAppliedModifications(null);
-    setModificationTracker(null);
-
-    // Delete from Firestore
     if (recipe && user?.uid) {
       try {
-        await deleteRecipeModification(user.uid, recipe.id);
+        const restoredRecipe = await deleteRecipeModification(
+          user.uid,
+          recipe.id,
+        );
+        if (restoredRecipe) {
+          // Clear local state
+          setAppliedModifications(null);
+          setModificationTracker(null);
+
+          // The recipe will be updated through the Firestore listener
+          showAlert(MESSAGES.successTitle, MESSAGES.restoreSuccessMessage);
+        }
       } catch (error) {
         console.error("Error deleting modification:", error);
+        showAlert(MESSAGES.errorTitle, MESSAGES.restoreFailed);
       }
     }
   };
 
-  if (!recipe) {
+  if (!recipe || !displayRecipe) {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
@@ -213,9 +246,13 @@ export default function RecipeScreen() {
                 style={styles.resetButton}
                 onPress={handleClearModifications}
               >
-                <MaterialIcons name="refresh" size={20} color="#FF9944" />
+                <MaterialIcons
+                  name={ICON_NAMES.refresh}
+                  size={ICON_SIZES.xl}
+                  color={COMMON_COLORS.warning}
+                />
                 <ThemedText style={styles.resetButtonText}>
-                  Reset to Original Recipe
+                  {MESSAGES.resetButtonText}
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -246,11 +283,19 @@ export default function RecipeScreen() {
                         {ingredient.quantity}
                       </Ingredient.Amount>
                       <Ingredient.Unit>{ingredient.unit}</Ingredient.Unit>
-                      <Ingredient.Name>{ingredient.name}</Ingredient.Name>
+                      <Ingredient.Name
+                        isRemoved={
+                          changeDetail?.status === MODIFICATION_STATUS.remove
+                        }
+                      >
+                        {ingredient.name}
+                      </Ingredient.Name>
                     </Ingredient.BaseContainer>
-                    <Ingredient.SwapIngredientBtn
-                      onPress={() => handleSwapPress(ingredient)}
-                    />
+                    {changeDetail?.status !== MODIFICATION_STATUS.remove && (
+                      <Ingredient.SwapIngredientBtn
+                        onPress={() => handleSwapPress(ingredient)}
+                      />
+                    )}
                   </Ingredient>
                 );
               },
@@ -298,6 +343,7 @@ export default function RecipeScreen() {
         isLoading={isLoadingCandidates}
         error={candidatesError}
       />
+      <AnalysisLoadingModal visible={isLoadingAnalysis} />
       <SubstitutionChangesModal
         visible={changesModalVisible}
         onClose={() => setChangesModalVisible(false)}

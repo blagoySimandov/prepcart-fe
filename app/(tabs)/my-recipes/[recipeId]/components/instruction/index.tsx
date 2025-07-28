@@ -1,74 +1,74 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Video as ExpoVideo, ResizeMode } from "expo-av";
-import React, { useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View, Modal, TouchableWithoutFeedback } from "react-native";
+import React from "react";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { useStepVideo, useTimer } from "./hooks";
 import { useStyles } from "./styles";
 import { InstructionProps, TextProps, TimerProps, VideoProps } from "./types";
+import { DetailModal } from "../detail-modal";
+import { DetailSection } from "../detail-section";
+import { ICON_SIZES, SPACING, OPACITY } from "@/constants/ui";
+import { ICON_NAMES } from "@/constants/icons";
+import { COMMON_COLORS } from "@/constants/colors";
+import { VIDEO_DEFAULTS } from "../../constants";
+import { MODAL_TITLES, LABELS, MESSAGES } from "../../messages";
+import { useDetailModal } from "../hooks";
 
-function InstructionBase({ children, isModified, modificationDetail }: InstructionProps) {
+function InstructionBase({
+  children,
+  isModified,
+  modificationDetail,
+}: InstructionProps) {
   const { styles, colors } = useStyles();
-  const [showDetail, setShowDetail] = useState(false);
+  const modal = useDetailModal();
 
   return (
     <>
-      <View style={[
-        styles.container, 
-        { borderColor: colors.border },
-        isModified && styles.modifiedContainer
-      ]}>
+      <View
+        style={[
+          styles.container,
+          { borderColor: colors.border },
+          isModified && styles.modifiedContainer,
+        ]}
+      >
         {isModified && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.modifiedIndicator}
-            onPress={() => setShowDetail(true)}
+            onPress={modal.open}
           >
-            <MaterialIcons name="edit" size={16} color="#FF9944" />
-            <ThemedText style={styles.modifiedText}>Modified</ThemedText>
-            <MaterialIcons name="info" size={14} color="#FF9944" style={{ marginLeft: 4 }} />
+            <MaterialIcons
+              name={ICON_NAMES.edit}
+              size={ICON_SIZES.medium}
+              color={COMMON_COLORS.white}
+            />
+            <ThemedText style={styles.modifiedText}>
+              {LABELS.modified}
+            </ThemedText>
+            <MaterialIcons
+              name={ICON_NAMES.info}
+              size={ICON_SIZES.small}
+              color={COMMON_COLORS.white}
+              style={{ marginLeft: SPACING.xs }}
+            />
           </TouchableOpacity>
         )}
         {children}
       </View>
-      
+
       {modificationDetail && (
-        <Modal
-          visible={showDetail}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowDetail(false)}
+        <DetailModal
+          visible={modal.isVisible}
+          onClose={modal.close}
+          title={MODAL_TITLES.modifiedInstruction}
         >
-          <TouchableWithoutFeedback onPress={() => setShowDetail(false)}>
-            <View style={styles.modalOverlay}>
-              <TouchableWithoutFeedback>
-                <View style={styles.detailModal}>
-                  <View style={styles.detailModalHeader}>
-                    <ThemedText style={styles.detailModalTitle}>
-                      Modified Instruction
-                    </ThemedText>
-                    <TouchableOpacity onPress={() => setShowDetail(false)}>
-                      <MaterialIcons name="close" size={20} color={colors.icon} />
-                    </TouchableOpacity>
-                  </View>
-                  
-                  <View style={styles.detailSection}>
-                    <ThemedText style={styles.detailLabel}>Original:</ThemedText>
-                    <ThemedText style={[styles.detailText, styles.strikethroughText]}>
-                      {modificationDetail.originalInstruction}
-                    </ThemedText>
-                  </View>
-                  
-                  <View style={styles.detailSection}>
-                    <ThemedText style={styles.detailLabel}>Reason:</ThemedText>
-                    <ThemedText style={styles.detailText}>
-                      {modificationDetail.reason}
-                    </ThemedText>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+          <DetailSection label={LABELS.original} strikethrough>
+            {modificationDetail.originalInstruction}
+          </DetailSection>
+          <DetailSection label={LABELS.reason}>
+            {modificationDetail.reason}
+          </DetailSection>
+        </DetailModal>
       )}
     </>
   );
@@ -88,10 +88,17 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
   if (!videoLink) {
     return (
       <View
-        style={[styles.videoContainer, { backgroundColor: colors.secondary }]}>
+        style={[styles.videoContainer, { backgroundColor: colors.secondary }]}
+      >
         <View style={styles.videoPlaceholder}>
-          <MaterialIcons name="videocam-off" size={64} color={colors.icon} />
-          <ThemedText style={styles.videoText}>Video not available</ThemedText>
+          <MaterialIcons
+            name={ICON_NAMES.videocamOff}
+            size={64}
+            color={colors.icon}
+          />
+          <ThemedText style={styles.videoText}>
+            {MESSAGES.videoNotAvailable}
+          </ThemedText>
         </View>
       </View>
     );
@@ -113,13 +120,17 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
           <TouchableOpacity
             style={styles.videoOverlay}
             onPress={handlePlayPause}
-            activeOpacity={0.8}>
+            activeOpacity={0.8}
+          >
             <View style={styles.playButton}>
               {isLoading || !isVideoReady ? (
-                <ActivityIndicator size="large" color={colors.buttonText} />
+                <ActivityIndicator
+                  size={VIDEO_DEFAULTS.loaderSize}
+                  color={colors.buttonText}
+                />
               ) : (
                 <MaterialIcons
-                  name="play-arrow"
+                  name={ICON_NAMES.playArrow}
                   size={48}
                   color={colors.buttonText}
                 />
@@ -137,7 +148,8 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
         {startTimestamp !== undefined && endTimestamp !== undefined && (
           <View style={styles.timestampOverlay}>
             <ThemedText
-              style={[styles.videoTimestamp, { color: colors.buttonText }]}>
+              style={[styles.videoTimestamp, { color: colors.buttonText }]}
+            >
               {startTimestamp}s - {endTimestamp}s
             </ThemedText>
           </View>
@@ -177,16 +189,21 @@ function Timer({ durationMinutes }: TimerProps) {
         styles.timerContainer,
         {
           backgroundColor: colors.tint,
-          opacity: timerState === "initial" ? 0.9 : 1,
+          opacity: timerState === "initial" ? OPACITY.slight : OPACITY.full,
         },
       ]}
       onPress={
         timeLeft === null ? handleStart : isRunning ? handlePause : handleStart
       }
-      activeOpacity={0.8}>
+      activeOpacity={0.8}
+    >
       {/* Left side: Timer icon and time */}
       <View style={styles.timerLeft}>
-        <MaterialIcons name="timer" size={20} color={colors.buttonText} />
+        <MaterialIcons
+          name={ICON_NAMES.timer}
+          size={ICON_SIZES.xl}
+          color={colors.buttonText}
+        />
         <ThemedText style={[styles.timerText, { color: colors.buttonText }]}>
           {getDisplayText()}
         </ThemedText>
@@ -197,24 +214,25 @@ function Timer({ durationMinutes }: TimerProps) {
         {timeLeft !== null ? (
           <View style={styles.timerControls}>
             <MaterialIcons
-              name={isRunning ? "pause" : "play-arrow"}
-              size={20}
+              name={isRunning ? ICON_NAMES.pause : ICON_NAMES.playArrow}
+              size={ICON_SIZES.xl}
               color={colors.buttonText}
             />
             <TouchableOpacity
               style={styles.resetButton}
               onPress={handleReset}
-              activeOpacity={0.8}>
+              activeOpacity={0.8}
+            >
               <MaterialIcons
-                name="refresh"
-                size={18}
+                name={ICON_NAMES.refresh}
+                size={ICON_SIZES.large}
                 color={colors.buttonText}
               />
             </TouchableOpacity>
           </View>
         ) : (
           <ThemedText style={[styles.startText, { color: colors.buttonText }]}>
-            Start
+            {LABELS.start}
           </ThemedText>
         )}
       </View>

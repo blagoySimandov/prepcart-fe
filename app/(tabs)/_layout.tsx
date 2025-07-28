@@ -8,6 +8,7 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/src/auth/hooks";
+import { RecipesProvider } from "@/src/user/recipes/context";
 
 const SIZE = 28;
 
@@ -30,64 +31,66 @@ export default function TabLayout() {
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="house.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="catalog-search"
-        options={{
-          title: "Search",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="my-recipes"
-        options={{
-          title: "Recipes",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="book.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="shopping-list"
-        options={{
-          title: "Shopping",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="cart.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={SIZE} name="person.fill" color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <RecipesProvider>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          headerShown: false,
+          tabBarButton: HapticTab,
+          tabBarBackground: TabBarBackground,
+          tabBarStyle: Platform.select({
+            ios: {
+              position: "absolute",
+            },
+            default: {},
+          }),
+        }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={SIZE} name="house.fill" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="catalog-search"
+          options={{
+            title: "Search",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="my-recipes"
+          options={{
+            title: "Recipes",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={SIZE} name="book.fill" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="shopping-list"
+          options={{
+            title: "Shopping",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={SIZE} name="cart.fill" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={SIZE} name="person.fill" color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </RecipesProvider>
   );
 }

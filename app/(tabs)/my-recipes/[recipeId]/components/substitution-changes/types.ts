@@ -9,6 +9,8 @@ export interface IngredientModification {
   reason: string;
   quantity?: number;
   unit?: string;
+  originalQuantity?: number;
+  originalUnit?: string;
 }
 
 export interface InstructionModification {
@@ -38,3 +40,4 @@ export interface SubstitutionChangesModalProps {
   onApply: () => void;
   ingredientName: string;
 }
+

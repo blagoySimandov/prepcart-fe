@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 export interface IngredientProps {
   children: ReactNode;
-  status?: "added" | "modified";
+  status?: "add" | "modify" | "remove";
   modificationDetail?: {
     reason: string;
     originalQuantity?: string;

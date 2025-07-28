@@ -1,4 +1,4 @@
-import { AlertProvider } from "@/components/providers/AlertProvider";
+import { AlertProvider } from "@/components/providers/alert-provider";
 import "@/firebaseConfig";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { RemoteConfigProvider } from "@/src/remote-config/context";
@@ -27,7 +27,8 @@ export default function RootLayout() {
       <UserServiceProvider>
         <AlertProvider>
           <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="auth" options={{ headerShown: false }} />

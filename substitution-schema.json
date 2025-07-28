@@ -1,0 +1,124 @@
+{
+  "title": "Ingredient Substitution Schema",
+  "type": "object",
+  "properties": {
+    "substitutionAnalysis": {
+      "type": "object",
+      "properties": {
+        "originalIngredient": {
+          "$ref": "#/$defs/ingredient"
+        },
+        "replacementIngredient": {
+          "$ref": "#/$defs/ingredient"
+        },
+        "difficultyLevel": {
+          "type": "string",
+          "enum": ["easy", "moderate", "hard"]
+        },
+        "expectedOutcome": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "originalIngredient",
+        "replacementIngredient",
+        "difficultyLevel",
+        "expectedOutcome"
+      ],
+      "additionalProperties": false
+    },
+    "recipeModifications": {
+      "type": "object",
+      "properties": {
+        "updatedIngredients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "unit": { "type": "string" },
+              "action": {
+                "type": "string",
+                "enum": ["add", "remove", "modify"]
+              },
+              "reason": { "type": "string" }
+            },
+            "required": ["name", "action"],
+            "additionalProperties": false
+          }
+        },
+        "updatedInstructions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stepNumber": { "type": "integer", "minimum": 1 },
+              "originalInstruction": { "type": "string" },
+              "modifiedInstruction": { "type": "string" },
+              "modificationType": { "type": "string" },
+              "reasonForChange": { "type": "string" }
+            },
+            "required": [
+              "stepNumber",
+              "originalInstruction",
+              "modifiedInstruction",
+              "reasonForChange"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalSteps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "insert": {
+                "type": "object",
+                "properties": {
+                  "afterStepNumber": { "type": "integer", "minimum": 0 }
+                },
+                "required": ["afterStepNumber"],
+                "additionalProperties": false
+              },
+              "instruction": { "type": "string" },
+              "reasonForAddition": { "type": "string" }
+            },
+            "required": ["insert", "instruction", "reasonForAddition"],
+            "additionalProperties": false
+          }
+        },
+        "cookingTimeAdjustment": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "updatedIngredients",
+        "updatedInstructions",
+        "additionalSteps",
+        "cookingTimeAdjustment"
+      ],
+      "additionalProperties": false
+    },
+    "criticalTips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["substitutionAnalysis", "recipeModifications", "criticalTips"],
+  "additionalProperties": false,
+  "$defs": {
+    "ingredient": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" }
+      },
+      "required": ["name", "quantity", "unit"],
+      "additionalProperties": false
+    }
+  }
+}

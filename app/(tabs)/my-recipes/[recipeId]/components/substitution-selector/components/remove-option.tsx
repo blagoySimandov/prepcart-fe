@@ -4,6 +4,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useStyles } from "../styles";
 import { toTitleCase } from "../../../utils/string-helpers";
+import { ICON_NAMES } from "@/constants/icons";
+import { COMMON_COLORS } from "@/constants/colors";
+import { ICON_SIZES } from "@/constants/ui";
 
 interface RemoveOptionProps {
   ingredientName: string;
@@ -24,7 +27,7 @@ export function RemoveOption({ ingredientName, isSelected, onSelect }: RemoveOpt
       onPress={onSelect}
     >
       <View style={styles.removeButtonContent}>
-        <MaterialIcons name="remove-circle-outline" size={20} color="#FF4444" />
+        <MaterialIcons name={ICON_NAMES.removeCircleOutline} size={ICON_SIZES.xl} color={COMMON_COLORS.error} />
         <ThemedText style={[styles.candidateName, styles.removeText]}>
           Remove {toTitleCase(ingredientName)}
         </ThemedText>
@@ -34,7 +37,7 @@ export function RemoveOption({ ingredientName, isSelected, onSelect }: RemoveOpt
         isSelected && styles.checkIconSelected,
       ]}>
         {isSelected && (
-          <MaterialIcons name="check" size={14} color="white" />
+          <MaterialIcons name={ICON_NAMES.check} size={ICON_SIZES.small} color={COMMON_COLORS.white} />
         )}
       </View>
     </TouchableOpacity>

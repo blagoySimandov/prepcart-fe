@@ -1,6 +1,6 @@
 import { Linking } from "react-native";
 import { checkAppUpdate, UPDATE_URL } from ".";
-import { useAlert } from "@/components/providers/AlertProvider";
+import { useAlert } from "@/components/providers/alert-provider";
 
 export function useAlertPromptIfNeeded() {
   const updateStatus = checkAppUpdate();

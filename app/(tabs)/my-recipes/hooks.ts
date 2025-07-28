@@ -9,7 +9,7 @@ import {
 import { useAuth } from "@/src/auth/hooks";
 import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { db } from "@/firebaseConfig";
-import { useAlert } from "@/components/providers/AlertProvider";
+import { useAlert } from "@/components/providers/alert-provider";
 import { deleteRecipe } from "./services/recipe-deletion";
 
 export type FilterOption = "all" | "quick" | "medium" | "long";
@@ -19,17 +19,15 @@ export function useRecipeFilters() {
   const [selectedFilter, setSelectedFilter] = useState<FilterOption>("all");
   const [filterModalVisible, setFilterModalVisible] = useState(false);
 
-  const userSavedRecipes = useUserRecipes();
+  const { recipes: userSavedRecipes } = useUserRecipes();
 
   const filteredRecipes = userSavedRecipes.filter((recipe) => {
-    // Text search filter
     const matchesSearch =
       recipe.displayTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       recipe.displayDescription
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
-    // Cook time filter
     let matchesFilter = true;
     switch (selectedFilter) {
       case "quick":

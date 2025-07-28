@@ -3,6 +3,8 @@ import React from "react";
 import { View } from "react-native";
 import { useStyles } from "./styles";
 import { HeaderProps, TitleProps } from "./types";
+import { TEXT_TYPES } from "@/constants/ui";
+import { LABELS } from "../../messages";
 
 export function Header({ children }: HeaderProps) {
   const { styles } = useStyles();
@@ -15,12 +17,12 @@ export function HeaderTitle({ children, isModified }: TitleProps) {
 
   return (
     <View style={styles.titleContainer}>
-      <ThemedText type="title" style={styles.title}>
+      <ThemedText type={TEXT_TYPES.title} style={styles.title}>
         {children}
       </ThemedText>
       {isModified && (
         <View style={styles.modifiedBadge}>
-          <ThemedText style={styles.modifiedBadgeText}>Modified</ThemedText>
+          <ThemedText style={styles.modifiedBadgeText}>{LABELS.modified}</ThemedText>
         </View>
       )}
     </View>

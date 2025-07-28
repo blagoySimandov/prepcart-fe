@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import { TouchableOpacity, View, Modal, TouchableWithoutFeedback } from "react-native";
+import React from "react";
+import { TouchableOpacity, View } from "react-native";
 import { useStyles } from "./styles";
 import {
   AmountProps,
@@ -11,81 +11,88 @@ import {
   UnitProps,
   SwapIngredientBtnProps,
 } from "./types";
+import { DetailModal } from "../detail-modal";
+import { DetailSection } from "../detail-section";
+import { ICON_SIZES, SPACING } from "@/constants/ui";
+import { ICON_NAMES } from "@/constants/icons";
+import { COMMON_COLORS } from "@/constants/colors";
+import { MODIFICATION_STATUS } from "../../constants";
+import { MODAL_TITLES, LABELS } from "../../messages";
+import { useDetailModal } from "../hooks";
 
-function IngredientBase({ children, status, modificationDetail }: IngredientProps) {
-  const { styles, colors } = useStyles();
-  const [showDetail, setShowDetail] = useState(false);
+function IngredientBase({
+  children,
+  status,
+  modificationDetail,
+}: IngredientProps) {
+  const { styles } = useStyles();
+  const modal = useDetailModal();
 
   return (
     <>
-      <View style={[
-        styles.container,
-        status === "added" && styles.addedContainer,
-        status === "modified" && styles.modifiedContainer,
-      ]}>
+      <View
+        style={[
+          styles.container,
+          status === MODIFICATION_STATUS.add && styles.addContainer,
+          status === MODIFICATION_STATUS.modify && styles.modifyContainer,
+          status === MODIFICATION_STATUS.remove && styles.removeContainer,
+        ]}
+      >
         {status && (
-          <View style={[
-            styles.statusIndicator,
-            status === "added" && styles.addedIndicator,
-            status === "modified" && styles.modifiedIndicator,
-          ]} />
+          <View
+            style={[
+              styles.statusIndicator,
+              status === MODIFICATION_STATUS.add && styles.addIndicator,
+              status === MODIFICATION_STATUS.modify &&
+                styles.modifyIndicator,
+              status === MODIFICATION_STATUS.remove && styles.removeIndicator,
+            ]}
+          />
         )}
         {status && (
           <TouchableOpacity
             style={[
               styles.statusBadge,
-              status === "added" && styles.addedBadge,
-              status === "modified" && styles.modifiedBadge,
+              status === MODIFICATION_STATUS.add && styles.addBadge,
+              status === MODIFICATION_STATUS.modify && styles.modifyBadge,
+              status === MODIFICATION_STATUS.remove && styles.removeBadge,
             ]}
-            onPress={() => setShowDetail(true)}
+            onPress={modal.open}
           >
             <ThemedText style={styles.statusBadgeText}>{status}</ThemedText>
-            <MaterialIcons name="info" size={12} color="white" style={{ marginLeft: 4 }} />
+            <MaterialIcons
+              name={ICON_NAMES.info}
+              size={ICON_SIZES.xs}
+              color={COMMON_COLORS.white}
+              style={{ marginLeft: SPACING.xs }}
+            />
           </TouchableOpacity>
         )}
         {children}
       </View>
-      
+
       {modificationDetail && (
-        <Modal
-          visible={showDetail}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowDetail(false)}
+        <DetailModal
+          visible={modal.isVisible}
+          onClose={modal.close}
+          title={
+            status === MODIFICATION_STATUS.add
+              ? MODAL_TITLES.addedIngredient
+              : status === MODIFICATION_STATUS.modify
+                ? MODAL_TITLES.modifiedIngredient
+                : MODAL_TITLES.removedIngredient
+          }
         >
-          <TouchableWithoutFeedback onPress={() => setShowDetail(false)}>
-            <View style={styles.modalOverlay}>
-              <TouchableWithoutFeedback>
-                <View style={styles.detailModal}>
-                  <View style={styles.detailModalHeader}>
-                    <ThemedText style={styles.detailModalTitle}>
-                      {status === "added" ? "Added Ingredient" : "Modified Ingredient"}
-                    </ThemedText>
-                    <TouchableOpacity onPress={() => setShowDetail(false)}>
-                      <MaterialIcons name="close" size={20} color={colors.icon} />
-                    </TouchableOpacity>
-                  </View>
-                  
-                  {modificationDetail.originalQuantity && (
-                    <View style={styles.detailSection}>
-                      <ThemedText style={styles.detailLabel}>Original:</ThemedText>
-                      <ThemedText style={styles.detailText}>
-                        {modificationDetail.originalQuantity} {modificationDetail.originalUnit}
-                      </ThemedText>
-                    </View>
-                  )}
-                  
-                  <View style={styles.detailSection}>
-                    <ThemedText style={styles.detailLabel}>Reason:</ThemedText>
-                    <ThemedText style={styles.detailText}>
-                      {modificationDetail.reason}
-                    </ThemedText>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+          {modificationDetail.originalQuantity && (
+            <DetailSection label={LABELS.original}>
+              {modificationDetail.originalQuantity}{" "}
+              {modificationDetail.originalUnit || " "}
+            </DetailSection>
+          )}
+          <DetailSection label={LABELS.reason}>
+            {modificationDetail.reason}
+          </DetailSection>
+        </DetailModal>
       )}
     </>
   );
@@ -115,10 +122,14 @@ function Unit({ children }: UnitProps) {
   return <ThemedText style={styles.unit}>{children}</ThemedText>;
 }
 
-function Name({ children }: NameProps) {
+function Name({ children, isRemoved }: NameProps & { isRemoved?: boolean }) {
   const { styles } = useStyles();
 
-  return <ThemedText style={styles.name}>{children}</ThemedText>;
+  return (
+    <ThemedText style={[styles.name, isRemoved && styles.removeName]}>
+      {children}
+    </ThemedText>
+  );
 }
 
 function SwapIngredientBtn({ onPress }: SwapIngredientBtnProps) {
@@ -126,7 +137,11 @@ function SwapIngredientBtn({ onPress }: SwapIngredientBtnProps) {
 
   return (
     <TouchableOpacity style={styles.swapButton} onPress={onPress}>
-      <MaterialIcons name="swap-horiz" size={18} color={colors.icon} />
+      <MaterialIcons
+        name={ICON_NAMES.swapHoriz}
+        size={ICON_SIZES.large}
+        color={colors.icon}
+      />
     </TouchableOpacity>
   );
 }

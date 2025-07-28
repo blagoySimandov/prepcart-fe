@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ANIMATION } from "@/constants/ui";
 import {
   Modal,
   ScrollView,
@@ -50,7 +51,7 @@ export function SubstitutionSelectorModal({
     <Modal
       visible={visible}
       onRequestClose={onClose}
-      animationType="slide"
+      animationType={ANIMATION.slide}
       transparent
     >
       <View style={styles.container}>
