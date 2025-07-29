@@ -22,6 +22,13 @@ export const QUICK_ACTIONS: QuickAction[] = [
     color: "#FF6B6B",
   },
   {
+    title: "My Recipes",
+    description: "View saved recipes",
+    icon: "book.fill",
+    route: "/(tabs)/my-recipes",
+    color: "#FF8A65",
+  },
+  {
     title: "My Profile",
     description: "Settings & preferences",
     icon: "person.fill",

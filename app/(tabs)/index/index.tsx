@@ -1,15 +1,20 @@
 import { AddItemModal } from "@/app/(tabs)/shopping-list/components/add-item-modal";
 import { useShoppingList } from "@/app/(tabs)/shopping-list/hooks";
 import { ThemedView } from "@/components/ThemedView";
+import { RecipesProvider } from "@/src/user/recipes/context";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView } from "react-native";
 import { HomeHeader } from "./components/home-header";
-import { MealPlannerBanner } from "./components/meal-planner-banner";
 import { QuickActionsGrid } from "./components/quick-actions-grid";
+import { RecentRecipesSection } from "./components/recent-recipes-section";
 import { UserStatistics } from "./components/user-statistics";
 import { useHomeData } from "./hooks";
 import { useStyles } from "./styles";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const SHOPPING_LIST_ROUTE = "/(tabs)/shopping-list";
 
@@ -33,19 +38,27 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ThemedView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <HomeHeader />
-        <MealPlannerBanner />
-        <QuickActionsGrid actions={quickActions} />
-        <UserStatistics />
-      </ScrollView>
-      <AddItemModal
-        visible={isModalVisible}
-        onClose={handleCloseModal}
-        onAddItem={handleAddItem}
-        onUpdateItem={() => {}}
-      />
-    </ThemedView>
+    <RecipesProvider>
+      <ThemedView style={styles.container}>
+        <SafeAreaView
+          style={{ flex: 1, paddingBottom: useSafeAreaInsets().bottom + 20 }}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <HomeHeader />
+            <QuickActionsGrid actions={quickActions} />
+            <RecentRecipesSection
+              onViewAll={() => router.push("/(tabs)/my-recipes")}
+            />
+            <UserStatistics />
+          </ScrollView>
+        </SafeAreaView>
+        <AddItemModal
+          visible={isModalVisible}
+          onClose={handleCloseModal}
+          onAddItem={handleAddItem}
+          onUpdateItem={() => {}}
+        />
+      </ThemedView>
+    </RecipesProvider>
   );
 }
