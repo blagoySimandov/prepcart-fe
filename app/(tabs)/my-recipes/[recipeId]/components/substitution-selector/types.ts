@@ -7,10 +7,10 @@ export interface SubstitutionSelectorModalProps {
   visible: boolean;
   onClose: () => void;
   ingredientsToReplace: string[];
-  replacementCandidates: Array<{
+  replacementCandidates: {
     ingredient: string;
     candidates: string[];
-  }>;
+  }[];
   onConfirm: (selections: SubstitutionSelection[]) => void;
   isLoading?: boolean;
   error?: string | null;

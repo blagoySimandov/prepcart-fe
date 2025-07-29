@@ -15,11 +15,11 @@ export interface SubstitutionWebhookRequest {
   displayTitle: string;
   displayDescription: string;
   cookTimeMinutes: number;
-  ingredients: Array<{
+  ingredients: {
     name: string;
     quantity: number;
     unit: string;
-  }>;
+  }[];
   substitutionTargets: string[];
 }
 

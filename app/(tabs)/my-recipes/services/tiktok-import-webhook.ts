@@ -3,6 +3,7 @@ interface TikTokImportRequest {
   userId: string;
 }
 
+// TODO: Define proper type for status field
 export interface TikTokImportResponse {
   updateTime: string;
   status: Record<string, unknown>;

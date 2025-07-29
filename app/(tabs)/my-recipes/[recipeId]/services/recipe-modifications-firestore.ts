@@ -126,8 +126,16 @@ export async function deleteRecipeModification(
     const originalIngredients = [...data.ingredients];
     const originalInstructions = [...data.instructions];
 
+    // TODO: Define proper type for modification
+    interface IngredientModification {
+      name: string;
+      action: "add" | "remove" | "modify";
+      originalQuantity?: number;
+      originalUnit?: string;
+    }
+    
     data.substitutionChanges.recipeModifications.updatedIngredients.forEach(
-      (mod: any) => {
+      (mod: IngredientModification) => {
         switch (mod.action) {
           case "remove":
             break;
@@ -156,8 +164,14 @@ export async function deleteRecipeModification(
     );
 
     // Revert instruction modifications
+    // TODO: Define proper type for instruction modification
+    interface InstructionModification {
+      stepNumber: number;
+      originalInstruction?: string;
+    }
+    
     data.substitutionChanges.recipeModifications.updatedInstructions.forEach(
-      (mod: any) => {
+      (mod: InstructionModification) => {
         const instructionIndex = mod.stepNumber - 1;
         if (
           instructionIndex >= 0 &&

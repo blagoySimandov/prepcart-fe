@@ -23,11 +23,12 @@ export function getUnitCategory(unit: string): UnitCategory {
   const allVolumeUnits = [...VOLUME_UNITS.metric, ...VOLUME_UNITS.imperial];
   const allMassUnits = [...MASS_UNITS.metric, ...MASS_UNITS.imperial];
   
-  if (allVolumeUnits.includes(normalized as any)) {
+  // TODO: Define proper types for unit arrays
+  if (allVolumeUnits.includes(normalized as typeof allVolumeUnits[number])) {
     return UNIT_CATEGORIES.volume;
   }
   
-  if (allMassUnits.includes(normalized as any)) {
+  if (allMassUnits.includes(normalized as typeof allMassUnits[number])) {
     return UNIT_CATEGORIES.mass;
   }
   
@@ -52,8 +53,9 @@ export function getAvailableConversions(unit: string): string[] {
   }
   
   try {
+    // TODO: Define proper type for convert-units library
     return PREFERRED_CONVERSIONS[normalized as keyof typeof PREFERRED_CONVERSIONS] || 
-           convert().from(normalized as any).possibilities();
+           convert().from(normalized as Parameters<typeof convert>['0']).possibilities();
   } catch {
     return [];
   }
@@ -92,7 +94,8 @@ export function convertUnit(
   }
   
   try {
-    const convertedValue = convert(value).from(normalizedFrom as any).to(normalizedTo as any);
+    // TODO: Define proper type for convert-units library
+    const convertedValue = convert(value).from(normalizedFrom as Parameters<ReturnType<typeof convert>['from']>['0']).to(normalizedTo as Parameters<ReturnType<ReturnType<typeof convert>['from']>['to']>['0']);
     const roundedValue = roundToPrecision(convertedValue, precision);
     
     return {
@@ -131,7 +134,8 @@ export function getBestUnit(value: number, unit: string, options: ConversionOpti
   }
   
   try {
-    const result = convert(value).from(normalized as any).toBest();
+    // TODO: Define proper type for convert-units library
+    const result = convert(value).from(normalized as Parameters<ReturnType<typeof convert>['from']>['0']).toBest();
     const precision = options.precision ?? CONVERSION_PRECISION.default;
     const roundedValue = roundToPrecision(result.val, precision);
     

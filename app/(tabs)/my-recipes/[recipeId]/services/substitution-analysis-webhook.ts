@@ -19,8 +19,37 @@ export interface SubstitutionAnalysisRequest {
   substitutionRequests: SubstitutionRequest[];
 }
 
+// TODO: Define proper type for webhook response data
+interface WebhookResponseData {
+  recipeModifications: {
+    updatedIngredients: {
+      name: string;
+      quantity?: number;
+      unit?: string;
+      action: "add" | "remove" | "modify";
+      reason?: string;
+    }[];
+    updatedInstructions: {
+      stepNumber: number;
+      modifiedInstruction: string;
+      action: "add" | "remove" | "modify";
+      timer?: { durationMinutes: number };
+    }[];
+    additionalSteps?: {
+      stepNumber: number;
+      instruction: string;
+    }[];
+  };
+  nutritionalImpact?: {
+    calories: { action: string; estimation: number };
+    fat: { action: string; estimation: number };
+    sugar: { action: string; estimation: number };
+    notes: string;
+  };
+}
+
 function normalizeSubstitutionChanges(
-  data: any,
+  data: WebhookResponseData,
   originalRecipe: Recipe,
 ): SubstitutionChanges {
   console.log("Normalizing substitution changes");
@@ -38,8 +67,16 @@ function normalizeSubstitutionChanges(
     recipeModifications: {
       ...data.recipeModifications,
       updatedIngredients: data.recipeModifications.updatedIngredients
-        .map((mod: any) => {
-          const normalized: any = {
+        .map((mod) => {
+          const normalized: {
+            name: string;
+            quantity: number;
+            unit: string;
+            action: "add" | "remove" | "modify";
+            reason?: string;
+            originalQuantity?: number;
+            originalUnit?: string;
+          } = {
             ...mod,
             // Ensure required fields are present
             quantity: mod.quantity || 0,
@@ -97,7 +134,7 @@ function normalizeSubstitutionChanges(
     normalizedData.recipeModifications.updatedIngredients,
   );
 
-  return normalizedData as SubstitutionChanges;
+  return normalizedData;
 }
 
 export async function fetchSubstitutionAnalysis(

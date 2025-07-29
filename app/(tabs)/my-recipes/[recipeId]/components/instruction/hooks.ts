@@ -49,7 +49,11 @@ export function useStepVideo({
         videoRef.current?.pauseAsync();
         setIsPlaying(false);
       }
-      if ((status as any).didJustFinish) setIsPlaying(false);
+      // TODO: Define proper type for AVPlaybackStatus with didJustFinish
+      interface ExtendedPlaybackStatus extends AVPlaybackStatus {
+        didJustFinish?: boolean;
+      }
+      if ((status as ExtendedPlaybackStatus).didJustFinish) setIsPlaying(false);
     },
     [endTimestamp, startTimestamp, isVideoReady],
   );
@@ -83,7 +87,6 @@ type TimerAction =
 const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
   switch (action.type) {
     case "START":
-      // Clear existing interval if any
       if (state.intervalId) {
         clearInterval(state.intervalId);
       }

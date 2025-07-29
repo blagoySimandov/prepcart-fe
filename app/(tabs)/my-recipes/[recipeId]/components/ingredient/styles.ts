@@ -52,7 +52,8 @@ export function useStyles() {
       backgroundColor: `${COMMON_COLORS.warning}08`,
     },
     removeContainer: {
-      opacity: 0.6,
+      backgroundColor: `${COMMON_COLORS.error}08`,
+      paddingVertical: 16,
     },
     statusBadge: {
       position: "absolute",
@@ -107,8 +108,8 @@ export function useStyles() {
       fontWeight: "500",
     },
     unitContainer: {
-      alignItems: 'flex-start',
-      justifyContent: 'center',
+      alignItems: "flex-start",
+      justifyContent: "center",
       minWidth: 80,
       marginRight: 16,
     },
@@ -138,8 +139,8 @@ export function useStyles() {
       elevation: 1,
     },
     unitClickable: {
-      textDecorationLine: 'underline',
-      textDecorationStyle: 'dotted',
+      textDecorationLine: "underline",
+      textDecorationStyle: "dotted",
       opacity: 0.9,
     },
     unitConverted: {
@@ -148,12 +149,12 @@ export function useStyles() {
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
     },
     modalContent: {
-      width: '80%',
+      width: "80%",
       maxWidth: 300,
       borderRadius: 12,
       padding: 20,
@@ -169,14 +170,14 @@ export function useStyles() {
     },
     modalTitle: {
       fontSize: 20,
-      fontWeight: '600',
+      fontWeight: "600",
       marginBottom: 16,
-      textAlign: 'center',
+      textAlign: "center",
     },
     unitOption: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       paddingVertical: 12,
       paddingHorizontal: 16,
       borderRadius: 8,
@@ -191,7 +192,7 @@ export function useStyles() {
     },
     unitOptionTextActive: {
       color: colors.tint,
-      fontWeight: '500',
+      fontWeight: "500",
     },
   });
 

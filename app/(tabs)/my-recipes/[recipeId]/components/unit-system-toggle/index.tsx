@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useStyles } from './styles';
@@ -71,7 +71,8 @@ export function UnitSystemToggle({
       disabled={disabled}
     >
       <MaterialIcons
-        name={getSystemIcon() as any}
+        // TODO: Define proper type for MaterialIcons name prop
+        name={getSystemIcon() as keyof typeof MaterialIcons.glyphMap}
         size={ICON_SIZES.small}
         color={currentSystem !== UNIT_SYSTEMS.original ? colors.tint : colors.icon}
       />

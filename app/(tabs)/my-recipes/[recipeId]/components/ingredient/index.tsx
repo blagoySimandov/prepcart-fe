@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { TouchableOpacity, View, Modal, FlatList } from "react-native";
 import { useStyles } from "./styles";
 import {
@@ -13,10 +13,15 @@ import {
   SwapIngredientBtnProps,
 } from "./types";
 import { useUnitConversion } from "../../hooks";
-import { formatQuantity, convertUnit, roundToPrecision, normalizeUnit } from "../../utils/unit-conversion/converter";
+import {
+  formatQuantity,
+  convertUnit,
+  roundToPrecision,
+  normalizeUnit,
+} from "../../utils/unit-conversion/converter";
 import { DetailModal } from "../detail-modal";
 import { DetailSection } from "../detail-section";
-import { ICON_SIZES, SPACING } from "@/constants/ui";
+import { ICON_SIZES } from "@/constants/ui";
 import { ICON_NAMES } from "@/constants/icons";
 import { COMMON_COLORS } from "@/constants/colors";
 import { MODIFICATION_STATUS } from "../../constants";
@@ -27,8 +32,6 @@ function IngredientBase({
   children,
   status,
   modificationDetail,
-  ingredientName,
-  recipeId,
 }: IngredientProps) {
   const { styles } = useStyles();
   const modal = useDetailModal();
@@ -48,8 +51,7 @@ function IngredientBase({
             style={[
               styles.statusIndicator,
               status === MODIFICATION_STATUS.add && styles.addIndicator,
-              status === MODIFICATION_STATUS.modify &&
-                styles.modifyIndicator,
+              status === MODIFICATION_STATUS.modify && styles.modifyIndicator,
               status === MODIFICATION_STATUS.remove && styles.removeIndicator,
             ]}
           />
@@ -68,9 +70,13 @@ function IngredientBase({
             <MaterialIcons
               name={ICON_NAMES.info}
               size={14}
-              color={status === MODIFICATION_STATUS.add ? COMMON_COLORS.success : 
-                     status === MODIFICATION_STATUS.modify ? COMMON_COLORS.warning : 
-                     COMMON_COLORS.error}
+              color={
+                status === MODIFICATION_STATUS.add
+                  ? COMMON_COLORS.success
+                  : status === MODIFICATION_STATUS.modify
+                    ? COMMON_COLORS.warning
+                    : COMMON_COLORS.error
+              }
             />
           </TouchableOpacity>
         )}
@@ -111,33 +117,33 @@ function BaseContainer({ children }: BaseContainerProps) {
 
 function Amount({ children, value }: AmountProps) {
   const { styles, colors } = useStyles();
-  
+
   const formatDisplayValue = () => {
     const val = value ?? children;
-    if (typeof val === 'number') {
+    if (typeof val === "number") {
       // Round to 2 decimal places
       const rounded = roundToPrecision(val, 2);
-      
+
       // Format with fractions if applicable
       if (rounded % 1 !== 0) {
         const whole = Math.floor(rounded);
         const fraction = rounded - whole;
-        
+
         const fractionMap: { [key: number]: string } = {
-          0.25: '¼',
-          0.33: '⅓',
-          0.5: '½',
-          0.67: '⅔',
-          0.75: '¾',
+          0.25: "¼",
+          0.33: "⅓",
+          0.5: "½",
+          0.67: "⅔",
+          0.75: "¾",
         };
-        
+
         for (const [key, symbol] of Object.entries(fractionMap)) {
           if (Math.abs(fraction - parseFloat(key)) < 0.01) {
             return whole > 0 ? `${whole}${symbol}` : symbol;
           }
         }
       }
-      
+
       return rounded.toString();
     }
     return val;
@@ -152,33 +158,34 @@ function Amount({ children, value }: AmountProps) {
   );
 }
 
-function Unit({ 
-  children, 
-  value, 
-  quantity, 
-  ingredientName, 
+function Unit({
+  children,
+  value,
+  quantity,
+  ingredientName,
   recipeId,
   onUnitConverted,
-  currentConversion
+  currentConversion,
 }: UnitProps) {
   const { styles, colors } = useStyles();
   const [modalVisible, setModalVisible] = useState(false);
-  
+
   const unitConversion = useUnitConversion(
     quantity,
     value || children?.toString() || null,
-    ingredientName || '',
-    recipeId || ''
+    ingredientName || "",
+    recipeId || "",
   );
 
-  // Use currentConversion if provided (from system toggle), otherwise use hook state
   const displayUnit = currentConversion?.unit || unitConversion.currentUnit;
-  const displayValue = currentConversion?.value || unitConversion.currentValue;
 
-  // Report converted value to parent if we have a saved preference and parent hasn't been notified
-  if (unitConversion.isInitialized && unitConversion.isConverted && onUnitConverted && 
-      !currentConversion && displayUnit !== value) {
-    // Use setTimeout to avoid calling setState during render
+  if (
+    unitConversion.isInitialized &&
+    unitConversion.isConverted &&
+    onUnitConverted &&
+    !currentConversion &&
+    displayUnit !== value
+  ) {
     setTimeout(() => {
       onUnitConverted(unitConversion.currentUnit, unitConversion.currentValue);
     }, 0);
@@ -188,14 +195,19 @@ function Unit({
     if (unitConversion.isConvertible) {
       if (unitConversion.availableConversions.length === 1) {
         unitConversion.cycleUnit();
-        // Get the next unit in the cycle
-        const availableUnits = [unitConversion.originalUnit, ...unitConversion.availableConversions];
+        const availableUnits = [
+          unitConversion.originalUnit,
+          ...unitConversion.availableConversions,
+        ];
         const currentIndex = availableUnits.indexOf(unitConversion.currentUnit);
         const nextIndex = (currentIndex + 1) % availableUnits.length;
         const nextUnit = availableUnits[nextIndex];
-        
-        // Convert and notify parent immediately
-        const result = convertUnit(unitConversion.originalValue, unitConversion.originalUnit, nextUnit);
+
+        const result = convertUnit(
+          unitConversion.originalValue,
+          unitConversion.originalUnit,
+          nextUnit,
+        );
         onUnitConverted?.(result.unit, result.value);
       } else {
         setModalVisible(true);
@@ -206,33 +218,40 @@ function Unit({
   const handleUnitSelect = (targetUnit: string) => {
     unitConversion.convertToUnit(targetUnit);
     setModalVisible(false);
-    
-    // If selecting the original unit, clear the conversion
+
     if (targetUnit === unitConversion.originalUnit) {
-      onUnitConverted?.(unitConversion.originalUnit, unitConversion.originalValue);
+      onUnitConverted?.(
+        unitConversion.originalUnit,
+        unitConversion.originalValue,
+      );
     } else {
-      // Convert and notify parent immediately
-      const result = convertUnit(unitConversion.originalValue, unitConversion.originalUnit, targetUnit);
+      const result = convertUnit(
+        unitConversion.originalValue,
+        unitConversion.originalUnit,
+        targetUnit,
+      );
       onUnitConverted?.(result.unit, result.value);
     }
   };
 
   return (
     <>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.unitContainer}
         onPress={handleUnitPress}
         disabled={!unitConversion.isConvertible}
       >
-        <ThemedText style={[
-          styles.unit,
-          unitConversion.isConvertible && styles.unitClickable,
-          unitConversion.isConverted && styles.unitConverted
-        ]}>
+        <ThemedText
+          style={[
+            styles.unit,
+            unitConversion.isConvertible && styles.unitClickable,
+            unitConversion.isConverted && styles.unitConverted,
+          ]}
+        >
           {displayUnit}
         </ThemedText>
       </TouchableOpacity>
-      
+
       {unitConversion.isConvertible && (
         <Modal
           visible={modalVisible}
@@ -248,24 +267,23 @@ function Unit({
             <ThemedView style={styles.modalContent}>
               <ThemedText style={styles.modalTitle}>Convert Unit</ThemedText>
               <FlatList
-                data={[unitConversion.originalUnit, ...unitConversion.availableConversions]}
+                data={[
+                  unitConversion.originalUnit,
+                  ...unitConversion.availableConversions,
+                ]}
                 keyExtractor={(item) => item}
                 renderItem={({ item }) => {
                   const isCurrentUnit = item === displayUnit;
-                  // Convert the value for display
-                  // Use the quantity prop which has the modified value from substitutions
                   const baseValue = quantity || 0;
-                  const baseUnit = normalizeUnit(value || children?.toString() || '');
+                  const baseUnit = normalizeUnit(
+                    value || children?.toString() || "",
+                  );
                   let modalDisplayValue = baseValue;
                   if (item !== baseUnit) {
-                    const result = convertUnit(
-                      baseValue,
-                      baseUnit,
-                      item
-                    );
+                    const result = convertUnit(baseValue, baseUnit, item);
                     modalDisplayValue = result.value;
                   }
-                  
+
                   return (
                     <TouchableOpacity
                       style={[

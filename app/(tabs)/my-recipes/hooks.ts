@@ -11,6 +11,7 @@ import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { useAlert } from "@/components/providers/alert-provider";
 import { deleteRecipe } from "./services/recipe-deletion";
+import { FILTER_LABELS, FILTER_TIME_RANGES, ALERT_MESSAGES, BUTTON_TEXTS, IMPORT_TIMEOUT } from "./constants";
 
 export type FilterOption = "all" | "quick" | "medium" | "long";
 
@@ -31,14 +32,15 @@ export function useRecipeFilters() {
     let matchesFilter = true;
     switch (selectedFilter) {
       case "quick":
-        matchesFilter = recipe.cookTimeMinutes <= 30;
+        matchesFilter = recipe.cookTimeMinutes <= FILTER_TIME_RANGES.quick.max;
         break;
       case "medium":
         matchesFilter =
-          recipe.cookTimeMinutes > 30 && recipe.cookTimeMinutes <= 60;
+          recipe.cookTimeMinutes > FILTER_TIME_RANGES.medium.min && 
+          recipe.cookTimeMinutes <= FILTER_TIME_RANGES.medium.max;
         break;
       case "long":
-        matchesFilter = recipe.cookTimeMinutes > 60;
+        matchesFilter = recipe.cookTimeMinutes > FILTER_TIME_RANGES.long.min;
         break;
       case "all":
       default:
@@ -60,13 +62,7 @@ export function useRecipeFilters() {
   const getFilterStatusText = () => {
     if (selectedFilter === "all") return "";
 
-    const filterLabels = {
-      quick: "Quick recipes",
-      medium: "Medium recipes",
-      long: "Long recipes",
-    };
-
-    return filterLabels[selectedFilter] || "";
+    return FILTER_LABELS[selectedFilter] || "";
   };
 
   return {
@@ -96,28 +92,28 @@ export function useRecipeActions() {
 
   const handleDeleteRecipe = async (recipe: Recipe) => {
     if (!user?.uid) {
-      showAlert("Error", "You must be logged in to delete recipes");
+      showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.loginRequired);
       return;
     }
 
     showAlert(
-      "Delete Recipe?",
-      `Are you sure you want to delete "${recipe.displayTitle}"? This action cannot be undone.`,
+      ALERT_MESSAGES.deleteRecipe.title,
+      ALERT_MESSAGES.deleteRecipe.getMessage(recipe.displayTitle),
       [
         {
-          text: "Cancel",
+          text: BUTTON_TEXTS.cancel,
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: BUTTON_TEXTS.delete,
           style: "destructive",
           onPress: async () => {
             try {
               await deleteRecipe(user.uid, recipe.id);
-              showAlert("Success", "Recipe deleted successfully");
+              showAlert(ALERT_MESSAGES.success.title, ALERT_MESSAGES.success.recipeDeleted);
             } catch (error) {
               console.error("Error deleting recipe:", error);
-              showAlert("Error", "Failed to delete recipe. Please try again.");
+              showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.deleteRecipeFailed);
             }
           },
         },
@@ -127,7 +123,7 @@ export function useRecipeActions() {
 
   const handleImportRecipe = async (url: string) => {
     if (!user?.uid) {
-      showAlert("Error", "You must be logged in to import recipes");
+      showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.loginRequiredImport);
       return;
     }
 
@@ -166,15 +162,15 @@ export function useRecipeActions() {
               });
 
               showAlert(
-                "Import Complete!",
-                `"${data.displayTitle}" has been added to your recipes.`,
+                ALERT_MESSAGES.importRecipe.completeTitle,
+                ALERT_MESSAGES.importRecipe.getMessage(data.displayTitle),
                 [
                   {
-                    text: "View Recipe",
+                    text: BUTTON_TEXTS.viewRecipe,
                     onPress: () =>
                       router.push(`/(tabs)/my-recipes/${importResponse.id}`),
                   },
-                  { text: "OK" },
+                  { text: BUTTON_TEXTS.ok },
                 ],
               );
 
@@ -189,7 +185,7 @@ export function useRecipeActions() {
             newMap.delete(importResponse.id);
             return newMap;
           });
-          showAlert("Error", "Failed to track recipe import status");
+          showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.importStatusFailed);
           unsubscribe();
         },
       );
@@ -203,14 +199,14 @@ export function useRecipeActions() {
             return newMap;
           });
           showAlert(
-            "Import Taking Longer Than Expected",
-            "The recipe import is taking longer than usual. Please check your recipes later.",
+            ALERT_MESSAGES.importRecipe.timeoutTitle,
+            ALERT_MESSAGES.importRecipe.timeoutMessage,
           );
         }
-      }, 60000); // 1 minute timeout
+      }, IMPORT_TIMEOUT);
     } catch (error) {
       console.error("Error importing recipe:", error);
-      showAlert("Import Failed", "Failed to import recipe. Please try again.");
+      showAlert(ALERT_MESSAGES.importRecipe.failedTitle, ALERT_MESSAGES.importRecipe.failedMessage);
     }
   };
 

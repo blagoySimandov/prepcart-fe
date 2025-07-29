@@ -9,7 +9,19 @@ export function createModificationTracker(substitutionChanges: SubstitutionChang
   
   console.log("Creating modification tracker with changes:", substitutionChanges.recipeModifications.updatedIngredients);
 
-  substitutionChanges.recipeModifications.updatedIngredients.forEach((mod: any) => {
+  // TODO: Define proper type for ingredient modification
+  interface IngredientModification {
+    name: string;
+    action?: "add" | "remove" | "modify";
+    modified?: boolean;
+    added?: boolean;
+    removed?: boolean;
+    reason?: string;
+    originalQuantity?: number;
+    originalUnit?: string;
+  }
+  
+  substitutionChanges.recipeModifications.updatedIngredients.forEach((mod: IngredientModification) => {
     // Handle both formats: action field or boolean flags
     let status: "add" | "remove" | "modify";
     if (mod.action) {
@@ -36,7 +48,14 @@ export function createModificationTracker(substitutionChanges: SubstitutionChang
     });
   });
 
-  substitutionChanges.recipeModifications.updatedInstructions.forEach((mod: any) => {
+  // TODO: Define proper type for instruction modification
+  interface InstructionModification {
+    stepNumber: number;
+    originalInstruction?: string;
+    reasonForChange?: string;
+  }
+  
+  substitutionChanges.recipeModifications.updatedInstructions.forEach((mod: InstructionModification) => {
     const instructionIndex = mod.stepNumber - 1;
     tracker.instructionChanges.set(instructionIndex, {
       originalInstruction: mod.originalInstruction,

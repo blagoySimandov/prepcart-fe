@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { SPACING, BORDER_RADIUS, FONT_SIZES } from '@/constants/ui';
-import { COMMON_COLORS } from '@/constants/colors';
 
 export function useStyles() {
   const backgroundColor = useThemeColor({}, 'background');

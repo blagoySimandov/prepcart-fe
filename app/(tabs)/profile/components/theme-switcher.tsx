@@ -1,5 +1,5 @@
 import { useUserTheme } from "@/hooks/useUserTheme";
-import { Appearance, Platform, Switch, Text, View } from "react-native";
+import { Platform, Switch, Text, View } from "react-native";
 import useStyles from "../styles";
 
 export function ThemeSwitcher() {

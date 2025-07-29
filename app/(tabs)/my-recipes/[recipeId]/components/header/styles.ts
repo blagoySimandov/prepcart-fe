@@ -1,7 +1,7 @@
 import { Colors, COMMON_COLORS } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StyleSheet } from "react-native";
-import { SPACING, FONT_SIZES, FONT_WEIGHTS, BORDER_RADIUS } from "@/constants/ui";
+import { SPACING, FONT_WEIGHTS, BORDER_RADIUS } from "@/constants/ui";
 
 export function useStyles() {
   const colorScheme = useColorScheme();

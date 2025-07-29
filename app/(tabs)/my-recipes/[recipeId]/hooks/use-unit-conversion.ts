@@ -12,7 +12,6 @@ import {
   UnitConversionState,
   UnitPreferences,
   GlobalUnitPreferences,
-  ConversionResult,
   UnitSystem,
 } from '../utils/unit-conversion/types';
 import { STORAGE_KEYS, UNIT_SYSTEMS } from '../utils/unit-conversion/constants';
@@ -28,7 +27,6 @@ export function useUnitConversion(
   
   const [state, setState] = useState<UnitConversionState>(() => {
     // Initialize state with saved preference if available
-    const savedPrefsStr = AsyncStorage.getItem(STORAGE_KEYS.unitPreferences);
     let initialState = {
       currentUnit: safeUnit,
       currentValue: safeValue,

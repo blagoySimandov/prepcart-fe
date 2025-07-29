@@ -52,7 +52,16 @@ export function applyModificationsToRecipe(
       // We need to check if this is replacing an existing ingredient
       
       // First, check if there's an originalName field
-      const targetName = (mod as any).originalName || mod.name;
+      // TODO: Define proper type with originalName field
+      interface ModificationWithOriginalName {
+        name: string;
+        quantity: number;
+        unit: string;
+        action: "add" | "remove" | "modify";
+        reason?: string;
+        originalName?: string;
+      }
+      const targetName = (mod as ModificationWithOriginalName).originalName || mod.name;
       
       // Try to find by looking at the reason - often mentions what's being replaced
       let originalIndex = -1;
@@ -131,7 +140,6 @@ export function applyModificationsToRecipe(
     }
   });
 
-  // Add any additional steps
   if (substitutionChanges.recipeModifications.additionalSteps) {
     substitutionChanges.recipeModifications.additionalSteps.forEach((step) => {
       const newInstruction: Instruction = {
