@@ -4,6 +4,7 @@ export const ICON_NAMES = {
   close: "close",
   refresh: "refresh",
   swapHoriz: "swap-horiz",
+  swapVert: "swap-vert",
   timer: "timer",
   pause: "pause",
   playArrow: "play-arrow",
@@ -11,4 +12,5 @@ export const ICON_NAMES = {
   videocamOff: "videocam-off",
   removeCircleOutline: "remove-circle-outline",
   check: "check",
+  arrowDropDown: "arrow-drop-down",
 } as const;

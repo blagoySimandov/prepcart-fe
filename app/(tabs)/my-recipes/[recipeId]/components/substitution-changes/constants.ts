@@ -15,10 +15,10 @@ export const CHANGES_CONSTANTS = {
     add: "ADD",
     modify: "MODIFY",
     remove: "REMOVE",
-  },
+  } as const,
   ACTION_COLORS: {
     add: COMMON_COLORS.success,
     modify: COMMON_COLORS.warning,
     remove: COMMON_COLORS.error,
-  },
+  } as const,
 } as const;

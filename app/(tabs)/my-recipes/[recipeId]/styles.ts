@@ -41,6 +41,27 @@ export function useStyles() {
       fontWeight: FONT_WEIGHTS.semiBold,
       color: MODIFICATION_COLORS[MODIFICATION_STATUS.modify],
     },
+    floatingButton: {
+      position: "absolute",
+      bottom: SPACING.xl + 100,
+      right: SPACING.xl,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.tint,
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 8,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      shadowColor: "#000",
+    },
+    unitSystemToggleContainer: {
+      paddingHorizontal: SPACING.xl,
+      marginBottom: SPACING.medium,
+      alignItems: 'flex-start',
+    },
   });
 
   return { styles, colors };

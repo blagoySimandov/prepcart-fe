@@ -1,4 +1,4 @@
-import { Recipe, Ingredient, Instruction } from "@/src/user/recipes/types";
+import { Recipe, Instruction } from "@/src/user/recipes/types";
 import { SubstitutionChanges } from "../components/substitution-changes/types";
 
 export function applyModificationsToRecipe(
@@ -12,17 +12,32 @@ export function applyModificationsToRecipe(
   const modifiedIngredients = [...originalRecipe.ingredients];
   const modifiedInstructions = [...originalRecipe.instructions];
 
+  // Sort modifications to ensure proper order: remove -> modify -> add
+  // This prevents issues where ingredients might be added twice
+  const sortedModifications = [...substitutionChanges.recipeModifications.updatedIngredients].sort((a, b) => {
+    const order = { remove: 0, modify: 1, add: 2 };
+    return order[a.action] - order[b.action];
+  });
+
   // Apply ingredient modifications
-  substitutionChanges.recipeModifications.updatedIngredients.forEach((mod: any) => {
-    const action = mod.action || (mod.modified ? "modify" : mod.added ? "add" : "remove");
+  sortedModifications.forEach((mod) => {
+    const action = mod.action;
     
     if (action === "add") {
-      // Add new ingredient
-      modifiedIngredients.push({
-        name: mod.name,
-        quantity: mod.quantity || 0,
-        unit: mod.unit || "",
-      });
+      // Check if ingredient already exists to prevent duplicates
+      const exists = modifiedIngredients.some(
+        (ing) => ing.name.toLowerCase() === mod.name.toLowerCase()
+      );
+      if (!exists) {
+        // Add new ingredient only if it doesn't already exist
+        modifiedIngredients.push({
+          name: mod.name,
+          quantity: mod.quantity,
+          unit: mod.unit,
+        });
+      } else {
+        console.warn(`Ingredient "${mod.name}" already exists. Skipping duplicate addition.`);
+      }
     } else if (action === "remove") {
       // Remove ingredient
       const index = modifiedIngredients.findIndex(
@@ -37,7 +52,7 @@ export function applyModificationsToRecipe(
       // We need to check if this is replacing an existing ingredient
       
       // First, check if there's an originalName field
-      const targetName = mod.originalName || mod.name;
+      const targetName = (mod as any).originalName || mod.name;
       
       // Try to find by looking at the reason - often mentions what's being replaced
       let originalIndex = -1;
@@ -63,40 +78,76 @@ export function applyModificationsToRecipe(
         // Replace the ingredient
         modifiedIngredients[originalIndex] = {
           name: mod.name,
-          quantity: mod.quantity || modifiedIngredients[originalIndex].quantity,
-          unit: mod.unit || modifiedIngredients[originalIndex].unit,
+          quantity: mod.quantity,
+          unit: mod.unit,
         };
       } else {
-        // If we can't find the original, add as new
-        modifiedIngredients.push({
-          name: mod.name,
-          quantity: mod.quantity || 0,
-          unit: mod.unit || "",
-        });
+        // If we can't find the original and this is a substitution, don't add as new
+        // The original should have been removed by a separate "remove" action
+        // Only add if this is truly a modification of an existing ingredient
+        console.warn(`Could not find ingredient to modify: ${targetName}. Skipping addition to avoid duplicates.`);
       }
     }
   });
 
   // Apply instruction modifications
-  substitutionChanges.recipeModifications.updatedInstructions.forEach((mod: any) => {
+  substitutionChanges.recipeModifications.updatedInstructions.forEach((mod) => {
     const index = mod.stepNumber - 1;
-    if (index >= 0 && index < modifiedInstructions.length) {
-      modifiedInstructions[index] = {
-        ...modifiedInstructions[index],
+    const action = mod.action;
+
+    if (action === "remove") {
+      // Remove instruction at the given step number
+      if (index >= 0 && index < modifiedInstructions.length) {
+        modifiedInstructions.splice(index, 1);
+      }
+    } else if (action === "modify") {
+      // Modify existing instruction
+      if (index >= 0 && index < modifiedInstructions.length) {
+        modifiedInstructions[index] = {
+          ...modifiedInstructions[index],
+          instruction: mod.modifiedInstruction,
+          timer: mod.timer && mod.timer.durationMinutes > 0 ? {
+            durationMinutes: mod.timer.durationMinutes
+          } : modifiedInstructions[index].timer,
+        };
+      }
+    } else if (action === "add") {
+      // Add new instruction at the position
+      const newInstruction: Instruction = {
         instruction: mod.modifiedInstruction,
+        startTimestamp: 0,
+        endTimestamp: 0,
+        timer: mod.timer && mod.timer.durationMinutes > 0 ? {
+          durationMinutes: mod.timer.durationMinutes
+        } : null,
       };
+      
+      // Insert at the correct position
+      if (index >= 0 && index <= modifiedInstructions.length) {
+        modifiedInstructions.splice(index, 0, newInstruction);
+      } else {
+        modifiedInstructions.push(newInstruction);
+      }
     }
   });
 
   // Add any additional steps
   if (substitutionChanges.recipeModifications.additionalSteps) {
-    substitutionChanges.recipeModifications.additionalSteps.forEach((step: any) => {
-      modifiedInstructions.push({
+    substitutionChanges.recipeModifications.additionalSteps.forEach((step) => {
+      const newInstruction: Instruction = {
         instruction: step.instruction,
         startTimestamp: 0,
         endTimestamp: 0,
         timer: null,
-      });
+      };
+
+      // Insert at the specified step number position
+      const insertIndex = step.stepNumber - 1;
+      if (insertIndex >= 0 && insertIndex <= modifiedInstructions.length) {
+        modifiedInstructions.splice(insertIndex, 0, newInstruction);
+      } else {
+        modifiedInstructions.push(newInstruction);
+      }
     });
   }
 
@@ -104,7 +155,5 @@ export function applyModificationsToRecipe(
     ...originalRecipe,
     ingredients: modifiedIngredients,
     instructions: modifiedInstructions,
-    cookTimeMinutes: originalRecipe.cookTimeMinutes + 
-      (substitutionChanges.recipeModifications.cookingTimeAdjustment || 0),
   };
 }

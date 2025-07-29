@@ -41,6 +41,9 @@ function normalizeSubstitutionChanges(
         .map((mod: any) => {
           const normalized: any = {
             ...mod,
+            // Ensure required fields are present
+            quantity: mod.quantity || 0,
+            unit: mod.unit || "",
           };
 
           // For modified ingredients, find and store the original values
@@ -78,6 +81,14 @@ function normalizeSubstitutionChanges(
           return normalized;
         })
         .filter(Boolean), // Remove null entries
+      updatedInstructions: data.recipeModifications.updatedInstructions || [],
+      additionalSteps: data.recipeModifications.additionalSteps || [],
+    },
+    nutritionalImpact: data.nutritionalImpact || {
+      calories: { action: "no-change", estimation: 0 },
+      fat: { action: "no-change", estimation: 0 },
+      sugar: { action: "no-change", estimation: 0 },
+      notes: "",
     },
   };
 

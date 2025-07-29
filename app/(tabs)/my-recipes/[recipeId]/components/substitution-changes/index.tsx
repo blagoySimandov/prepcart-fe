@@ -14,10 +14,11 @@ import {
   SubstitutionChangesModalProps,
   IngredientModification,
   InstructionModification,
+  AdditionalStep,
 } from "./types";
 
 function IngredientChange({ change }: { change: IngredientModification }) {
-  const { styles, colors } = useStyles();
+  const { styles } = useStyles();
   const actionColor = CHANGES_CONSTANTS.ACTION_COLORS[change.action];
 
   return (
@@ -41,26 +42,64 @@ function IngredientChange({ change }: { change: IngredientModification }) {
 }
 
 function InstructionChange({ change }: { change: InstructionModification }) {
+  const { styles, colors } = useStyles();
+  const actionColor = CHANGES_CONSTANTS.ACTION_COLORS[change.action] || colors.text;
+
+  return (
+    <View style={styles.instructionChange}>
+      <View style={styles.changeHeader}>
+        <ThemedText style={styles.instructionStep}>
+          Step {change.stepNumber}
+        </ThemedText>
+        <View style={[styles.changeAction, { backgroundColor: actionColor }]}>
+          <ThemedText style={styles.changeActionText}>
+            {CHANGES_CONSTANTS.ACTION_LABELS[change.action] || change.action.toUpperCase()}
+          </ThemedText>
+        </View>
+      </View>
+
+      {change.action !== "add" && (
+        <>
+          <ThemedText style={styles.instructionLabel}>Original:</ThemedText>
+          <ThemedText style={[styles.instructionText, styles.strikethrough]}>
+            {change.originalInstruction}
+          </ThemedText>
+        </>
+      )}
+
+      <ThemedText style={styles.instructionLabel}>
+        {change.action === "remove" ? "Removed:" : "Modified:"}
+      </ThemedText>
+      <ThemedText style={styles.instructionText}>
+        {change.modifiedInstruction}
+      </ThemedText>
+
+      {change.timer && change.timer.durationMinutes > 0 && (
+        <ThemedText style={styles.timerText}>
+          {`⏱️ ${change.timer.durationMinutes} minutes`}
+        </ThemedText>
+      )}
+
+      <ThemedText style={styles.changeReason}>
+        {change.reasonForChange}
+      </ThemedText>
+    </View>
+  );
+}
+
+function AdditionalStepItem({ step }: { step: AdditionalStep }) {
   const { styles } = useStyles();
 
   return (
     <View style={styles.instructionChange}>
       <ThemedText style={styles.instructionStep}>
-        Step {change.stepNumber}
+        New Step {step.stepNumber}
       </ThemedText>
-
-      <ThemedText style={styles.instructionLabel}>Original:</ThemedText>
-      <ThemedText style={[styles.instructionText, styles.strikethrough]}>
-        {change.originalInstruction}
-      </ThemedText>
-
-      <ThemedText style={styles.instructionLabel}>Modified:</ThemedText>
       <ThemedText style={styles.instructionText}>
-        {change.modifiedInstruction}
+        {step.instruction}
       </ThemedText>
-
       <ThemedText style={styles.changeReason}>
-        {change.reasonForChange}
+        {step.reason}
       </ThemedText>
     </View>
   );
@@ -97,6 +136,34 @@ export function SubstitutionChangesModal({
 
           <ScrollView style={styles.scrollView}>
             <View style={styles.analysisCard}>
+              {changes.substitutionAnalysis.originalIngredient && (
+                <View style={styles.analysisSection}>
+                  <ThemedText style={styles.analysisSectionTitle}>
+                    Original Ingredient
+                  </ThemedText>
+                  <ThemedText style={styles.analysisText}>
+                    {`${changes.substitutionAnalysis.originalIngredient.name} (${changes.substitutionAnalysis.originalIngredient.quantity} ${changes.substitutionAnalysis.originalIngredient.unit})`}
+                  </ThemedText>
+                  <ThemedText style={styles.analysisSubtext}>
+                    Function: {changes.substitutionAnalysis.originalIngredient.function}
+                  </ThemedText>
+                </View>
+              )}
+
+              {changes.substitutionAnalysis.replacementIngredient && (
+                <View style={styles.analysisSection}>
+                  <ThemedText style={styles.analysisSectionTitle}>
+                    Replacement Ingredient
+                  </ThemedText>
+                  <ThemedText style={styles.analysisText}>
+                    {`${changes.substitutionAnalysis.replacementIngredient.name} (${changes.substitutionAnalysis.replacementIngredient.quantity} ${changes.substitutionAnalysis.replacementIngredient.unit})`}
+                  </ThemedText>
+                  <ThemedText style={styles.analysisSubtext}>
+                    Function: {changes.substitutionAnalysis.replacementIngredient.function}
+                  </ThemedText>
+                </View>
+              )}
+
               <View style={styles.analysisRow}>
                 <ThemedText style={styles.analysisLabel}>
                   {CHANGES_CONSTANTS.DIFFICULTY_LABEL}
@@ -139,29 +206,54 @@ export function SubstitutionChangesModal({
               </View>
             )}
 
-            {changes.recipeModifications.cookingTimeAdjustment !== 0 && (
-              <View style={styles.cookingTimeAdjustment}>
-                <ThemedText style={styles.cookingTimeLabel}>
-                  {CHANGES_CONSTANTS.COOKING_TIME_ADJUSTMENT}
+            {changes.recipeModifications.additionalSteps.length > 0 && (
+              <View style={styles.section}>
+                <ThemedText style={styles.sectionTitle}>
+                  Additional Steps
                 </ThemedText>
-                <ThemedText style={styles.cookingTimeValue}>
-                  +{changes.recipeModifications.cookingTimeAdjustment}{" "}
-                  {CHANGES_CONSTANTS.MINUTES_SUFFIX}
-                </ThemedText>
+                {changes.recipeModifications.additionalSteps.map(
+                  (step, index) => (
+                    <AdditionalStepItem key={index} step={step} />
+                  ),
+                )}
               </View>
             )}
 
-            <View style={styles.section}>
-              <ThemedText style={styles.sectionTitle}>
-                {CHANGES_CONSTANTS.TIPS_SECTION}
-              </ThemedText>
-              {changes.criticalTips.map((tip, index) => (
-                <View key={index} style={styles.tipItem}>
-                  <ThemedText style={styles.tipBullet}>•</ThemedText>
-                  <ThemedText style={styles.tipText}>{tip}</ThemedText>
+            {changes.nutritionalImpact && (
+              <View style={styles.section}>
+                <ThemedText style={styles.sectionTitle}>
+                  Nutritional Impact
+                </ThemedText>
+                <View style={styles.nutritionalGrid}>
+                  <View style={styles.nutritionalItem}>
+                    <ThemedText style={styles.nutritionalLabel}>Calories:</ThemedText>
+                    <ThemedText style={styles.nutritionalValue}>
+                      {`${changes.nutritionalImpact.calories.action === "increase" ? "↑" : 
+                       changes.nutritionalImpact.calories.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.calories.estimation)}`}
+                    </ThemedText>
+                  </View>
+                  <View style={styles.nutritionalItem}>
+                    <ThemedText style={styles.nutritionalLabel}>Fat:</ThemedText>
+                    <ThemedText style={styles.nutritionalValue}>
+                      {`${changes.nutritionalImpact.fat.action === "increase" ? "↑" : 
+                       changes.nutritionalImpact.fat.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.fat.estimation)}g`}
+                    </ThemedText>
+                  </View>
+                  <View style={styles.nutritionalItem}>
+                    <ThemedText style={styles.nutritionalLabel}>Sugar:</ThemedText>
+                    <ThemedText style={styles.nutritionalValue}>
+                      {`${changes.nutritionalImpact.sugar.action === "increase" ? "↑" : 
+                       changes.nutritionalImpact.sugar.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.sugar.estimation)}g`}
+                    </ThemedText>
+                  </View>
                 </View>
-              ))}
-            </View>
+                {changes.nutritionalImpact.notes && (
+                  <ThemedText style={styles.nutritionalNotes}>
+                    {changes.nutritionalImpact.notes}
+                  </ThemedText>
+                )}
+              </View>
+            )}
           </ScrollView>
 
           <View style={styles.buttonContainer}>

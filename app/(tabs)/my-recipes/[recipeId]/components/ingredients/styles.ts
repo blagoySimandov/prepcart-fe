@@ -8,7 +8,7 @@ export function useStyles() {
 
   const styles = StyleSheet.create({
     container: {
-      marginBottom: 32,
+      marginBottom: 40,
       paddingHorizontal: 20,
     },
     title: {
@@ -18,7 +18,7 @@ export function useStyles() {
       letterSpacing: 0.5,
     },
     ingredientsList: {
-      gap: 8,
+      gap: 4,
     },
   });
 

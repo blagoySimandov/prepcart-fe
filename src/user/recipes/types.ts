@@ -1,7 +1,7 @@
 export type Ingredient = {
   name: string;
-  quantity: number;
-  unit: string;
+  quantity: number | null;
+  unit: string | null;
 };
 
 export type Instruction = {

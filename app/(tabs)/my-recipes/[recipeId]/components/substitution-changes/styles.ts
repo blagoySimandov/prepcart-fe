@@ -196,6 +196,54 @@ export const useStyles = () => {
     applyButtonText: {
       color: "white",
     },
+    analysisSection: {
+      marginBottom: 16,
+    },
+    analysisSectionTitle: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: tint,
+      marginBottom: 4,
+    },
+    analysisSubtext: {
+      fontSize: 12,
+      color: secondaryText,
+      marginTop: 2,
+      fontStyle: "italic",
+    },
+    timerText: {
+      fontSize: 13,
+      color: tint,
+      marginTop: 4,
+      marginBottom: 4,
+    },
+    nutritionalGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 16,
+      marginBottom: 12,
+    },
+    nutritionalItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      minWidth: "45%",
+    },
+    nutritionalLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: secondaryText,
+      marginRight: 8,
+    },
+    nutritionalValue: {
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    nutritionalNotes: {
+      fontSize: 13,
+      color: secondaryText,
+      fontStyle: "italic",
+      marginTop: 8,
+    },
   });
 
   return { styles, colors: { backgroundColor, borderColor, textColor, secondaryText, tint } };
