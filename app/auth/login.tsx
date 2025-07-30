@@ -4,8 +4,9 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useAuth } from "@/src/auth/hooks";
 import { AppleButton } from "@invertase/react-native-apple-authentication";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, Platform, View } from "react-native";
+import { CountrySelectionModal } from "./components/country-selection-modal";
 import { DisplayNameModal } from "./components/display-name-modal";
 import { GoogleSignButton } from "./components/google-sign-button";
 import { useStyles } from "./styles";
@@ -15,6 +16,8 @@ export default function LoginScreen() {
     signInWithGoogle,
     signInWithApple,
     updateDisplayName,
+    updateUserCountry,
+    checkUserHasCountry,
     user,
     loading,
   } = useAuth();
@@ -22,17 +25,32 @@ export default function LoginScreen() {
   const styles = useStyles();
   const [isAnonymous, setIsAnonymous] = useState<boolean | null>(null);
   const [showDisplayNamePrompt, setShowDisplayNamePrompt] = useState(false);
+  const [showCountryPrompt, setShowCountryPrompt] = useState(false);
   const backgroundColor = useThemeColor({}, "background");
 
   useEffect(() => {
-    if (!loading && user && !showDisplayNamePrompt) {
+    if (!loading && user && !showDisplayNamePrompt && !showCountryPrompt) {
       if (isAnonymous) {
         setShowDisplayNamePrompt(true);
       } else {
-        router.replace("/(tabs)" as any);
+        checkCountryAndProceed();
       }
     }
-  }, [user, loading, router, isAnonymous, showDisplayNamePrompt]);
+  }, [user, loading, router, isAnonymous, showDisplayNamePrompt, showCountryPrompt, checkCountryAndProceed]);
+
+  const checkCountryAndProceed = useCallback(async () => {
+    try {
+      const hasCountry = await checkUserHasCountry();
+      if (!hasCountry) {
+        setShowCountryPrompt(true);
+      } else {
+        router.replace("/(tabs)" as any);
+      }
+    } catch (error) {
+      console.error("Error checking country:", error);
+      router.replace("/(tabs)" as any);
+    }
+  }, [checkUserHasCountry, router]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -55,15 +73,26 @@ export default function LoginScreen() {
   const handleSaveDisplayName = async (displayName: string) => {
     await updateDisplayName(displayName);
     setShowDisplayNamePrompt(false);
-    router.replace("/(tabs)" as any);
+    checkCountryAndProceed();
   };
 
   const handleSkipDisplayName = () => {
     setShowDisplayNamePrompt(false);
+    checkCountryAndProceed();
+  };
+
+  const handleSelectCountry = async (country: string) => {
+    await updateUserCountry(country);
+    setShowCountryPrompt(false);
     router.replace("/(tabs)" as any);
   };
 
-  if (loading || (user && !showDisplayNamePrompt && !isAnonymous)) {
+  const handleSkipCountry = () => {
+    setShowCountryPrompt(false);
+    router.replace("/(tabs)" as any);
+  };
+
+  if (loading || (user && !showDisplayNamePrompt && !showCountryPrompt && !isAnonymous)) {
     return null;
   }
 
@@ -99,6 +128,12 @@ export default function LoginScreen() {
         visible={showDisplayNamePrompt}
         onSave={handleSaveDisplayName}
         onSkip={handleSkipDisplayName}
+      />
+
+      <CountrySelectionModal
+        visible={showCountryPrompt}
+        onSelect={handleSelectCountry}
+        onSkip={handleSkipCountry}
       />
     </>
   );

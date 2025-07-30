@@ -83,6 +83,7 @@ export class UserService {
     email?: string | null;
     displayName?: string | null;
     photoURL?: string | null;
+    country?: string | null;
   }): Promise<void> {
     const userDocRef = doc(db, "users", this.userId);
     try {
@@ -93,6 +94,7 @@ export class UserService {
           email: userData.email,
           displayName: userData.displayName,
           photoURL: userData.photoURL,
+          country: userData.country,
           createdAt: new Date(),
           statistics: {
             totalDiscoveredDiscounts: 0,
@@ -102,6 +104,22 @@ export class UserService {
       }
     } catch (error) {
       console.error("Error creating user profile:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Updates the user's country in Firestore.
+   * @param country - The country to set for the user.
+   */
+  async updateCountry(country: string): Promise<void> {
+    const userDocRef = doc(db, "users", this.userId);
+    try {
+      await updateDoc(userDocRef, {
+        country: country,
+      });
+    } catch (error) {
+      console.error("Error updating user country:", error);
       throw error;
     }
   }

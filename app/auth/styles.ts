@@ -92,5 +92,41 @@ export function useStyles() {
     saveButton: {
       // backgroundColor will be set dynamically using theme colors
     },
+    // Country selection modal styles
+    countryModalContent: {
+      borderRadius: 16,
+      padding: 24,
+      width: "100%",
+      maxWidth: 400,
+      height: "80%",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 5,
+    },
+    searchInput: {
+      marginBottom: 16,
+    },
+    countryList: {
+      flex: 1,
+      marginBottom: 20,
+    },
+    countryItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+    },
+    countryFlag: {
+      fontSize: 24,
+      marginRight: 12,
+      width: 32,
+    },
+    countryName: {
+      fontSize: 16,
+      flex: 1,
+    },
   });
 }

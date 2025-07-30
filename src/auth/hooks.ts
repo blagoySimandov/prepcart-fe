@@ -81,6 +81,37 @@ export function useAuth() {
     }
   };
 
+  const updateUserCountry = async (country: string) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("No authenticated user found");
+      }
+
+      const userService = new UserService(currentUser.uid);
+      await userService.updateCountry(country);
+    } catch (error) {
+      console.error("Error updating user country:", error);
+      throw error;
+    }
+  };
+
+  const checkUserHasCountry = async (): Promise<boolean> => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return false;
+      }
+
+      const userService = new UserService(currentUser.uid);
+      const profile = await userService.getProfile();
+      return !!(profile?.country);
+    } catch (error) {
+      console.error("Error checking user country:", error);
+      return false;
+    }
+  };
+
   const reauthenticateUser = async (): Promise<boolean> => {
     try {
       const currentUser = auth.currentUser;
@@ -194,6 +225,8 @@ export function useAuth() {
     signInWithGoogle,
     signInWithApple,
     updateDisplayName,
+    updateUserCountry,
+    checkUserHasCountry,
     deleteAccount,
     reauthenticateUser,
     signOut,
