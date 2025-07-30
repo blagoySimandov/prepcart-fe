@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useStyles } from "./styles";
 import { ANIMATION } from "@/constants/ui";
 import { CHANGES_CONSTANTS } from "./constants";
@@ -43,7 +44,8 @@ function IngredientChange({ change }: { change: IngredientModification }) {
 
 function InstructionChange({ change }: { change: InstructionModification }) {
   const { styles, colors } = useStyles();
-  const actionColor = CHANGES_CONSTANTS.ACTION_COLORS[change.action] || colors.text;
+  const actionColor =
+    CHANGES_CONSTANTS.ACTION_COLORS[change.action] || colors.text;
 
   return (
     <View style={styles.instructionChange}>
@@ -53,7 +55,8 @@ function InstructionChange({ change }: { change: InstructionModification }) {
         </ThemedText>
         <View style={[styles.changeAction, { backgroundColor: actionColor }]}>
           <ThemedText style={styles.changeActionText}>
-            {CHANGES_CONSTANTS.ACTION_LABELS[change.action] || change.action.toUpperCase()}
+            {CHANGES_CONSTANTS.ACTION_LABELS[change.action] ||
+              change.action.toUpperCase()}
           </ThemedText>
         </View>
       </View>
@@ -75,9 +78,17 @@ function InstructionChange({ change }: { change: InstructionModification }) {
       </ThemedText>
 
       {change.timer && change.timer.durationMinutes > 0 && (
-        <ThemedText style={styles.timerText}>
-          {`⏱️ ${change.timer.durationMinutes} minutes`}
-        </ThemedText>
+        <View style={styles.timerContainer}>
+          <IconSymbol
+            name="clock"
+            size={14}
+            color={colors.tint}
+            style={styles.timerIcon}
+          />
+          <ThemedText style={styles.timerText}>
+            {`${change.timer.durationMinutes} minutes`}
+          </ThemedText>
+        </View>
       )}
 
       <ThemedText style={styles.changeReason}>
@@ -95,12 +106,8 @@ function AdditionalStepItem({ step }: { step: AdditionalStep }) {
       <ThemedText style={styles.instructionStep}>
         New Step {step.stepNumber}
       </ThemedText>
-      <ThemedText style={styles.instructionText}>
-        {step.instruction}
-      </ThemedText>
-      <ThemedText style={styles.changeReason}>
-        {step.reason}
-      </ThemedText>
+      <ThemedText style={styles.instructionText}>{step.instruction}</ThemedText>
+      <ThemedText style={styles.changeReason}>{step.reason}</ThemedText>
     </View>
   );
 }
@@ -111,7 +118,7 @@ export function SubstitutionChangesModal({
   changes,
   onApply,
 }: SubstitutionChangesModalProps) {
-  const { styles } = useStyles();
+  const { styles, colors } = useStyles();
 
   if (!changes) return null;
 
@@ -129,6 +136,7 @@ export function SubstitutionChangesModal({
 
         <View style={styles.content}>
           <View style={styles.header}>
+            <View style={styles.headerDivider} />
             <ThemedText style={styles.headerTitle}>
               {CHANGES_CONSTANTS.MODAL_TITLE}
             </ThemedText>
@@ -145,7 +153,8 @@ export function SubstitutionChangesModal({
                     {`${changes.substitutionAnalysis.originalIngredient.name} (${changes.substitutionAnalysis.originalIngredient.quantity} ${changes.substitutionAnalysis.originalIngredient.unit})`}
                   </ThemedText>
                   <ThemedText style={styles.analysisSubtext}>
-                    Function: {changes.substitutionAnalysis.originalIngredient.function}
+                    Function:{" "}
+                    {changes.substitutionAnalysis.originalIngredient.function}
                   </ThemedText>
                 </View>
               )}
@@ -159,7 +168,11 @@ export function SubstitutionChangesModal({
                     {`${changes.substitutionAnalysis.replacementIngredient.name} (${changes.substitutionAnalysis.replacementIngredient.quantity} ${changes.substitutionAnalysis.replacementIngredient.unit})`}
                   </ThemedText>
                   <ThemedText style={styles.analysisSubtext}>
-                    Function: {changes.substitutionAnalysis.replacementIngredient.function}
+                    Function:{" "}
+                    {
+                      changes.substitutionAnalysis.replacementIngredient
+                        .function
+                    }
                   </ThemedText>
                 </View>
               )}
@@ -226,25 +239,98 @@ export function SubstitutionChangesModal({
                 </ThemedText>
                 <View style={styles.nutritionalGrid}>
                   <View style={styles.nutritionalItem}>
-                    <ThemedText style={styles.nutritionalLabel}>Calories:</ThemedText>
-                    <ThemedText style={styles.nutritionalValue}>
-                      {`${changes.nutritionalImpact.calories.action === "increase" ? "↑" : 
-                       changes.nutritionalImpact.calories.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.calories.estimation)}`}
+                    <ThemedText style={styles.nutritionalLabel}>
+                      Calories:
                     </ThemedText>
+                    <View style={styles.nutritionalValueContainer}>
+                      <IconSymbol
+                        name={
+                          changes.nutritionalImpact.calories.action ===
+                          "increase"
+                            ? "arrow.up"
+                            : changes.nutritionalImpact.calories.action ===
+                                "decrease"
+                              ? "arrow.down"
+                              : "equal"
+                        }
+                        size={16}
+                        color={
+                          changes.nutritionalImpact.calories.action ===
+                          "increase"
+                            ? "#FF6B6B"
+                            : changes.nutritionalImpact.calories.action ===
+                                "decrease"
+                              ? "#51CF66"
+                              : colors.secondaryText
+                        }
+                        style={styles.nutritionalIcon}
+                      />
+                      <ThemedText style={styles.nutritionalValue}>
+                        {Math.abs(
+                          changes.nutritionalImpact.calories.estimation,
+                        )}
+                      </ThemedText>
+                    </View>
                   </View>
                   <View style={styles.nutritionalItem}>
-                    <ThemedText style={styles.nutritionalLabel}>Fat:</ThemedText>
-                    <ThemedText style={styles.nutritionalValue}>
-                      {`${changes.nutritionalImpact.fat.action === "increase" ? "↑" : 
-                       changes.nutritionalImpact.fat.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.fat.estimation)}g`}
+                    <ThemedText style={styles.nutritionalLabel}>
+                      Fat:
                     </ThemedText>
+                    <View style={styles.nutritionalValueContainer}>
+                      <IconSymbol
+                        name={
+                          changes.nutritionalImpact.fat.action === "increase"
+                            ? "arrow.up"
+                            : changes.nutritionalImpact.fat.action ===
+                                "decrease"
+                              ? "arrow.down"
+                              : "equal"
+                        }
+                        size={16}
+                        color={
+                          changes.nutritionalImpact.fat.action === "increase"
+                            ? "#FF6B6B"
+                            : changes.nutritionalImpact.fat.action ===
+                                "decrease"
+                              ? "#51CF66"
+                              : colors.secondaryText
+                        }
+                        style={styles.nutritionalIcon}
+                      />
+                      <ThemedText style={styles.nutritionalValue}>
+                        {Math.abs(changes.nutritionalImpact.fat.estimation)}g
+                      </ThemedText>
+                    </View>
                   </View>
                   <View style={styles.nutritionalItem}>
-                    <ThemedText style={styles.nutritionalLabel}>Sugar:</ThemedText>
-                    <ThemedText style={styles.nutritionalValue}>
-                      {`${changes.nutritionalImpact.sugar.action === "increase" ? "↑" : 
-                       changes.nutritionalImpact.sugar.action === "decrease" ? "↓" : "="} ${Math.abs(changes.nutritionalImpact.sugar.estimation)}g`}
+                    <ThemedText style={styles.nutritionalLabel}>
+                      Sugar:
                     </ThemedText>
+                    <View style={styles.nutritionalValueContainer}>
+                      <IconSymbol
+                        name={
+                          changes.nutritionalImpact.sugar.action === "increase"
+                            ? "arrow.up"
+                            : changes.nutritionalImpact.sugar.action ===
+                                "decrease"
+                              ? "arrow.down"
+                              : "equal"
+                        }
+                        size={16}
+                        color={
+                          changes.nutritionalImpact.sugar.action === "increase"
+                            ? "#FF6B6B"
+                            : changes.nutritionalImpact.sugar.action ===
+                                "decrease"
+                              ? "#51CF66"
+                              : colors.secondaryText
+                        }
+                        style={styles.nutritionalIcon}
+                      />
+                      <ThemedText style={styles.nutritionalValue}>
+                        {Math.abs(changes.nutritionalImpact.sugar.estimation)}g
+                      </ThemedText>
+                    </View>
                   </View>
                 </View>
                 {changes.nutritionalImpact.notes && (

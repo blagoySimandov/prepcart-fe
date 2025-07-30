@@ -24,6 +24,10 @@ const MAPPING = {
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
   "book.fill": "book",
+  clock: "schedule",
+  "arrow.up": "keyboard-arrow-up",
+  "arrow.down": "keyboard-arrow-down",
+  "equal": "drag-handle",
 } as IconMapping;
 
 /**
