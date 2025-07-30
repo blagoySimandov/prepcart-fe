@@ -15,13 +15,6 @@ export const QUICK_ACTIONS: QuickAction[] = [
     color: "#8FBC8F",
   },
   {
-    title: "Catalog Search",
-    description: "Find products & discounts",
-    icon: "magnifyingglass.circle.fill",
-    route: "/(tabs)/catalog-search",
-    color: "#FF6B6B",
-  },
-  {
     title: "My Recipes",
     description: "View saved recipes",
     icon: "book.fill",

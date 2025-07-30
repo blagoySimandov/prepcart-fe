@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import { ShoppingItem } from "@/src/user/shopping-list/types";
 import React from "react";
 import { Text, View } from "react-native";
@@ -10,6 +11,12 @@ interface SavingsSummaryProps {
 
 export function SavingsSummary({ items }: SavingsSummaryProps) {
   const { styles, colors } = useStyles();
+  const { isDiscountsAvailable } = useCountryRestriction();
+
+  // Hide savings summary if discounts are not available in user's country
+  if (isDiscountsAvailable === false) {
+    return null;
+  }
 
   const itemSavingsByCurrency: Record<string, number> = {};
   let itemsWithSavings = 0;

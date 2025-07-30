@@ -1,3 +1,4 @@
+import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import React from "react";
 import { Text, View } from "react-native";
 import useStyles from "../styles";
@@ -11,6 +12,12 @@ interface UserStatisticsProps {
 
 export function UserStatistics({ userStats }: UserStatisticsProps) {
   const { styles } = useStyles();
+  const { isDiscountsAvailable } = useCountryRestriction();
+
+  // Hide statistics if discounts are not available in user's country
+  if (isDiscountsAvailable === false) {
+    return null;
+  }
 
   return (
     <View style={styles.statsContainer}>
