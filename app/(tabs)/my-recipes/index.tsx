@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Header } from "@/components/ui/Header";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Search } from "@/components/ui/Search";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -71,7 +72,12 @@ export default function MyRecipesScreen() {
           ))}
           {filteredRecipes.length === 0 && (
             <View style={styles.emptyState}>
-              <Text style={[styles.emptyIcon, { color: colors.icon }]}>🔍</Text>
+              <IconSymbol
+                name="magnifyingglass"
+                size={48}
+                color={colors.icon}
+                style={styles.emptyIcon}
+              />
               <ThemedText style={styles.emptyStateText}>
                 {searchQuery || selectedFilter !== "all"
                   ? `No recipes found for your search`

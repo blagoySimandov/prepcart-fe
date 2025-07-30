@@ -1,5 +1,6 @@
 import { SmallRecipeCard } from "@/app/(tabs)/my-recipes/components/small-recipe-card";
 import { ThemedText } from "@/components/ThemedText";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import {
@@ -53,9 +54,12 @@ export function RecentRecipesSection({ onViewAll }: RecentRecipesSectionProps) {
         </View>
       ) : (
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyStateIcon, { color: colors.icon }]}>
-            📚
-          </Text>
+          <IconSymbol
+            name="book.fill"
+            size={48}
+            color={colors.icon}
+            style={styles.emptyStateIcon}
+          />
           <ThemedText style={styles.emptyStateText}>
             {EMPTY_STATE_TEXT}
           </ThemedText>
@@ -67,3 +71,4 @@ export function RecentRecipesSection({ onViewAll }: RecentRecipesSectionProps) {
     </View>
   );
 }
+
