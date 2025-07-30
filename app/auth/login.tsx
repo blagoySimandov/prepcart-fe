@@ -11,6 +11,13 @@ import { DisplayNameModal } from "./components/display-name-modal";
 import { GoogleSignButton } from "./components/google-sign-button";
 import { useStyles } from "./styles";
 
+enum OnboardingStep {
+  NONE = "none",
+  DISPLAY_NAME = "display_name",
+  COUNTRY = "country",
+  COMPLETE = "complete",
+}
+
 export default function LoginScreen() {
   const {
     signInWithGoogle,
@@ -23,34 +30,40 @@ export default function LoginScreen() {
   } = useAuth();
   const router = useRouter();
   const styles = useStyles();
+  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>(OnboardingStep.NONE);
   const [isAnonymous, setIsAnonymous] = useState<boolean | null>(null);
-  const [showDisplayNamePrompt, setShowDisplayNamePrompt] = useState(false);
-  const [showCountryPrompt, setShowCountryPrompt] = useState(false);
   const backgroundColor = useThemeColor({}, "background");
 
-  const checkCountryAndProceed = useCallback(async () => {
+  const startOnboardingFlow = useCallback(async () => {
     try {
+      if (isAnonymous) {
+        setOnboardingStep(OnboardingStep.DISPLAY_NAME);
+        return;
+      }
+
       const hasCountry = await checkUserHasCountry();
       if (!hasCountry) {
-        setShowCountryPrompt(true);
+        setOnboardingStep(OnboardingStep.COUNTRY);
       } else {
-        router.replace("/(tabs)" as any);
+        setOnboardingStep(OnboardingStep.COMPLETE);
       }
     } catch (error) {
-      console.error("Error checking country:", error);
-      router.replace("/(tabs)" as any);
+      console.error("Error checking onboarding requirements:", error);
+      setOnboardingStep(OnboardingStep.COMPLETE);
     }
-  }, [checkUserHasCountry, router]);
+  }, [isAnonymous, checkUserHasCountry]);
 
   useEffect(() => {
-    if (!loading && user && !showDisplayNamePrompt && !showCountryPrompt) {
-      if (isAnonymous) {
-        setShowDisplayNamePrompt(true);
-      } else {
-        checkCountryAndProceed();
-      }
+    if (!loading && user && onboardingStep === OnboardingStep.NONE) {
+      startOnboardingFlow();
     }
-  }, [user, loading, router, isAnonymous, showDisplayNamePrompt, showCountryPrompt, checkCountryAndProceed]);
+  }, [user, loading, onboardingStep, startOnboardingFlow]);
+
+  useEffect(() => {
+    if (onboardingStep === OnboardingStep.COMPLETE) {
+      router.replace("/(tabs)" as any);
+    }
+  }, [onboardingStep, router]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -71,28 +84,51 @@ export default function LoginScreen() {
   };
 
   const handleSaveDisplayName = async (displayName: string) => {
-    await updateDisplayName(displayName);
-    setShowDisplayNamePrompt(false);
-    checkCountryAndProceed();
+    try {
+      await updateDisplayName(displayName);
+      // Check if we need to ask for country next
+      const hasCountry = await checkUserHasCountry();
+      if (!hasCountry) {
+        setOnboardingStep(OnboardingStep.COUNTRY);
+      } else {
+        setOnboardingStep(OnboardingStep.COMPLETE);
+      }
+    } catch (error) {
+      console.error("Error saving display name:", error);
+      setOnboardingStep(OnboardingStep.COMPLETE);
+    }
   };
 
-  const handleSkipDisplayName = () => {
-    setShowDisplayNamePrompt(false);
-    checkCountryAndProceed();
+  const handleSkipDisplayName = async () => {
+    try {
+      // Check if we need to ask for country next
+      const hasCountry = await checkUserHasCountry();
+      if (!hasCountry) {
+        setOnboardingStep(OnboardingStep.COUNTRY);
+      } else {
+        setOnboardingStep(OnboardingStep.COMPLETE);
+      }
+    } catch (error) {
+      console.error("Error checking country:", error);
+      setOnboardingStep(OnboardingStep.COMPLETE);
+    }
   };
 
   const handleSelectCountry = async (country: string) => {
-    await updateUserCountry(country);
-    setShowCountryPrompt(false);
-    router.replace("/(tabs)" as any);
+    try {
+      await updateUserCountry(country);
+      setOnboardingStep(OnboardingStep.COMPLETE);
+    } catch (error) {
+      console.error("Error saving country:", error);
+      setOnboardingStep(OnboardingStep.COMPLETE);
+    }
   };
 
   const handleSkipCountry = () => {
-    setShowCountryPrompt(false);
-    router.replace("/(tabs)" as any);
+    setOnboardingStep(OnboardingStep.COMPLETE);
   };
 
-  if (loading || (user && !showDisplayNamePrompt && !showCountryPrompt && !isAnonymous)) {
+  if (loading || (user && onboardingStep === OnboardingStep.COMPLETE)) {
     return null;
   }
 
@@ -125,13 +161,13 @@ export default function LoginScreen() {
       </ThemedView>
 
       <DisplayNameModal
-        visible={showDisplayNamePrompt}
+        visible={onboardingStep === OnboardingStep.DISPLAY_NAME}
         onSave={handleSaveDisplayName}
         onSkip={handleSkipDisplayName}
       />
 
       <CountrySelectionModal
-        visible={showCountryPrompt}
+        visible={onboardingStep === OnboardingStep.COUNTRY}
         onSelect={handleSelectCountry}
         onSkip={handleSkipCountry}
       />

@@ -89,18 +89,33 @@ export class UserService {
     try {
       const docSnap = await getDoc(userDocRef);
       if (!docSnap.exists()) {
-        await setDoc(userDocRef, {
+        // Build the data object conditionally
+        const data: any = {
           id: this.userId,
-          email: userData.email,
-          displayName: userData.displayName,
-          photoURL: userData.photoURL,
-          country: userData.country,
           createdAt: new Date(),
           statistics: {
             totalDiscoveredDiscounts: 0,
             totalSavings: {},
           },
-        });
+        };
+
+        if (userData.email !== undefined && userData.email !== null) {
+          data.email = userData.email;
+        }
+        if (
+          userData.displayName !== undefined &&
+          userData.displayName !== null
+        ) {
+          data.displayName = userData.displayName;
+        }
+        if (userData.photoURL !== undefined && userData.photoURL !== null) {
+          data.photoURL = userData.photoURL;
+        }
+        if (userData.country !== undefined && userData.country !== null) {
+          data.country = userData.country;
+        }
+
+        await setDoc(userDocRef, data);
       }
     } catch (error) {
       console.error("Error creating user profile:", error);
