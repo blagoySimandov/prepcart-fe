@@ -3,7 +3,7 @@ import {
   Ingredient as IngredientType,
   Instruction as InstructionType,
 } from "@/src/user/recipes/types";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import React, { useState, useMemo, useCallback } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -318,6 +318,16 @@ export default function RecipeScreen() {
       <SafeAreaView style={styles.safeArea}>
         <RecipeDetails>
           <Header>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <MaterialIcons
+                name="arrow-back"
+                size={ICON_SIZES.xl}
+                color={COMMON_COLORS.text}
+              />
+            </TouchableOpacity>
             <Thumbnail imageUrl={displayRecipe.thumbnail} />
             <Header.Title isModified={!!appliedModifications}>
               {displayRecipe.displayTitle}

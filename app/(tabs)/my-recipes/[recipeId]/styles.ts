@@ -62,6 +62,20 @@ export function useStyles() {
       marginBottom: SPACING.medium,
       alignItems: 'flex-start',
     },
+    backButton: {
+      position: 'absolute',
+      top: SPACING.medium,
+      left: SPACING.large,
+      zIndex: 1,
+      backgroundColor: colors.background,
+      borderRadius: BORDER_RADIUS.small,
+      padding: SPACING.small,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      shadowColor: "#000",
+      elevation: 2,
+    },
   });
 
   return { styles, colors };
