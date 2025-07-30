@@ -1,12 +1,15 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  Animated,
+  Keyboard,
 } from "react-native";
 import { useStyles } from "./styles";
 import { ImportRecipeModalProps } from "./types";
@@ -26,6 +29,14 @@ export function ImportRecipeModal({
     handleImport,
     handleClose,
   } = useImportRecipeModal(onImport, onClose);
+  const [inputFocused, setInputFocused] = useState(false);
+
+  const handleOverlayPress = () => {
+    if (!isLoading) {
+      Keyboard.dismiss();
+      handleClose();
+    }
+  };
 
   return (
     <Modal
@@ -33,16 +44,23 @@ export function ImportRecipeModal({
       transparent
       animationType="fade"
       onRequestClose={handleClose}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+      <TouchableOpacity 
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={handleOverlayPress}>
+        <TouchableOpacity 
+          style={styles.modalContent}
+          activeOpacity={1}
+          onPress={() => {}}>
           <View style={styles.modalHeader}>
             <ThemedText style={styles.modalTitle}>
               {IMPORT_RECIPE_MODAL_STRINGS.title}
             </ThemedText>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={handleClose}>
-              <MaterialIcons name="close" size={24} color={colors.icon} />
+              onPress={handleClose}
+              disabled={isLoading}>
+              <MaterialIcons name="close" size={20} color={colors.icon} />
             </TouchableOpacity>
           </View>
 
@@ -50,23 +68,34 @@ export function ImportRecipeModal({
             {IMPORT_RECIPE_MODAL_STRINGS.description}
           </ThemedText>
 
-          <TextInput
-            style={styles.input}
-            placeholder={IMPORT_RECIPE_MODAL_STRINGS.placeholder}
-            placeholderTextColor={colors.icon}
-            value={url}
-            onChangeText={setUrl}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>
+              TikTok URL
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                inputFocused && styles.inputFocused,
+              ]}
+              placeholder={IMPORT_RECIPE_MODAL_STRINGS.placeholder}
+              placeholderTextColor={colors.icon}
+              value={url}
+              onChangeText={setUrl}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+              keyboardType="url"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={handleClose}
               disabled={isLoading}>
-              <Text style={styles.buttonText}>
+              <Text style={[styles.buttonText, styles.cancelButtonText]}>
                 {IMPORT_RECIPE_MODAL_STRINGS.cancelButton}
               </Text>
             </TouchableOpacity>
@@ -78,15 +107,22 @@ export function ImportRecipeModal({
               ]}
               onPress={handleImport}
               disabled={isLoading}>
-              <Text style={styles.buttonText}>
-                {isLoading 
-                  ? IMPORT_RECIPE_MODAL_STRINGS.importingButton 
-                  : IMPORT_RECIPE_MODAL_STRINGS.importButton}
-              </Text>
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.buttonText} />
+                  <Text style={styles.loadingText}>
+                    {IMPORT_RECIPE_MODAL_STRINGS.importingButton}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={[styles.buttonText, styles.importButtonText]}>
+                  {IMPORT_RECIPE_MODAL_STRINGS.importButton}
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }

@@ -1,10 +1,10 @@
 export const IMPORT_RECIPE_MODAL_STRINGS = {
   title: "Import Recipe",
-  description: "Enter a TikTok URL to import the recipe:",
+  description: "Paste a TikTok recipe video URL below and we'll automatically extract the ingredients and instructions for you.",
   placeholder: "https://www.tiktok.com/@username/video/...",
   cancelButton: "Cancel",
-  importButton: "Import",
-  importingButton: "Importing...",
+  importButton: "Import Recipe",
+  importingButton: "Importing",
   errors: {
     emptyUrl: "Please enter a TikTok URL",
     invalidUrl: "Please enter a valid TikTok URL",

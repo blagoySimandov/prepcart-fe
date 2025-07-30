@@ -14,11 +14,12 @@ export interface TikTokImportResponse {
   id: string;
 }
 
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/afc0575e-e6aa-4259-9508-1e7b86bbb9d4";
+const WEBHOOK_URL =
+  "https://n8n.prepcart.it.com/webhook/afc0575e-e6aa-4259-9508-1e7b86bbb9d4";
 
 export async function importTikTokRecipe(
   tiktokUrl: string,
-  userId: string
+  userId: string,
 ): Promise<TikTokImportResponse> {
   const request: TikTokImportRequest = {
     url: tiktokUrl,

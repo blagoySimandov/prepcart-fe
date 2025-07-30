@@ -2,7 +2,7 @@ import { Recipe, Ingredient, Instruction } from "@/src/user/recipes/types";
 import { SubstitutionChanges } from "../components/substitution-changes/types";
 
 const ANALYSIS_WEBHOOK_URL =
-  "http://localhost:5678/webhook-test/b0b4dfdc-079d-4f6f-b5fc-6f1810e09706";
+  "https://n8n.prepcart.it.com/webhook/b0b4dfdc-079d-4f6f-b5fc-6f1810e09706";
 
 export interface SubstitutionRequest {
   original: string;

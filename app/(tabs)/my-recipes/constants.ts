@@ -34,12 +34,17 @@ export const ALERT_MESSAGES = {
     failedTitle: "Import Failed",
     failedMessage: "Failed to import recipe. Please try again.",
   },
+  duplicateRecipe: {
+    title: "Recipe Already Imported",
+    getMessage: (title: string) => `"${title}" has already been imported to your recipes.`,
+  },
 };
 
 export const BUTTON_TEXTS = {
   cancel: "Cancel",
   delete: "Delete",
   viewRecipe: "View Recipe",
+  goToRecipe: "Go to Recipe",
   ok: "OK",
 };
 

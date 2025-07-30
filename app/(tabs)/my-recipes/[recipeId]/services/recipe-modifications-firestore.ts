@@ -133,7 +133,7 @@ export async function deleteRecipeModification(
       originalQuantity?: number;
       originalUnit?: string;
     }
-    
+
     data.substitutionChanges.recipeModifications.updatedIngredients.forEach(
       (mod: IngredientModification) => {
         switch (mod.action) {
@@ -169,7 +169,7 @@ export async function deleteRecipeModification(
       stepNumber: number;
       originalInstruction?: string;
     }
-    
+
     data.substitutionChanges.recipeModifications.updatedInstructions.forEach(
       (mod: InstructionModification) => {
         const instructionIndex = mod.stepNumber - 1;

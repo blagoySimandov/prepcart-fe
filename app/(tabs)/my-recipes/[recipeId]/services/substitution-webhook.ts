@@ -1,6 +1,7 @@
 import { Ingredient } from "@/src/user/recipes/types";
 
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/c1297b7e-cefc-4b43-a3c9-c2a0ca926dfa";
+const WEBHOOK_URL =
+  "https://n8n.prepcart.it.com/webhook/c1297b7e-cefc-4b43-a3c9-c2a0ca926dfa";
 
 export interface SubstitutionTarget {
   ingredient: string;
@@ -30,16 +31,16 @@ export async function fetchReplacementCandidates(
     cookTimeMinutes: number;
     ingredients: Ingredient[];
   },
-  targetIngredients: string[]
+  targetIngredients: string[],
 ): Promise<ReplacementCandidatesResponse> {
   const requestBody: SubstitutionWebhookRequest = {
     displayTitle: recipe.displayTitle,
     displayDescription: recipe.displayDescription,
     cookTimeMinutes: recipe.cookTimeMinutes,
-    ingredients: recipe.ingredients.map(ing => ({
+    ingredients: recipe.ingredients.map((ing) => ({
       name: ing.name,
-      quantity: parseFloat(ing.quantity) || 1,
-      unit: ing.unit,
+      quantity: ing.quantity || 1,
+      unit: ing.unit !== null ? ing.unit : "",
     })),
     substitutionTargets: targetIngredients,
   };
@@ -64,3 +65,4 @@ export async function fetchReplacementCandidates(
     throw error;
   }
 }
+

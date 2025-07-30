@@ -11,6 +11,7 @@ import { doc, onSnapshot } from "@react-native-firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { useAlert } from "@/components/providers/alert-provider";
 import { deleteRecipe } from "./services/recipe-deletion";
+import { checkForDuplicateRecipe } from "./services/duplicate-recipe-check";
 import { FILTER_LABELS, FILTER_TIME_RANGES, ALERT_MESSAGES, BUTTON_TEXTS, IMPORT_TIMEOUT } from "./constants";
 
 export type FilterOption = "all" | "quick" | "medium" | "long";
@@ -128,6 +129,27 @@ export function useRecipeActions() {
     }
 
     try {
+      // Check for duplicate recipe first
+      const duplicateCheck = await checkForDuplicateRecipe(user.uid, url);
+      
+      if (duplicateCheck.isDuplicate && duplicateCheck.existingRecipe) {
+        showAlert(
+          ALERT_MESSAGES.duplicateRecipe.title,
+          ALERT_MESSAGES.duplicateRecipe.getMessage(duplicateCheck.existingRecipe.displayTitle),
+          [
+            {
+              text: BUTTON_TEXTS.cancel,
+              style: "cancel",
+            },
+            {
+              text: BUTTON_TEXTS.goToRecipe,
+              onPress: () => router.push(`/(tabs)/my-recipes/${duplicateCheck.existingRecipe!.id}`),
+            },
+          ]
+        );
+        return;
+      }
+
       // Call the webhook to initiate import
       const importResponse = await importTikTokRecipe(url, user.uid);
 
