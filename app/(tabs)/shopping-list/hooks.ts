@@ -1,6 +1,7 @@
 import { useAlert } from "@/components/providers/alert-provider";
 import { analytics } from "@/firebaseConfig";
 import { Discount, ProductCandidate } from "@/src/discounts/types";
+import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import { useUserService } from "@/src/user";
 import { ShoppingItem } from "@/src/user/shopping-list/types";
 import { removeUndefined } from "@/src/utils";
@@ -113,10 +114,18 @@ export function useShoppingList() {
 export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
   const userService = useUserService();
   const [isFindingDiscounts, setIsFindingDiscounts] = useState(false);
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const { showAlert } = useAlert();
+  const { isDiscountsAvailable, isLoading: isCheckingCountry } = useCountryRestriction();
 
   const findDiscounts = useCallback(async () => {
     if (!userService || items.length === 0) return;
+
+    if (isDiscountsAvailable === false) {
+      setShowUnavailableModal(true);
+      analytics.logEvent("find_discounts_blocked_by_country");
+      return;
+    }
 
     setIsFindingDiscounts(true);
     analytics.logEvent("find_discounts_for_shopping_list", {
@@ -225,9 +234,18 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
     } finally {
       setIsFindingDiscounts(false);
     }
-  }, [userService, items, selectedStores, showAlert]);
+  }, [userService, items, selectedStores, showAlert, isDiscountsAvailable]);
 
-  return { findDiscounts, isFindingDiscounts };
+  const closeUnavailableModal = useCallback(() => {
+    setShowUnavailableModal(false);
+  }, []);
+
+  return { 
+    findDiscounts, 
+    isFindingDiscounts: isFindingDiscounts || isCheckingCountry,
+    showUnavailableModal,
+    closeUnavailableModal,
+  };
 }
 
 export function useShoppingListModals() {

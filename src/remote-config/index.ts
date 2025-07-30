@@ -53,6 +53,22 @@ class RemoteConfigService {
   getAvailableStoreIds(): string[] {
     return Object.keys(this.getStoreNames());
   }
+
+  getDiscountsAllowedCountries(): string[] {
+    try {
+      const configValue = remoteConfig.getValue(CONFIG.DiscountsAllowedCountries);
+      const countriesString = configValue.asString();
+      return JSON.parse(countriesString);
+    } catch (error) {
+      console.error("Error parsing allowed countries from Remote Config:", error);
+      return JSON.parse(DEFAULTS[CONFIG.DiscountsAllowedCountries] as string);
+    }
+  }
+
+  isDiscountsAvailableForCountry(countryCode: string): boolean {
+    const allowedCountries = this.getDiscountsAllowedCountries();
+    return allowedCountries.includes(countryCode);
+  }
 }
 
 export const remoteConfigService = RemoteConfigService.getInstance();

@@ -4,6 +4,7 @@ export const CONFIG = {
   CatalogSearchDebounceTime: "catalog_search_debounce_time",
   LatestVersion: "latest_version",
   MinVersion: "min_version",
+  DiscountsAllowedCountries: "discounts_allowed_countries",
 };
 
 export const DEFAULTS = {
@@ -19,4 +20,5 @@ export const DEFAULTS = {
   [CONFIG.CatalogSearchDebounceTime]: 100,
   [CONFIG.LatestVersion]: "1.0.0",
   [CONFIG.MinVersion]: "1.0.0",
+  [CONFIG.DiscountsAllowedCountries]: JSON.stringify(["BG"]),
 };

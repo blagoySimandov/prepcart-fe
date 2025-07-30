@@ -1,4 +1,5 @@
 import { ThemedView } from "@/components/ThemedView";
+import { FeatureUnavailableModal } from "@/components/shared/feature-unavailable-modal";
 import { StoreFilterModal } from "@/components/shared/store-filter-modal";
 import React from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
@@ -36,7 +37,7 @@ export default function ShoppingListScreen() {
     closeModal,
   } = useStoreFilter();
 
-  const { findDiscounts, isFindingDiscounts } = useDiscounts(
+  const { findDiscounts, isFindingDiscounts, showUnavailableModal, closeUnavailableModal } = useDiscounts(
     items,
     isLoadingStores ? [] : selectedStores,
   );
@@ -114,6 +115,13 @@ export default function ShoppingListScreen() {
         />
 
         <HelpModal visible={helpModal.visible} onClose={helpModal.close} />
+
+        <FeatureUnavailableModal
+          visible={showUnavailableModal}
+          onClose={closeUnavailableModal}
+          title="Discounts Unavailable"
+          message="The discount search feature is currently only available in Bulgaria. We're working to expand to more countries soon!"
+        />
       </SafeAreaView>
     </ThemedView>
   );

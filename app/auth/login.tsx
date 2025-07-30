@@ -28,16 +28,6 @@ export default function LoginScreen() {
   const [showCountryPrompt, setShowCountryPrompt] = useState(false);
   const backgroundColor = useThemeColor({}, "background");
 
-  useEffect(() => {
-    if (!loading && user && !showDisplayNamePrompt && !showCountryPrompt) {
-      if (isAnonymous) {
-        setShowDisplayNamePrompt(true);
-      } else {
-        checkCountryAndProceed();
-      }
-    }
-  }, [user, loading, router, isAnonymous, showDisplayNamePrompt, showCountryPrompt, checkCountryAndProceed]);
-
   const checkCountryAndProceed = useCallback(async () => {
     try {
       const hasCountry = await checkUserHasCountry();
@@ -51,6 +41,16 @@ export default function LoginScreen() {
       router.replace("/(tabs)" as any);
     }
   }, [checkUserHasCountry, router]);
+
+  useEffect(() => {
+    if (!loading && user && !showDisplayNamePrompt && !showCountryPrompt) {
+      if (isAnonymous) {
+        setShowDisplayNamePrompt(true);
+      } else {
+        checkCountryAndProceed();
+      }
+    }
+  }, [user, loading, router, isAnonymous, showDisplayNamePrompt, showCountryPrompt, checkCountryAndProceed]);
 
   const handleGoogleSignIn = async () => {
     try {
