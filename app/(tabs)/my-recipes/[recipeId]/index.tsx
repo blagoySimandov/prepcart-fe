@@ -387,31 +387,44 @@ export default function RecipeScreen() {
                     recipeId={recipeId || ''}
                   >
                     <Ingredient.BaseContainer>
-                      <Ingredient.Amount value={displayQuantity}>
-                        {displayQuantity}
-                      </Ingredient.Amount>
-                      <Ingredient.Unit 
-                        value={ingredient.unit}
-                        quantity={ingredient.quantity}
-                        ingredientName={ingredient.name}
-                        recipeId={recipeId || ''}
-                        currentConversion={convertedUnit}
-                        onUnitConverted={(unit, value) => {
-                          setConvertedUnits(prev => ({
-                            ...prev,
-                            [ingredient.name]: { unit, value }
-                          }));
-                        }}
-                      >
-                        {ingredient.unit}
-                      </Ingredient.Unit>
-                      <Ingredient.Name
-                        isRemoved={
-                          changeDetail?.status === MODIFICATION_STATUS.remove
-                        }
-                      >
-                        {ingredient.name}
-                      </Ingredient.Name>
+                      {ingredient.quantity ? (
+                        <>
+                          <Ingredient.Amount value={displayQuantity}>
+                            {displayQuantity}
+                          </Ingredient.Amount>
+                          <Ingredient.Unit 
+                            value={ingredient.unit}
+                            quantity={ingredient.quantity}
+                            ingredientName={ingredient.name}
+                            recipeId={recipeId || ''}
+                            currentConversion={convertedUnit}
+                            onUnitConverted={(unit, value) => {
+                              setConvertedUnits(prev => ({
+                                ...prev,
+                                [ingredient.name]: { unit, value }
+                              }));
+                            }}
+                          >
+                            {ingredient.unit}
+                          </Ingredient.Unit>
+                          <Ingredient.Name
+                            isRemoved={
+                              changeDetail?.status === MODIFICATION_STATUS.remove
+                            }
+                          >
+                            {ingredient.name}
+                          </Ingredient.Name>
+                        </>
+                      ) : (
+                        <Ingredient.Name
+                          isRemoved={
+                            changeDetail?.status === MODIFICATION_STATUS.remove
+                          }
+                          style={{ marginLeft: 169 }}
+                        >
+                          {ingredient.name}
+                        </Ingredient.Name>
+                      )}
                     </Ingredient.BaseContainer>
                     {changeDetail?.status !== MODIFICATION_STATUS.remove && (
                       <Ingredient.SwapIngredientBtn

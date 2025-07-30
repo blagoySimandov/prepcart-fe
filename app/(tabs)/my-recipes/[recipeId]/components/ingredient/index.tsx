@@ -319,11 +319,11 @@ function Unit({
   );
 }
 
-function Name({ children, isRemoved }: NameProps & { isRemoved?: boolean }) {
+function Name({ children, isRemoved, style }: NameProps & { isRemoved?: boolean }) {
   const { styles } = useStyles();
 
   return (
-    <ThemedText style={[styles.name, isRemoved && styles.removeName]}>
+    <ThemedText style={[styles.name, isRemoved && styles.removeName, style]}>
       {children}
     </ThemedText>
   );

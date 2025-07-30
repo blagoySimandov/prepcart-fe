@@ -33,6 +33,7 @@ export interface UnitProps {
 
 export interface NameProps {
   children: ReactNode;
+  style?: object;
 }
 
 export interface SwapIngredientBtnProps {

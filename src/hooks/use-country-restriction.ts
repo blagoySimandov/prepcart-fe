@@ -4,9 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 export function useCountryRestriction() {
   const userService = useUserService();
-  const [isDiscountsAvailable, setIsDiscountsAvailable] = useState<boolean | null>(null);
-  const [isCatalogSearchAvailable, setIsCatalogSearchAvailable] = useState<boolean | null>(null);
-  const [catalogSearchRestrictionMode, setCatalogSearchRestrictionMode] = useState<"hide_tab" | "show_popup">("hide_tab");
+  const [isDiscountsAvailable, setIsDiscountsAvailable] = useState<
+    boolean | null
+  >(null);
+  const [isCatalogSearchAvailable, setIsCatalogSearchAvailable] = useState<
+    boolean | null
+  >(null);
+  const [catalogSearchRestrictionMode, setCatalogSearchRestrictionMode] =
+    useState<"hide_tab" | "show_popup">("hide_tab");
   const [isLoading, setIsLoading] = useState(true);
 
   const checkFeatureAvailability = useCallback(async () => {
@@ -19,11 +24,12 @@ export function useCountryRestriction() {
 
     try {
       await remoteConfigService.initializeIfNot();
-      
+
       const profile = await userService.getProfile();
-      const restrictionMode = remoteConfigService.getCatalogSearchRestrictionMode();
+      const restrictionMode =
+        remoteConfigService.getCatalogSearchRestrictionMode();
       setCatalogSearchRestrictionMode(restrictionMode);
-      
+
       if (!profile?.country) {
         setIsDiscountsAvailable(false);
         setIsCatalogSearchAvailable(false);
@@ -31,10 +37,12 @@ export function useCountryRestriction() {
         return;
       }
 
-      const countryCode = profile.country.split('|')[0];
-      const discountsAvailable = remoteConfigService.isDiscountsAvailableForCountry(countryCode);
-      const catalogSearchAvailable = remoteConfigService.isCatalogSearchAvailableForCountry(countryCode);
-      
+      const countryCode = profile.country.split("|")[0];
+      const discountsAvailable =
+        remoteConfigService.isDiscountsAvailableForCountry(countryCode);
+      const catalogSearchAvailable =
+        remoteConfigService.isCatalogSearchAvailableForCountry(countryCode);
+
       setIsDiscountsAvailable(discountsAvailable);
       setIsCatalogSearchAvailable(catalogSearchAvailable);
     } catch (error) {

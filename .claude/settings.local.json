@@ -6,7 +6,10 @@
       "Bash(rm:*)",
       "Bash(npm run lint:*)",
       "Bash(npm start)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(npm run typecheck:*)"
     ],
     "deny": []
   }
