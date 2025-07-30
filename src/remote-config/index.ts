@@ -69,6 +69,32 @@ class RemoteConfigService {
     const allowedCountries = this.getDiscountsAllowedCountries();
     return allowedCountries.includes(countryCode);
   }
+
+  getCatalogSearchAllowedCountries(): string[] {
+    try {
+      const configValue = remoteConfig.getValue(CONFIG.CatalogSearchAllowedCountries);
+      const countriesString = configValue.asString();
+      return JSON.parse(countriesString);
+    } catch (error) {
+      console.error("Error parsing catalog search allowed countries from Remote Config:", error);
+      return JSON.parse(DEFAULTS[CONFIG.CatalogSearchAllowedCountries] as string);
+    }
+  }
+
+  isCatalogSearchAvailableForCountry(countryCode: string): boolean {
+    const allowedCountries = this.getCatalogSearchAllowedCountries();
+    return allowedCountries.includes(countryCode);
+  }
+
+  getCatalogSearchRestrictionMode(): "hide_tab" | "show_popup" {
+    try {
+      const mode = remoteConfig.getValue(CONFIG.CatalogSearchRestrictionMode).asString();
+      return mode === "show_popup" ? "show_popup" : "hide_tab";
+    } catch (error) {
+      console.error("Error getting catalog search restriction mode:", error);
+      return "hide_tab";
+    }
+  }
 }
 
 export const remoteConfigService = RemoteConfigService.getInstance();

@@ -5,6 +5,8 @@ export const CONFIG = {
   LatestVersion: "latest_version",
   MinVersion: "min_version",
   DiscountsAllowedCountries: "discounts_allowed_countries",
+  CatalogSearchAllowedCountries: "catalog_search_allowed_countries",
+  CatalogSearchRestrictionMode: "catalog_search_restriction_mode",
 };
 
 export const DEFAULTS = {
@@ -21,4 +23,6 @@ export const DEFAULTS = {
   [CONFIG.LatestVersion]: "1.0.0",
   [CONFIG.MinVersion]: "1.0.0",
   [CONFIG.DiscountsAllowedCountries]: JSON.stringify(["BG"]),
+  [CONFIG.CatalogSearchAllowedCountries]: JSON.stringify(["BG"]),
+  [CONFIG.CatalogSearchRestrictionMode]: "hide_tab",
 };

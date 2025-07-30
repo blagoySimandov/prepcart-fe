@@ -1,4 +1,5 @@
 import { StoreFilterModal } from "@/components/shared/store-filter-modal";
+import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import {
   TYPESENSE_COLLECTION_NAME,
   searchClient,
@@ -7,9 +8,11 @@ import React from "react";
 import { Configure, InstantSearch } from "react-instantsearch-core";
 import { CatalogSearchContent } from "./components/catalog-search-content";
 import { useCatalogStoreFilter } from "./hooks/use-catalog-store-filter";
+import { RestrictedCatalogSearch } from "./restricted-catalog-search";
 import { getTypesenseFilters } from "./utils/get-typesense-filters";
 
 export default function CatalogSearchScreen() {
+  const { isCatalogSearchAvailable, isLoading: isCheckingCountry } = useCountryRestriction();
   const {
     selectedStores,
     modalVisible,
@@ -21,6 +24,16 @@ export default function CatalogSearchScreen() {
     openModal,
     closeModal,
   } = useCatalogStoreFilter();
+
+  // Show loading while checking country restrictions
+  if (isCheckingCountry) {
+    return null; // or a loading spinner
+  }
+
+  // Show restricted version if catalog search is not available
+  if (isCatalogSearchAvailable === false) {
+    return <RestrictedCatalogSearch />;
+  }
 
   const filters = getTypesenseFilters(selectedStores, allStores, isLoading);
   console.log(filters);

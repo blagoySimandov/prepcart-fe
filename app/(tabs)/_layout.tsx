@@ -8,6 +8,7 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/src/auth/hooks";
+import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import { RecipesProvider } from "@/src/user/recipes/context";
 
 const SIZE = 28;
@@ -15,6 +16,7 @@ const SIZE = 28;
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
+  const { isCatalogSearchAvailable, catalogSearchRestrictionMode, isLoading: isCheckingCountry } = useCountryRestriction();
   const router = useRouter();
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function TabLayout() {
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading || isCheckingCountry || !user) {
     return null;
   }
 
@@ -61,6 +63,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
             ),
+            href: (isCatalogSearchAvailable || catalogSearchRestrictionMode === "show_popup") ? "/catalog-search" : null,
           }}
         />
         <Tabs.Screen

@@ -20,7 +20,6 @@ export function FeatureUnavailableModal({
 }: FeatureUnavailableModalProps) {
   const styles = useStyles();
   const backgroundColor = useThemeColor({}, "background");
-  const borderColor = useThemeColor({}, "border");
   const tint = useThemeColor({}, "tint");
 
   return (
