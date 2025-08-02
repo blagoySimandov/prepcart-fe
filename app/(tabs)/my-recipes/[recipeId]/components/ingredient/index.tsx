@@ -319,7 +319,11 @@ function Unit({
   );
 }
 
-function Name({ children, isRemoved, style }: NameProps & { isRemoved?: boolean }) {
+function Name({
+  children,
+  isRemoved,
+  style,
+}: NameProps & { isRemoved?: boolean }) {
   const { styles } = useStyles();
 
   return (

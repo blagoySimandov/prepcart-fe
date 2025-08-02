@@ -14,6 +14,7 @@ export function useStepVideo({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const handlePlayPause = useCallback(async () => {
     if (!videoRef.current) return;
@@ -23,20 +24,32 @@ export function useStepVideo({
         await videoRef.current.pauseAsync();
         setIsPlaying(false);
       } else {
-        if (startTimestamp !== undefined) {
+        if (hasReachedEnd || startTimestamp !== undefined) {
           await videoRef.current.setPositionAsync(startTimestamp * 1000);
+          setHasReachedEnd(false);
         }
         await videoRef.current.playAsync();
         setIsPlaying(true);
       }
+    } catch (error) {
+      console.warn("Video playback error:", error);
+      setIsPlaying(false);
     } finally {
       setIsLoading(false);
     }
-  }, [isPlaying, startTimestamp]);
+  }, [isPlaying, startTimestamp, hasReachedEnd]);
 
   const handlePlaybackStatusUpdate = useCallback(
     (status: AVPlaybackStatus) => {
-      if (!status.isLoaded) return;
+      if (!status.isLoaded) {
+        setIsVideoReady(false);
+        return;
+      }
+
+      // Clear loading state when video is loaded and ready
+      if (status.isLoaded && isLoading) {
+        setIsLoading(false);
+      }
 
       // When video loads for the first time, seek to startTimestamp and pause to show as thumbnail
       if (!isVideoReady && status.isLoaded && startTimestamp !== undefined) {
@@ -46,25 +59,63 @@ export function useStepVideo({
       }
 
       if (endTimestamp && (status.positionMillis || 0) / 1000 >= endTimestamp) {
-        videoRef.current?.pauseAsync();
+        const pauseAndReset = async () => {
+          try {
+            await videoRef.current?.pauseAsync();
+            setHasReachedEnd(true);
+            if (startTimestamp !== undefined) {
+              await videoRef.current?.setPositionAsync(startTimestamp * 1000);
+            }
+          } catch (error) {
+            console.warn("Video reset error:", error);
+          }
+        };
+        pauseAndReset();
         setIsPlaying(false);
       }
       // TODO: Define proper type for AVPlaybackStatus with didJustFinish
       interface ExtendedPlaybackStatus extends AVPlaybackStatus {
         didJustFinish?: boolean;
       }
-      if ((status as ExtendedPlaybackStatus).didJustFinish) setIsPlaying(false);
+      if ((status as ExtendedPlaybackStatus).didJustFinish) {
+        setIsPlaying(false);
+        setHasReachedEnd(true);
+      }
     },
-    [endTimestamp, startTimestamp, isVideoReady],
+    [endTimestamp, startTimestamp, isVideoReady, isLoading],
   );
+
+  const handleVideoLoadStart = useCallback(() => {
+    setIsLoading(true);
+  }, []);
+
+  const handleVideoLoad = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const handleVideoReady = useCallback(() => {
+    setIsVideoReady(true);
+    setIsLoading(false);
+  }, []);
+
+  const handleVideoError = useCallback(() => {
+    setIsLoading(false);
+    setIsVideoReady(false);
+    setIsPlaying(false);
+  }, []);
 
   return {
     videoRef,
     isPlaying,
     isLoading,
     isVideoReady,
+    hasReachedEnd,
     handlePlayPause,
     handlePlaybackStatusUpdate,
+    handleVideoLoadStart,
+    handleVideoLoad,
+    handleVideoReady,
+    handleVideoError,
   };
 }
 

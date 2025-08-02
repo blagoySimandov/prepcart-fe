@@ -4,7 +4,7 @@ import {
   Instruction as InstructionType,
 } from "@/src/user/recipes/types";
 import { useLocalSearchParams, router } from "expo-router";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -49,14 +49,18 @@ import { MODIFICATION_STATUS } from "./constants";
 import { useRecipe, useGlobalUnitPreferences } from "./hooks";
 import { useStyles } from "./styles";
 import { UNIT_SYSTEMS } from "./utils/unit-conversion/constants";
-import { convertUnit, isConvertibleUnit, getAvailableConversions } from "./utils/unit-conversion";
+import {
+  convertUnit,
+  isConvertibleUnit,
+  getAvailableConversions,
+} from "./utils/unit-conversion";
 import { ThemedText } from "@/components/ThemedText";
 import { useAlert } from "@/components/providers/alert-provider";
 
 export default function RecipeScreen() {
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const recipe = useRecipe(recipeId || "");
-  const { styles } = useStyles();
+  const { styles, colors } = useStyles();
   const [selectorModalVisible, setSelectorModalVisible] = useState(false);
   const [changesModalVisible, setChangesModalVisible] = useState(false);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
@@ -72,15 +76,20 @@ export default function RecipeScreen() {
     useState<SubstitutionChanges | null>(null);
   const [modificationTracker, setModificationTracker] =
     useState<ModificationTracker | null>(null);
-  const [convertedUnits, setConvertedUnits] = useState<{[key: string]: {unit: string, value: number}}>({});
+  const [convertedUnits, setConvertedUnits] = useState<{
+    [key: string]: { unit: string; value: number };
+  }>({});
   const globalUnitPrefs = useGlobalUnitPreferences();
-  const [currentUnitSystem, setCurrentUnitSystem] = useState(UNIT_SYSTEMS.original);
+  const [currentUnitSystem, setCurrentUnitSystem] = useState<
+    (typeof UNIT_SYSTEMS)[keyof typeof UNIT_SYSTEMS]
+  >(UNIT_SYSTEMS.original);
 
   const [substitutionChanges, setSubstitutionChanges] =
     useState<SubstitutionChanges | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
-  const [shoppingListModalVisible, setShoppingListModalVisible] = useState(false);
+  const [shoppingListModalVisible, setShoppingListModalVisible] =
+    useState(false);
   const { user } = useAuth();
   const { showAlert } = useAlert();
 
@@ -167,7 +176,7 @@ export default function RecipeScreen() {
         // Update UI state
         setAppliedModifications(substitutionChanges);
         setModificationTracker(tracker);
-        
+
         // Clear converted units to force recalculation with new quantities
         // This ensures unit conversions are recalculated based on the new ingredient quantities
         setConvertedUnits({});
@@ -210,14 +219,14 @@ export default function RecipeScreen() {
     return recipe;
   }, [recipe, appliedModifications]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (recipe && recipe.hasModifications && recipe.substitutionChanges) {
       try {
         const tracker = createModificationTracker(recipe.substitutionChanges);
 
         setAppliedModifications(recipe.substitutionChanges);
         setModificationTracker(tracker);
-        
+
         // Clear converted units to ensure they're recalculated with modified quantities
         setConvertedUnits({});
       } catch (error) {
@@ -226,59 +235,82 @@ export default function RecipeScreen() {
     }
   }, [recipe]);
 
-  const convertIngredientsToSystem = useCallback((system: typeof UNIT_SYSTEMS[keyof typeof UNIT_SYSTEMS]) => {
-    if (!displayRecipe) return;
-    
-    const newConvertedUnits: {[key: string]: {unit: string, value: number}} = {};
-    
-    displayRecipe.ingredients.forEach((ingredient) => {
-      if (!ingredient.unit || !ingredient.quantity) return;
-      
-      if (system === UNIT_SYSTEMS.original) {
-        // Clear conversions to show original
-        return;
-      }
-      
-      if (isConvertibleUnit(ingredient.unit)) {
-        const availableConversions = getAvailableConversions(ingredient.unit);
-        const isMetric = system === UNIT_SYSTEMS.metric;
-        
-        // Filter conversions based on system
-        const targetUnits = availableConversions.filter(unit => {
-          const metricUnits = ['ml', 'l', 'g', 'kg'];
-          const imperialUnits = ['tsp', 'Tbs', 'fl-oz', 'cup', 'pnt', 'qt', 'gal', 'oz', 'lb'];
-          
-          if (isMetric) {
-            return metricUnits.includes(unit);
-          } else {
-            return imperialUnits.includes(unit);
-          }
-        });
-        
-        if (targetUnits.length > 0) {
-          // Find the best unit that gives a reasonable value (between 0.1 and 1000)
-          let bestUnit = targetUnits[0];
-          for (const targetUnit of targetUnits) {
-            const result = convertUnit(ingredient.quantity, ingredient.unit, targetUnit);
-            if (result.value >= 0.1 && result.value <= 1000) {
-              bestUnit = targetUnit;
-              break;
+  const convertIngredientsToSystem = useCallback(
+    (system: (typeof UNIT_SYSTEMS)[keyof typeof UNIT_SYSTEMS]) => {
+      if (!displayRecipe) return;
+
+      const newConvertedUnits: {
+        [key: string]: { unit: string; value: number };
+      } = {};
+
+      displayRecipe.ingredients.forEach((ingredient) => {
+        if (!ingredient.unit || !ingredient.quantity) return;
+
+        if (system === UNIT_SYSTEMS.original) {
+          // Clear conversions to show original
+          return;
+        }
+
+        if (isConvertibleUnit(ingredient.unit)) {
+          const availableConversions = getAvailableConversions(ingredient.unit);
+          const isMetric = system === UNIT_SYSTEMS.metric;
+
+          // Filter conversions based on system
+          const targetUnits = availableConversions.filter((unit) => {
+            const metricUnits = ["ml", "l", "g", "kg"];
+            const imperialUnits = [
+              "tsp",
+              "Tbs",
+              "fl-oz",
+              "cup",
+              "pnt",
+              "qt",
+              "gal",
+              "oz",
+              "lb",
+            ];
+
+            if (isMetric) {
+              return metricUnits.includes(unit);
+            } else {
+              return imperialUnits.includes(unit);
+            }
+          });
+
+          if (targetUnits.length > 0) {
+            // Find the best unit that gives a reasonable value (between 0.1 and 1000)
+            let bestUnit = targetUnits[0];
+            for (const targetUnit of targetUnits) {
+              const result = convertUnit(
+                ingredient.quantity,
+                ingredient.unit,
+                targetUnit,
+              );
+              if (result.value >= 0.1 && result.value <= 1000) {
+                bestUnit = targetUnit;
+                break;
+              }
+            }
+
+            const result = convertUnit(
+              ingredient.quantity,
+              ingredient.unit,
+              bestUnit,
+            );
+            if (result.isConverted) {
+              newConvertedUnits[ingredient.name] = {
+                unit: result.unit,
+                value: result.value,
+              };
             }
           }
-          
-          const result = convertUnit(ingredient.quantity, ingredient.unit, bestUnit);
-          if (result.isConverted) {
-            newConvertedUnits[ingredient.name] = {
-              unit: result.unit,
-              value: result.value
-            };
-          }
         }
-      }
-    });
-    
-    setConvertedUnits(newConvertedUnits);
-  }, [displayRecipe]);
+      });
+
+      setConvertedUnits(newConvertedUnits);
+    },
+    [displayRecipe],
+  );
 
   const handleClearModifications = async () => {
     if (recipe && user?.uid) {
@@ -325,7 +357,7 @@ export default function RecipeScreen() {
               <MaterialIcons
                 name="arrow-back"
                 size={ICON_SIZES.xl}
-                color={COMMON_COLORS.text}
+                color={colors.text}
               />
             </TouchableOpacity>
             <Thumbnail imageUrl={displayRecipe.thumbnail} />
@@ -368,8 +400,9 @@ export default function RecipeScreen() {
                   ingredient.name,
                 );
                 const convertedUnit = convertedUnits[ingredient.name];
-                const displayQuantity = convertedUnit?.value ?? ingredient.quantity;
-                
+                const displayQuantity =
+                  convertedUnit?.value ?? ingredient.quantity;
+
                 return (
                   <Ingredient
                     key={index}
@@ -384,7 +417,7 @@ export default function RecipeScreen() {
                         : undefined
                     }
                     ingredientName={ingredient.name}
-                    recipeId={recipeId || ''}
+                    recipeId={recipeId || ""}
                   >
                     <Ingredient.BaseContainer>
                       {ingredient.quantity ? (
@@ -392,16 +425,16 @@ export default function RecipeScreen() {
                           <Ingredient.Amount value={displayQuantity}>
                             {displayQuantity}
                           </Ingredient.Amount>
-                          <Ingredient.Unit 
+                          <Ingredient.Unit
                             value={ingredient.unit}
                             quantity={ingredient.quantity}
                             ingredientName={ingredient.name}
-                            recipeId={recipeId || ''}
+                            recipeId={recipeId || ""}
                             currentConversion={convertedUnit}
                             onUnitConverted={(unit, value) => {
-                              setConvertedUnits(prev => ({
+                              setConvertedUnits((prev) => ({
                                 ...prev,
-                                [ingredient.name]: { unit, value }
+                                [ingredient.name]: { unit, value },
                               }));
                             }}
                           >
@@ -409,7 +442,8 @@ export default function RecipeScreen() {
                           </Ingredient.Unit>
                           <Ingredient.Name
                             isRemoved={
-                              changeDetail?.status === MODIFICATION_STATUS.remove
+                              changeDetail?.status ===
+                              MODIFICATION_STATUS.remove
                             }
                           >
                             {ingredient.name}

@@ -1,15 +1,14 @@
 import "dotenv/config";
-import { version } from "./package.json";
-const runtimeVersion = version;
-console.log("Using app version:", version);
+const runtimeVersion = "1.0.2";
 
 export default {
   expo: {
     version: runtimeVersion,
     runtimeVersion: runtimeVersion,
     updates: {
+      url: "https://u.expo.dev/bf57ef5d-3e73-4242-9426-3537b1a08a77",
       runtimeVersion: {
-        policy: version,
+        policy: runtimeVersion,
       },
     },
     name: "PrepCart",

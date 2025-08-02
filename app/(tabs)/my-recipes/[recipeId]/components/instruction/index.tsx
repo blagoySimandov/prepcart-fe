@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Video as ExpoVideo, ResizeMode } from "expo-av";
+import { ResizeMode } from "expo-av";
 import React from "react";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { useStepVideo, useTimer } from "./hooks";
@@ -14,6 +14,7 @@ import { COMMON_COLORS } from "@/constants/colors";
 import { VIDEO_DEFAULTS } from "../../constants";
 import { MODAL_TITLES, LABELS, MESSAGES } from "../../messages";
 import { useDetailModal } from "../hooks";
+import { ReloadableVideo } from "./components";
 
 function InstructionBase({
   children,
@@ -83,6 +84,10 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
     isVideoReady,
     handlePlayPause,
     handlePlaybackStatusUpdate,
+    handleVideoLoadStart,
+    handleVideoLoad,
+    handleVideoReady,
+    handleVideoError,
   } = useStepVideo({ startTimestamp, endTimestamp });
 
   if (!videoLink) {
@@ -107,7 +112,7 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
   return (
     <View style={styles.videoContainer}>
       <View style={styles.videoWrapper}>
-        <ExpoVideo
+        <ReloadableVideo
           ref={videoRef}
           source={{ uri: videoLink }}
           style={styles.video}
@@ -115,6 +120,10 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
           useNativeControls={false}
           shouldPlay={false}
           onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          onLoadStart={handleVideoLoadStart}
+          onLoad={handleVideoLoad}
+          onReadyForDisplay={handleVideoReady}
+          onError={handleVideoError}
         />
         {(!isPlaying || isLoading || !isVideoReady) && (
           <TouchableOpacity
@@ -145,7 +154,7 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
             activeOpacity={1}
           />
         )}
-        {startTimestamp !== undefined && endTimestamp !== undefined && (
+        {startTimestamp && endTimestamp && (
           <View style={styles.timestampOverlay}>
             <ThemedText
               style={[styles.videoTimestamp, { color: colors.buttonText }]}

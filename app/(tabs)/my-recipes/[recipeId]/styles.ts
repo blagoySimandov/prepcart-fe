@@ -60,10 +60,10 @@ export function useStyles() {
     unitSystemToggleContainer: {
       paddingHorizontal: SPACING.xl,
       marginBottom: SPACING.medium,
-      alignItems: 'flex-start',
+      alignItems: "flex-start",
     },
     backButton: {
-      position: 'absolute',
+      position: "absolute",
       top: SPACING.medium,
       left: SPACING.large,
       zIndex: 1,

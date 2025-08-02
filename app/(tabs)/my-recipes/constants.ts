@@ -48,4 +48,4 @@ export const BUTTON_TEXTS = {
   ok: "OK",
 };
 
-export const IMPORT_TIMEOUT = 60000; // 1 minute
+export const IMPORT_TIMEOUT = 45000; // 45 seconds

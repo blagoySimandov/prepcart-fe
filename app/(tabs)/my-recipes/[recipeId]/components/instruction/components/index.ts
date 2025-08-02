@@ -1,1 +1,1 @@
-
+export { ReloadableVideo } from "./reloadable-video";
