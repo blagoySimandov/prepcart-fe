@@ -11,7 +11,7 @@ export function Instructions({ children }: InstructionsProps) {
   return (
     <View style={styles.container}>
       <ThemedText type={TEXT_TYPES.subtitle} style={styles.title}>
-        Instructions & Videos
+        Instructions
       </ThemedText>
       <View style={styles.list}>{children}</View>
     </View>
