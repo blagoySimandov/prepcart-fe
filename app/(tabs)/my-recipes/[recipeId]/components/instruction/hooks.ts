@@ -14,108 +14,86 @@ export function useStepVideo({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [hasReachedEnd, setHasReachedEnd] = useState(false);
+  const [showThumbnail, setShowThumbnail] = useState(true);
 
-  const handlePlayPause = useCallback(async () => {
-    if (!videoRef.current) return;
+  const resetAndPlay = useCallback(async () => {
+    if (!videoRef.current || !isVideoReady) return;
+    
     setIsLoading(true);
+    setShowThumbnail(false);
     try {
-      if (isPlaying) {
-        await videoRef.current.pauseAsync();
-        setIsPlaying(false);
-      } else {
-        if (hasReachedEnd || startTimestamp !== undefined) {
-          await videoRef.current.setPositionAsync(startTimestamp * 1000);
-          setHasReachedEnd(false);
-        }
-        await videoRef.current.playAsync();
-        setIsPlaying(true);
+      if (startTimestamp !== undefined) {
+        await videoRef.current.setPositionAsync(startTimestamp * 1000);
       }
+      await videoRef.current.playAsync();
+      setIsPlaying(true);
     } catch (error) {
-      console.warn("Video playback error:", error);
+      console.warn("Video play error:", error);
       setIsPlaying(false);
     } finally {
       setIsLoading(false);
     }
-  }, [isPlaying, startTimestamp, hasReachedEnd]);
+  }, [startTimestamp, isVideoReady]);
+
+  const pause = useCallback(async () => {
+    if (!videoRef.current) return;
+    
+    try {
+      await videoRef.current.pauseAsync();
+      setIsPlaying(false);
+      setShowThumbnail(true);
+    } catch (error) {
+      console.warn("Video pause error:", error);
+    }
+  }, []);
+
+  const handlePlayPause = useCallback(async () => {
+    if (isPlaying) {
+      await pause();
+    } else {
+      await resetAndPlay();
+    }
+  }, [isPlaying, pause, resetAndPlay]);
 
   const handlePlaybackStatusUpdate = useCallback(
     (status: AVPlaybackStatus) => {
       if (!status.isLoaded) {
         setIsVideoReady(false);
+        setIsLoading(false);
         return;
       }
 
-      // Clear loading state when video is loaded and ready
-      if (status.isLoaded && isLoading) {
-        setIsLoading(false);
-      }
-
-      // When video loads for the first time, seek to startTimestamp and pause to show as thumbnail
-      if (!isVideoReady && status.isLoaded && startTimestamp !== undefined) {
+      if (!isVideoReady) {
         setIsVideoReady(true);
-        videoRef.current?.setPositionAsync(startTimestamp * 1000);
-        videoRef.current?.pauseAsync();
+        setIsLoading(false);
+        if (startTimestamp !== undefined && showThumbnail) {
+          videoRef.current?.setPositionAsync(startTimestamp * 1000).catch(() => {});
+        }
       }
 
-      if (endTimestamp && (status.positionMillis || 0) / 1000 >= endTimestamp) {
-        const pauseAndReset = async () => {
-          try {
-            await videoRef.current?.pauseAsync();
-            setHasReachedEnd(true);
-            if (startTimestamp !== undefined) {
-              await videoRef.current?.setPositionAsync(startTimestamp * 1000);
-            }
-          } catch (error) {
-            console.warn("Video reset error:", error);
-          }
-        };
-        pauseAndReset();
-        setIsPlaying(false);
+      if (endTimestamp && status.positionMillis && status.positionMillis / 1000 >= endTimestamp) {
+        pause();
       }
-      // TODO: Define proper type for AVPlaybackStatus with didJustFinish
+
       interface ExtendedPlaybackStatus extends AVPlaybackStatus {
         didJustFinish?: boolean;
       }
       if ((status as ExtendedPlaybackStatus).didJustFinish) {
         setIsPlaying(false);
-        setHasReachedEnd(true);
+        setShowThumbnail(true);
       }
     },
-    [endTimestamp, startTimestamp, isVideoReady, isLoading],
+    [endTimestamp, isVideoReady, pause, startTimestamp, showThumbnail],
   );
-
-  const handleVideoLoadStart = useCallback(() => {
-    setIsLoading(true);
-  }, []);
-
-  const handleVideoLoad = useCallback(() => {
-    setIsLoading(false);
-  }, []);
-
-  const handleVideoReady = useCallback(() => {
-    setIsVideoReady(true);
-    setIsLoading(false);
-  }, []);
-
-  const handleVideoError = useCallback(() => {
-    setIsLoading(false);
-    setIsVideoReady(false);
-    setIsPlaying(false);
-  }, []);
 
   return {
     videoRef,
     isPlaying,
     isLoading,
     isVideoReady,
-    hasReachedEnd,
+    showThumbnail,
     handlePlayPause,
     handlePlaybackStatusUpdate,
-    handleVideoLoadStart,
-    handleVideoLoad,
-    handleVideoReady,
-    handleVideoError,
   };
 }
 
@@ -269,7 +247,6 @@ export function useTimer(durationMinutes: number) {
     dispatch({ type: "RESET" });
   }, []);
 
-  // Combined start/resume logic
   const handleStartOrResume = useCallback(() => {
     if (state.timeLeft === null) {
       handleStart();

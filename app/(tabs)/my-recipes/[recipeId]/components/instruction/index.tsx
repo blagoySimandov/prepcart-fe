@@ -14,7 +14,7 @@ import { COMMON_COLORS } from "@/constants/colors";
 import { VIDEO_DEFAULTS } from "../../constants";
 import { MODAL_TITLES, LABELS, MESSAGES } from "../../messages";
 import { useDetailModal } from "../hooks";
-import { ReloadableVideo } from "./components";
+import { StepVideo } from "./components";
 
 function InstructionBase({
   children,
@@ -82,12 +82,9 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
     isPlaying,
     isLoading,
     isVideoReady,
+    showThumbnail,
     handlePlayPause,
     handlePlaybackStatusUpdate,
-    handleVideoLoadStart,
-    handleVideoLoad,
-    handleVideoReady,
-    handleVideoError,
   } = useStepVideo({ startTimestamp, endTimestamp });
 
   if (!videoLink) {
@@ -112,20 +109,14 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
   return (
     <View style={styles.videoContainer}>
       <View style={styles.videoWrapper}>
-        <ReloadableVideo
+        <StepVideo
           ref={videoRef}
           source={{ uri: videoLink }}
           style={styles.video}
           resizeMode={ResizeMode.CONTAIN}
-          useNativeControls={false}
-          shouldPlay={false}
           onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-          onLoadStart={handleVideoLoadStart}
-          onLoad={handleVideoLoad}
-          onReadyForDisplay={handleVideoReady}
-          onError={handleVideoError}
         />
-        {(!isPlaying || isLoading || !isVideoReady) && (
+        {(showThumbnail || isLoading || !isVideoReady) && !isPlaying && (
           <TouchableOpacity
             style={styles.videoOverlay}
             onPress={handlePlayPause}
@@ -147,7 +138,7 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
             </View>
           </TouchableOpacity>
         )}
-        {isPlaying && !isLoading && isVideoReady && (
+        {!showThumbnail && (
           <TouchableOpacity
             style={styles.videoTapArea}
             onPress={handlePlayPause}

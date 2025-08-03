@@ -1,1 +1,1 @@
-export { ReloadableVideo } from "./reloadable-video";
+export { StepVideo } from "./step-video";

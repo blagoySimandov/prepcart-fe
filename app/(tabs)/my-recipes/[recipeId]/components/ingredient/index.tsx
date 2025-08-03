@@ -169,9 +169,9 @@ function Unit({
 }: UnitProps) {
   const { styles, colors } = useStyles();
   const [modalVisible, setModalVisible] = useState(false);
-
+  const quantityToSend = quantity ?? null;
   const unitConversion = useUnitConversion(
-    quantity,
+    quantityToSend,
     value || children?.toString() || null,
     ingredientName || "",
     recipeId || "",
