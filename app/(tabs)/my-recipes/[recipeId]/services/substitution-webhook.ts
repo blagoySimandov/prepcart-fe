@@ -3,9 +3,15 @@ import { Ingredient } from "@/src/user/recipes/types";
 const WEBHOOK_URL =
   "https://n8n.prepcart.it.com/webhook/c1297b7e-cefc-4b43-a3c9-c2a0ca926dfa";
 
+export interface SubstitutionCandidate {
+  name: string;
+  score: number;
+  executionDifficulty: number;
+}
+
 export interface SubstitutionTarget {
   ingredient: string;
-  candidates: string[];
+  candidates: SubstitutionCandidate[];
 }
 
 export interface ReplacementCandidatesResponse {

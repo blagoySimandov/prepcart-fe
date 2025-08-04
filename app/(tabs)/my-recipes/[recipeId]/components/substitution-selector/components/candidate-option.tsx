@@ -4,15 +4,28 @@ import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useStyles } from "../styles";
 import { toTitleCase } from "../../../utils/string-helpers";
+import { SubstitutionCandidate } from "../types";
+import { 
+  getExecutionDifficulty, 
+  getSubstitutionQuality,
+  EXECUTION_DIFFICULTY_CONFIG,
+  SUBSTITUTION_QUALITY_CONFIG 
+} from "../constants";
 
 interface CandidateOptionProps {
-  candidate: string;
+  candidate: SubstitutionCandidate;
   isSelected: boolean;
   onSelect: () => void;
 }
 
 export function CandidateOption({ candidate, isSelected, onSelect }: CandidateOptionProps) {
   const { styles } = useStyles();
+
+  const qualityLevel = getSubstitutionQuality(candidate.score);
+  const qualityConfig = SUBSTITUTION_QUALITY_CONFIG[qualityLevel];
+  
+  const difficultyLevel = getExecutionDifficulty(candidate.executionDifficulty);
+  const difficultyConfig = EXECUTION_DIFFICULTY_CONFIG[difficultyLevel];
 
   return (
     <TouchableOpacity
@@ -22,9 +35,36 @@ export function CandidateOption({ candidate, isSelected, onSelect }: CandidateOp
       ]}
       onPress={onSelect}
     >
-      <ThemedText style={styles.candidateName}>
-        {toTitleCase(candidate)}
-      </ThemedText>
+      <View style={styles.candidateContent}>
+        <ThemedText style={styles.candidateName}>
+          {toTitleCase(candidate.name)}
+        </ThemedText>
+        
+        <View style={styles.candidateMetrics}>
+          <View style={[styles.qualityContainer, { backgroundColor: qualityConfig.backgroundColor }]}>
+            <MaterialIcons 
+              name={qualityConfig.icon} 
+              size={12} 
+              color={qualityConfig.color} 
+            />
+            <ThemedText style={[styles.qualityText, { color: qualityConfig.color }]}>
+              {qualityLevel}
+            </ThemedText>
+          </View>
+          
+          <View style={[styles.difficultyContainer, { backgroundColor: difficultyConfig.backgroundColor }]}>
+            <MaterialIcons 
+              name={difficultyConfig.icon} 
+              size={12} 
+              color={difficultyConfig.color} 
+            />
+            <ThemedText style={[styles.difficultyText, { color: difficultyConfig.color }]}>
+              {difficultyLevel}
+            </ThemedText>
+          </View>
+        </View>
+      </View>
+      
       <View style={[
         styles.checkIcon,
         isSelected && styles.checkIconSelected,

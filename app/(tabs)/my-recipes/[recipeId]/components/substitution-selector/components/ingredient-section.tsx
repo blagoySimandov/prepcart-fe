@@ -5,10 +5,11 @@ import { useStyles } from "../styles";
 import { toTitleCase } from "../../../utils/string-helpers";
 import { CandidateOption } from "./candidate-option";
 import { RemoveOption } from "./remove-option";
+import { SubstitutionCandidate } from "../types";
 
 interface IngredientSectionProps {
   ingredient: string;
-  candidates: string[];
+  candidates: SubstitutionCandidate[];
   selectedCandidate: string | null | undefined;
   onCandidateSelect: (ingredient: string, candidate: string | null) => void;
 }
@@ -32,10 +33,10 @@ export function IngredientSection({
       <View style={styles.candidatesContainer}>
         {candidates.map((candidate) => (
           <CandidateOption
-            key={candidate}
+            key={candidate.name}
             candidate={candidate}
-            isSelected={selectedCandidate === candidate}
-            onSelect={() => onCandidateSelect(ingredient, candidate)}
+            isSelected={selectedCandidate === candidate.name}
+            onSelect={() => onCandidateSelect(ingredient, candidate.name)}
           />
         ))}
         

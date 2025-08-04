@@ -74,8 +74,42 @@ export const useStyles = () => {
       borderWidth: 2,
       backgroundColor: `${tint}10`,
     },
+    candidateContent: {
+      flex: 1,
+      marginRight: SPACING.medium,
+    },
     candidateName: {
       fontSize: 16,
+      fontWeight: "500",
+      marginBottom: 4,
+    },
+    candidateMetrics: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.small,
+    },
+    qualityContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: SPACING.small,
+      paddingVertical: SPACING.xs,
+      borderRadius: 12,
+      gap: SPACING.xs,
+    },
+    qualityText: {
+      fontSize: 11,
+      fontWeight: "500",
+    },
+    difficultyContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: SPACING.small,
+      paddingVertical: SPACING.xs,
+      borderRadius: 12,
+      gap: SPACING.xs,
+    },
+    difficultyText: {
+      fontSize: 11,
       fontWeight: "500",
     },
     removeButton: {

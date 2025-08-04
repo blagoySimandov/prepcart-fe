@@ -4,12 +4,10 @@ import "@react-native-firebase/auth";
 import "@react-native-firebase/firestore";
 import "@react-native-firebase/remote-config";
 
-// Initialize Firebase
-let app;
 if (!firebase.apps.length) {
-  app = firebase.initializeApp();
+  firebase.initializeApp();
 } else {
-  app = firebase.app();
+  firebase.app();
 }
 
 // Export Firebase services
