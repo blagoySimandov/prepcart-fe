@@ -1,4 +1,4 @@
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
 
@@ -18,6 +18,7 @@ export default function TabLayout() {
   const { user, loading } = useAuth();
   const { isCatalogSearchAvailable, catalogSearchRestrictionMode, isLoading: isCheckingCountry } = useCountryRestriction();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (loading) {
@@ -27,6 +28,7 @@ export default function TabLayout() {
       router.replace("/auth/login");
     }
   }, [user, loading, router]);
+
 
   if (loading || isCheckingCountry || !user) {
     return null;
@@ -73,6 +75,19 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <IconSymbol size={SIZE} name="book.fill" color={color} />
             ),
+          }}
+          listeners={{
+            tabPress: (e) => {
+              // Check if we're currently on a recipe details page
+              if (pathname.includes('/my-recipes/') && pathname !== '/my-recipes') {
+                e.preventDefault();
+                router.push('/my-recipes');
+              }
+              // If we're already on the main recipes page, prevent navigation
+              else if (pathname === '/my-recipes') {
+                e.preventDefault();
+              }
+            },
           }}
         />
         <Tabs.Screen
