@@ -31,9 +31,9 @@ export function IngredientSection({
       </View>
 
       <View style={styles.candidatesContainer}>
-        {candidates.map((candidate) => (
+        {candidates.map((candidate, index) => (
           <CandidateOption
-            key={candidate.name}
+            key={`${ingredient}-${candidate.name}-${index}`}
             candidate={candidate}
             isSelected={selectedCandidate === candidate.name}
             onSelect={() => onCandidateSelect(ingredient, candidate.name)}

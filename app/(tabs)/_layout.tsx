@@ -1,4 +1,4 @@
-import { Tabs, useRouter, usePathname } from "expo-router";
+import { Tabs, useRouter, usePathname, useGlobalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
 
@@ -78,15 +78,13 @@ export default function TabLayout() {
           }}
           listeners={{
             tabPress: (e) => {
-              // Check if we're currently on a recipe details page
-              if (pathname.includes('/my-recipes/') && pathname !== '/my-recipes') {
+              // Only handle the specific case: when on a recipe details page and clicking recipes tab
+              if (pathname.match(/^\/my-recipes\/[^\/]+$/)) {
+                // We're on a recipe details page, navigate to main recipes page
                 e.preventDefault();
                 router.push('/my-recipes');
               }
-              // If we're already on the main recipes page, prevent navigation
-              else if (pathname === '/my-recipes') {
-                e.preventDefault();
-              }
+              // For all other cases (home -> recipes, recipes main page, etc.), allow default behavior
             },
           }}
         />
