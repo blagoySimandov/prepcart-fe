@@ -46,6 +46,7 @@ export default {
       "expo-router",
       "expo-web-browser",
       "expo-av",
+      "expo-video",
       [
         "expo-build-properties",
         {

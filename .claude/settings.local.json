@@ -10,7 +10,8 @@
       "Bash(find:*)",
       "Bash(head:*)",
       "Bash(npm run typecheck:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npx expo install:*)"
     ],
     "deny": []
   }

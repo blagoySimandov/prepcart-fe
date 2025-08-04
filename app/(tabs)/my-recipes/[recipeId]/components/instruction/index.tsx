@@ -1,6 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons } from "@expo/vector-icons";
-import { ResizeMode } from "expo-av";
 import React from "react";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { useStepVideo, useTimer } from "./hooks";
@@ -113,7 +112,7 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
           ref={videoRef}
           source={{ uri: videoLink }}
           style={styles.video}
-          resizeMode={ResizeMode.CONTAIN}
+          resizeMode="contain"
           onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
         />
         {(showThumbnail || isLoading || !isVideoReady) && !isPlaying && (
@@ -145,12 +144,12 @@ function Video({ videoLink, startTimestamp, endTimestamp }: VideoProps) {
             activeOpacity={1}
           />
         )}
-        {startTimestamp && endTimestamp && (
+        {startTimestamp !== undefined && endTimestamp !== undefined && (
           <View style={styles.timestampOverlay}>
             <ThemedText
               style={[styles.videoTimestamp, { color: colors.buttonText }]}
             >
-              {startTimestamp}s - {endTimestamp}s
+              {`${startTimestamp}s - ${endTimestamp}s`}
             </ThemedText>
           </View>
         )}

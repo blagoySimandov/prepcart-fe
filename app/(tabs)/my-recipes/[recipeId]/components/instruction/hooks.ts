@@ -1,7 +1,6 @@
 import { useAlert } from "@/components/providers/alert-provider";
 import { formatTime } from "@/src/utils/formatters";
-import { AVPlaybackStatus, Video as ExpoVideo } from "expo-av";
-import { useCallback, useReducer, useRef, useState } from "react";
+import { useCallback, useMemo, useReducer, useRef, useState } from "react";
 
 export function useStepVideo({
   startTimestamp,
@@ -10,11 +9,44 @@ export function useStepVideo({
   startTimestamp?: number;
   endTimestamp?: number;
 }) {
-  const videoRef = useRef<ExpoVideo>(null);
+  const videoRef = useRef<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [showThumbnail, setShowThumbnail] = useState(true);
+
+  // Calculate extended timestamps for short videos
+  const { extendedStartTimestamp, extendedEndTimestamp } = useMemo(() => {
+    if (startTimestamp === undefined || endTimestamp === undefined) {
+      return { extendedStartTimestamp: startTimestamp, extendedEndTimestamp: endTimestamp };
+    }
+
+    const originalDuration = endTimestamp - startTimestamp;
+    
+    // If video is 2 seconds or less, extend it to 3.5 seconds
+    if (originalDuration <= 2) {
+      const targetDuration = 3.5;
+      const additionalTime = targetDuration - originalDuration;
+      const timeBefore = additionalTime * 0.6; // 60% before
+      const timeAfter = additionalTime * 0.4;  // 40% after
+      
+      const newStartTimestamp = Math.max(0, startTimestamp - timeBefore);
+      const newEndTimestamp = endTimestamp + timeAfter;
+      
+      console.log('📏 Extended short video:', {
+        original: `${startTimestamp}s - ${endTimestamp}s (${originalDuration}s)`,
+        extended: `${newStartTimestamp.toFixed(1)}s - ${newEndTimestamp.toFixed(1)}s (${targetDuration}s)`,
+        added: `${timeBefore.toFixed(1)}s before, ${timeAfter.toFixed(1)}s after`
+      });
+      
+      return { 
+        extendedStartTimestamp: newStartTimestamp, 
+        extendedEndTimestamp: newEndTimestamp 
+      };
+    }
+    
+    return { extendedStartTimestamp: startTimestamp, extendedEndTimestamp: endTimestamp };
+  }, [startTimestamp, endTimestamp]);
 
   const resetAndPlay = useCallback(async () => {
     if (!videoRef.current || !isVideoReady) return;
@@ -22,10 +54,10 @@ export function useStepVideo({
     setIsLoading(true);
     setShowThumbnail(false);
     try {
-      if (startTimestamp !== undefined) {
-        await videoRef.current.setPositionAsync(startTimestamp * 1000);
+      if (extendedStartTimestamp !== undefined) {
+        videoRef.current.setPositionAsync(extendedStartTimestamp * 1000);
       }
-      await videoRef.current.playAsync();
+      videoRef.current.playAsync();
       setIsPlaying(true);
     } catch (error) {
       console.warn("Video play error:", error);
@@ -33,13 +65,13 @@ export function useStepVideo({
     } finally {
       setIsLoading(false);
     }
-  }, [startTimestamp, isVideoReady]);
+  }, [extendedStartTimestamp, isVideoReady]);
 
   const pause = useCallback(async () => {
     if (!videoRef.current) return;
     
     try {
-      await videoRef.current.pauseAsync();
+      videoRef.current.pauseAsync();
       setIsPlaying(false);
       setShowThumbnail(true);
     } catch (error) {
@@ -56,7 +88,7 @@ export function useStepVideo({
   }, [isPlaying, pause, resetAndPlay]);
 
   const handlePlaybackStatusUpdate = useCallback(
-    (status: AVPlaybackStatus) => {
+    (status: any) => {
       if (!status.isLoaded) {
         setIsVideoReady(false);
         setIsLoading(false);
@@ -66,24 +98,30 @@ export function useStepVideo({
       if (!isVideoReady) {
         setIsVideoReady(true);
         setIsLoading(false);
-        if (startTimestamp !== undefined && showThumbnail) {
-          videoRef.current?.setPositionAsync(startTimestamp * 1000).catch(() => {});
+        if (extendedStartTimestamp !== undefined && showThumbnail) {
+          videoRef.current?.setPositionAsync(extendedStartTimestamp * 1000);
         }
       }
 
-      if (endTimestamp && status.positionMillis && status.positionMillis / 1000 >= endTimestamp) {
-        pause();
+      // Use extended timestamps for playback control
+      if (extendedEndTimestamp && status.positionMillis) {
+        const currentSeconds = status.positionMillis / 1000;
+        const duration = extendedEndTimestamp - (extendedStartTimestamp || 0);
+        
+        // For very short videos (≤3.5 seconds), be more lenient with timing
+        const tolerance = duration <= 3.5 ? 0.5 : 0.1;
+        
+        if (currentSeconds >= extendedEndTimestamp - tolerance) {
+          pause();
+        }
       }
 
-      interface ExtendedPlaybackStatus extends AVPlaybackStatus {
-        didJustFinish?: boolean;
-      }
-      if ((status as ExtendedPlaybackStatus).didJustFinish) {
+      if (status.didJustFinish) {
         setIsPlaying(false);
         setShowThumbnail(true);
       }
     },
-    [endTimestamp, isVideoReady, pause, startTimestamp, showThumbnail],
+    [extendedEndTimestamp, isVideoReady, pause, extendedStartTimestamp, showThumbnail],
   );
 
   return {
