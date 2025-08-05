@@ -194,21 +194,24 @@ function Unit({
   const handleUnitPress = () => {
     if (unitConversion.isConvertible) {
       if (unitConversion.availableConversions.length === 1) {
-        unitConversion.cycleUnit();
-        const availableUnits = [
-          unitConversion.originalUnit,
-          ...unitConversion.availableConversions,
-        ];
-        const currentIndex = availableUnits.indexOf(unitConversion.currentUnit);
-        const nextIndex = (currentIndex + 1) % availableUnits.length;
-        const nextUnit = availableUnits[nextIndex];
+        // Use setTimeout to avoid synchronous state updates during render
+        setTimeout(() => {
+          unitConversion.cycleUnit();
+          const availableUnits = [
+            unitConversion.originalUnit,
+            ...unitConversion.availableConversions,
+          ];
+          const currentIndex = availableUnits.indexOf(unitConversion.currentUnit);
+          const nextIndex = (currentIndex + 1) % availableUnits.length;
+          const nextUnit = availableUnits[nextIndex];
 
-        const result = convertUnit(
-          unitConversion.originalValue,
-          unitConversion.originalUnit,
-          nextUnit,
-        );
-        onUnitConverted?.(result.unit, result.value);
+          const result = convertUnit(
+            unitConversion.originalValue,
+            unitConversion.originalUnit,
+            nextUnit,
+          );
+          onUnitConverted?.(result.unit, result.value);
+        }, 0);
       } else {
         setModalVisible(true);
       }

@@ -1,6 +1,13 @@
 import { useAlert } from "@/components/providers/alert-provider";
 import { formatTime } from "@/src/utils/formatters";
-import { useCallback, useMemo, useReducer, useRef, useState } from "react";
+import {
+  useEffect,
+  useCallback,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
 export function useStepVideo({
   startTimestamp,
@@ -18,39 +25,45 @@ export function useStepVideo({
   // Calculate extended timestamps for short videos
   const { extendedStartTimestamp, extendedEndTimestamp } = useMemo(() => {
     if (startTimestamp === undefined || endTimestamp === undefined) {
-      return { extendedStartTimestamp: startTimestamp, extendedEndTimestamp: endTimestamp };
+      return {
+        extendedStartTimestamp: startTimestamp,
+        extendedEndTimestamp: endTimestamp,
+      };
     }
 
     const originalDuration = endTimestamp - startTimestamp;
-    
+
     // If video is 2 seconds or less, extend it to 3.5 seconds
     if (originalDuration <= 2) {
       const targetDuration = 3.5;
       const additionalTime = targetDuration - originalDuration;
       const timeBefore = additionalTime * 0.6; // 60% before
-      const timeAfter = additionalTime * 0.4;  // 40% after
-      
+      const timeAfter = additionalTime * 0.4; // 40% after
+
       const newStartTimestamp = Math.max(0, startTimestamp - timeBefore);
       const newEndTimestamp = endTimestamp + timeAfter;
-      
-      console.log('📏 Extended short video:', {
+
+      console.log("📏 Extended short video:", {
         original: `${startTimestamp}s - ${endTimestamp}s (${originalDuration}s)`,
         extended: `${newStartTimestamp.toFixed(1)}s - ${newEndTimestamp.toFixed(1)}s (${targetDuration}s)`,
-        added: `${timeBefore.toFixed(1)}s before, ${timeAfter.toFixed(1)}s after`
+        added: `${timeBefore.toFixed(1)}s before, ${timeAfter.toFixed(1)}s after`,
       });
-      
-      return { 
-        extendedStartTimestamp: newStartTimestamp, 
-        extendedEndTimestamp: newEndTimestamp 
+
+      return {
+        extendedStartTimestamp: newStartTimestamp,
+        extendedEndTimestamp: newEndTimestamp,
       };
     }
-    
-    return { extendedStartTimestamp: startTimestamp, extendedEndTimestamp: endTimestamp };
+
+    return {
+      extendedStartTimestamp: startTimestamp,
+      extendedEndTimestamp: endTimestamp,
+    };
   }, [startTimestamp, endTimestamp]);
 
   const resetAndPlay = useCallback(async () => {
     if (!videoRef.current || !isVideoReady) return;
-    
+
     setIsLoading(true);
     setShowThumbnail(false);
     try {
@@ -69,7 +82,7 @@ export function useStepVideo({
 
   const pause = useCallback(async () => {
     if (!videoRef.current) return;
-    
+
     try {
       videoRef.current.pauseAsync();
       setIsPlaying(false);
@@ -107,10 +120,10 @@ export function useStepVideo({
       if (extendedEndTimestamp && status.positionMillis) {
         const currentSeconds = status.positionMillis / 1000;
         const duration = extendedEndTimestamp - (extendedStartTimestamp || 0);
-        
+
         // For very short videos (≤3.5 seconds), be more lenient with timing
         const tolerance = duration <= 3.5 ? 0.5 : 0.1;
-        
+
         if (currentSeconds >= extendedEndTimestamp - tolerance) {
           pause();
         }
@@ -121,7 +134,13 @@ export function useStepVideo({
         setShowThumbnail(true);
       }
     },
-    [extendedEndTimestamp, isVideoReady, pause, extendedStartTimestamp, showThumbnail],
+    [
+      extendedEndTimestamp,
+      isVideoReady,
+      pause,
+      extendedStartTimestamp,
+      showThumbnail,
+    ],
   );
 
   return {
@@ -251,6 +270,15 @@ export function useTimer(durationMinutes: number) {
 
   const { showAlert } = useAlert();
 
+  // Cleanup interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+    };
+  }, [state.intervalId]);
+
   const handleTimerComplete = useCallback(() => {
     dispatch({ type: "COMPLETE" });
     showAlert(
@@ -318,3 +346,4 @@ export function useTimer(durationMinutes: number) {
     getTimerState,
   };
 }
+

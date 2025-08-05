@@ -24,19 +24,22 @@ export const ALERT_MESSAGES = {
   },
   deleteRecipe: {
     title: "Delete Recipe?",
-    getMessage: (title: string) => `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+    getMessage: (title: string) =>
+      `Are you sure you want to delete "${title}"? This action cannot be undone.`,
   },
   importRecipe: {
     completeTitle: "Import Complete!",
     getMessage: (title: string) => `"${title}" has been added to your recipes.`,
     timeoutTitle: "Import Taking Longer Than Expected",
-    timeoutMessage: "The recipe import is taking longer than usual. Please check your recipes later.",
+    timeoutMessage:
+      "The recipe import is taking longer than usual. Please check your recipes later.",
     failedTitle: "Import Failed",
     failedMessage: "Failed to import recipe. Please try again.",
   },
   duplicateRecipe: {
     title: "Recipe Already Imported",
-    getMessage: (title: string) => `"${title}" has already been imported to your recipes.`,
+    getMessage: (title: string) =>
+      `"${title}" has already been imported to your recipes.`,
   },
 };
 
@@ -47,5 +50,5 @@ export const BUTTON_TEXTS = {
   goToRecipe: "Go to Recipe",
   ok: "OK",
 };
+export const IMPORT_TIMEOUT = 25000;
 
-export const IMPORT_TIMEOUT = 45000; // 45 seconds

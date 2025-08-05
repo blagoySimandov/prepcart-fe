@@ -1,7 +1,7 @@
 import { useUserRecipes } from "@/src/user/recipes";
 import { Recipe } from "@/src/user/recipes/types";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   importTikTokRecipe,
   TikTokImportResponse,
@@ -23,48 +23,50 @@ export function useRecipeFilters() {
 
   const { recipes: userSavedRecipes } = useUserRecipes();
 
-  const filteredRecipes = userSavedRecipes.filter((recipe) => {
-    const matchesSearch =
-      recipe.displayTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipe.displayDescription
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+  const filteredRecipes = useMemo(() => {
+    return userSavedRecipes.filter((recipe) => {
+      const matchesSearch =
+        recipe.displayTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.displayDescription
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-    let matchesFilter = true;
-    switch (selectedFilter) {
-      case "quick":
-        matchesFilter = recipe.cookTimeMinutes <= FILTER_TIME_RANGES.quick.max;
-        break;
-      case "medium":
-        matchesFilter =
-          recipe.cookTimeMinutes > FILTER_TIME_RANGES.medium.min && 
-          recipe.cookTimeMinutes <= FILTER_TIME_RANGES.medium.max;
-        break;
-      case "long":
-        matchesFilter = recipe.cookTimeMinutes > FILTER_TIME_RANGES.long.min;
-        break;
-      case "all":
-      default:
-        matchesFilter = true;
-        break;
-    }
+      let matchesFilter = true;
+      switch (selectedFilter) {
+        case "quick":
+          matchesFilter = recipe.cookTimeMinutes <= FILTER_TIME_RANGES.quick.max;
+          break;
+        case "medium":
+          matchesFilter =
+            recipe.cookTimeMinutes > FILTER_TIME_RANGES.medium.min && 
+            recipe.cookTimeMinutes <= FILTER_TIME_RANGES.medium.max;
+          break;
+        case "long":
+          matchesFilter = recipe.cookTimeMinutes > FILTER_TIME_RANGES.long.min;
+          break;
+        case "all":
+        default:
+          matchesFilter = true;
+          break;
+      }
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [userSavedRecipes, searchQuery, selectedFilter]);
 
-  const openFilterModal = () => setFilterModalVisible(true);
-  const closeFilterModal = () => setFilterModalVisible(false);
+  const openFilterModal = useCallback(() => setFilterModalVisible(true), []);
+  const closeFilterModal = useCallback(() => setFilterModalVisible(false), []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchQuery("");
     setSelectedFilter("all");
-  };
+  }, []);
 
-  const getFilterStatusText = () => {
+  const getFilterStatusText = useCallback(() => {
     if (selectedFilter === "all") return "";
 
     return FILTER_LABELS[selectedFilter] || "";
-  };
+  }, [selectedFilter]);
 
   return {
     searchQuery,
@@ -86,12 +88,31 @@ export function useRecipeActions() {
   const [importingRecipes, setImportingRecipes] = useState<
     Map<string, TikTokImportResponse>
   >(new Map());
+  const timeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const unsubscribeRefs = useRef<Map<string, () => void>>(new Map());
 
-  const handleRecipePress = (recipe: Recipe, _index: number) => {
+  // Cleanup all subscriptions and timeouts on unmount
+  useEffect(() => {
+    return () => {
+      // Clear all timeouts
+      timeoutRefs.current.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      timeoutRefs.current.clear();
+
+      // Unsubscribe from all Firestore listeners
+      unsubscribeRefs.current.forEach((unsubscribe) => {
+        unsubscribe();
+      });
+      unsubscribeRefs.current.clear();
+    };
+  }, []);
+
+  const handleRecipePress = useCallback((recipe: Recipe, _index: number) => {
     router.push(`/(tabs)/my-recipes/${recipe.id}`);
-  };
+  }, []);
 
-  const handleDeleteRecipe = async (recipe: Recipe) => {
+  const handleDeleteRecipe = useCallback(async (recipe: Recipe) => {
     if (!user?.uid) {
       showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.loginRequired);
       return;
@@ -120,9 +141,9 @@ export function useRecipeActions() {
         },
       ],
     );
-  };
+  }, [user?.uid, showAlert]);
 
-  const handleImportRecipe = async (url: string) => {
+  const handleImportRecipe = useCallback(async (url: string) => {
     if (!user?.uid) {
       showAlert(ALERT_MESSAGES.error.title, ALERT_MESSAGES.error.loginRequiredImport);
       return;
@@ -177,6 +198,16 @@ export function useRecipeActions() {
             if (!data) return;
 
             if (data.ingredients && data.ingredients.length > 0) {
+              // Clear timeout since import completed successfully
+              const timeoutId = timeoutRefs.current.get(importResponse.id);
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutRefs.current.delete(importResponse.id);
+              }
+
+              // Clean up the unsubscribe ref
+              unsubscribeRefs.current.delete(importResponse.id);
+
               setImportingRecipes((prev) => {
                 const newMap = new Map(prev);
                 newMap.delete(importResponse.id);
@@ -202,6 +233,17 @@ export function useRecipeActions() {
         },
         (error) => {
           console.error("Error listening to recipe updates:", error);
+          
+          // Clear timeout since there was an error
+          const timeoutId = timeoutRefs.current.get(importResponse.id);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutRefs.current.delete(importResponse.id);
+          }
+
+          // Clean up the unsubscribe ref
+          unsubscribeRefs.current.delete(importResponse.id);
+
           setImportingRecipes((prev) => {
             const newMap = new Map(prev);
             newMap.delete(importResponse.id);
@@ -212,28 +254,44 @@ export function useRecipeActions() {
         },
       );
 
-      setTimeout(() => {
-        if (importingRecipes.has(importResponse.id)) {
-          unsubscribe();
-          setImportingRecipes((prev) => {
-            const newMap = new Map(prev);
-            newMap.delete(importResponse.id);
-            return newMap;
-          });
-          showAlert(
-            ALERT_MESSAGES.importRecipe.timeoutTitle,
-            ALERT_MESSAGES.importRecipe.timeoutMessage,
-          );
+      // Store the unsubscribe function for cleanup
+      unsubscribeRefs.current.set(importResponse.id, unsubscribe);
+
+      // Set up timeout
+      const timeoutId = setTimeout(() => {
+        // Clean up timeout ref
+        timeoutRefs.current.delete(importResponse.id);
+        
+        // Clean up the unsubscribe ref and call unsubscribe
+        const unsubscribeFunc = unsubscribeRefs.current.get(importResponse.id);
+        if (unsubscribeFunc) {
+          unsubscribeFunc();
+          unsubscribeRefs.current.delete(importResponse.id);
         }
+        
+        setImportingRecipes((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(importResponse.id);
+          return newMap;
+        });
+        showAlert(
+          ALERT_MESSAGES.importRecipe.timeoutTitle,
+          ALERT_MESSAGES.importRecipe.timeoutMessage,
+        );
       }, IMPORT_TIMEOUT);
+
+      // Store timeout ref for cleanup
+      timeoutRefs.current.set(importResponse.id, timeoutId);
     } catch (error) {
       console.error("Error importing recipe:", error);
       showAlert(ALERT_MESSAGES.importRecipe.failedTitle, ALERT_MESSAGES.importRecipe.failedMessage);
     }
-  };
+  }, [user?.uid, showAlert]);
 
-  const currentImport =
-    importingRecipes.size > 0 ? Array.from(importingRecipes.values())[0] : null;
+  const currentImport = useMemo(() => 
+    importingRecipes.size > 0 ? Array.from(importingRecipes.values())[0] : null,
+    [importingRecipes]
+  );
 
   return {
     handleRecipePress,

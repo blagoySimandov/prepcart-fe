@@ -40,7 +40,9 @@ export const StepVideo = forwardRef<any, StepVideoProps>(
         onPlaybackStatusUpdate(status);
       }, 100);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+      };
     }, [onPlaybackStatusUpdate, player]);
 
     return (
