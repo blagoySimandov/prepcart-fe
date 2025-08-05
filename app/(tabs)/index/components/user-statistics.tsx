@@ -2,8 +2,9 @@ import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import { useUserStatistics } from "@/src/user/hooks";
 import { ActivityIndicator, Text, View } from "react-native";
 import { useStyles } from "../styles";
+import { memo } from "react";
 
-export function UserStatistics() {
+export const UserStatistics = memo(function UserStatistics() {
   const { styles, colors } = useStyles();
   const { stats, loading } = useUserStatistics();
   const { isDiscountsAvailable } = useCountryRestriction();
@@ -45,4 +46,4 @@ export function UserStatistics() {
       )}
     </View>
   );
-}
+});
