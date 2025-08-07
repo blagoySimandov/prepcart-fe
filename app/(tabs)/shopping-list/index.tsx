@@ -12,6 +12,7 @@ import { ShoppingListView } from "./components/shopping-list-view";
 import { useDiscounts, useShoppingList, useShoppingListModals } from "./hooks";
 import { useStoreFilter } from "./hooks/use-store-filter";
 import { useStyles } from "./styles";
+import RecentItems from "./components/recent-items";
 
 export default function ShoppingListScreen() {
   const { styles } = useStyles();
@@ -37,10 +38,12 @@ export default function ShoppingListScreen() {
     closeModal,
   } = useStoreFilter();
 
-  const { findDiscounts, isFindingDiscounts, showUnavailableModal, closeUnavailableModal } = useDiscounts(
-    items,
-    isLoadingStores ? [] : selectedStores,
-  );
+  const {
+    findDiscounts,
+    isFindingDiscounts,
+    showUnavailableModal,
+    closeUnavailableModal,
+  } = useDiscounts(items, isLoadingStores ? [] : selectedStores);
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
 
   const handleAddItem = (item: { name: string; quantity: string }) => {
@@ -80,6 +83,8 @@ export default function ShoppingListScreen() {
         />
 
         <SavingsSummary items={items} />
+
+        <RecentItems />
 
         <ShoppingListView
           items={items}

@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Animated,
   Keyboard,
 } from "react-native";
 import { useStyles } from "./styles";
