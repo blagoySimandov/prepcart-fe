@@ -72,7 +72,11 @@ export class ShoppingListService {
       const newItemRef = doc(
         collection(db, "users", this.userId, "shoppingList"),
       );
-      const newItem = { ...item, id: newItemRef.id };
+      const newItem = { 
+        ...item, 
+        id: newItemRef.id,
+        createdAt: new Date() // Ensure createdAt is always set to current time
+      };
       await updateDoc(this.userDocRef, {
         shoppingList: arrayUnion(newItem),
       });
@@ -91,7 +95,11 @@ export class ShoppingListService {
       const newItemRef = doc(
         collection(db, "users", this.userId, "shoppingList"),
       );
-      const newItem = { ...firestoreDocument, id: newItemRef.id };
+      const newItem = { 
+        ...firestoreDocument, 
+        id: newItemRef.id,
+        createdAt: new Date() // Ensure createdAt is always set to current time
+      };
       await updateDoc(this.userDocRef, {
         shoppingList: arrayUnion(newItem),
       });

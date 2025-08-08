@@ -1,7 +1,10 @@
 import { ThemedView } from "@/components/ThemedView";
 import { FeatureUnavailableModal } from "@/components/shared/feature-unavailable-modal";
 import { StoreFilterModal } from "@/components/shared/store-filter-modal";
-import React from "react";
+import { BaseShoppingListItem } from "@/src/user/shopping-list";
+import { ShoppingItem } from "@/src/user/shopping-list/types";
+import { useUserService } from "@/src/user";
+import React, { useCallback } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { AddItemModal } from "./components/add-item-modal";
 import { DiscountModal } from "./components/discount-modal";
@@ -16,6 +19,7 @@ import RecentItems from "./components/recent-items";
 
 export default function ShoppingListScreen() {
   const { styles } = useStyles();
+  const userService = useUserService();
   const {
     items,
     isLoading,
@@ -46,10 +50,27 @@ export default function ShoppingListScreen() {
   } = useDiscounts(items, isLoadingStores ? [] : selectedStores);
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
 
-  const handleAddItem = (item: { name: string; quantity: string }) => {
+  const handleAddItem = useCallback(
+    (item: { name: string; quantity: string }) => {
+      addItem(item);
+      itemModal.close();
+    },
+    [addItem, itemModal],
+  );
+
+  const handleAddRecentItem = (item: { name: string; quantity: string }) => {
     addItem(item);
-    itemModal.close();
   };
+
+  const handleLongPressItem = useCallback((item: BaseShoppingListItem) => {
+    const draftItem: ShoppingItem = {
+      ...item,
+      completed: false,
+      createdAt: new Date(),
+      userId: userService?.userId || '',
+    };
+    itemModal.openEdit(draftItem);
+  }, [itemModal, userService?.userId]);
 
   const handleUpdateItem = (
     id: string,
@@ -84,7 +105,10 @@ export default function ShoppingListScreen() {
 
         <SavingsSummary items={items} />
 
-        <RecentItems />
+        <RecentItems 
+          onAddItem={handleAddRecentItem} 
+          onItemLongPress={handleLongPressItem}
+        />
 
         <ShoppingListView
           items={items}
