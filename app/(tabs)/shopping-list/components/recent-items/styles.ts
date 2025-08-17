@@ -12,20 +12,29 @@ export function useRecentItemsStyles() {
       marginTop: 16,
     },
     sectionHeader: {
+      paddingHorizontal: LAYOUT.containerPadding,
+      marginBottom: 4,
+    },
+    sectionTitleRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: LAYOUT.containerPadding,
-      marginBottom: 4,
       minHeight: 44,
+      borderRadius: 8,
+      paddingHorizontal: 8,
     },
-    sectionHeaderContent: {
-      flex: 1,
+    sectionTitleRowPressed: {
+      backgroundColor: colors.border,
+      opacity: 0.8,
     },
     sectionTitle: {
       fontSize: 18,
       fontWeight: "600",
       color: colors.text,
+    },
+    sectionSubtitleContainer: {
+      paddingLeft: 8,
+      marginTop: -4,
     },
     sectionSubtitle: {
       fontSize: 13,

@@ -7,8 +7,7 @@ import {
   Text, 
   FlatList, 
   Animated, 
-  Pressable,
-  PanResponder 
+  Pressable
 } from "react-native";
 import { useRecentItems, useHapticFeedback, useCollapsibleSection } from "./hooks";
 import { useRecentItemsStyles } from "./styles";
@@ -104,74 +103,11 @@ type HeaderProps = {
 function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation, opacityAnim }: HeaderProps) {
   const { styles, colors } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
-  const gestureIndicatorOpacity = useRef(new Animated.Value(0)).current;
-  
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => {
-      // Only respond to vertical swipes
-      return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && 
-             Math.abs(gestureState.dy) > COLLAPSIBLE.gestures.swipeThreshold;
-    },
-    onPanResponderGrant: () => {
-      // Show gesture indicator
-      Animated.timing(gestureIndicatorOpacity, {
-        toValue: 0.7,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      // Hide gesture indicator
-      Animated.timing(gestureIndicatorOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-      
-      const { dy, vy } = gestureState;
-      
-      // Determine swipe direction and trigger toggle if threshold met
-      if (Math.abs(dy) > COLLAPSIBLE.gestures.swipeThreshold || 
-          Math.abs(vy) > COLLAPSIBLE.gestures.velocityThreshold) {
-        
-        // Swipe up to collapse, swipe down to expand
-        const shouldCollapse = dy < 0;
-        const shouldExpand = dy > 0;
-        
-        if ((shouldCollapse && !isCollapsed) || (shouldExpand && isCollapsed)) {
-          onToggleCollapsed();
-        }
-      }
-    },
-  });
   
   return (
-    <View 
-      style={styles.sectionHeader}
-      {...panResponder.panHandlers}
-      accessibilityHint={ACCESSIBILITY.hints.swipeToToggle}
-    >
-      <View style={styles.sectionHeaderContent}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        {subtitle && (
-          <Animated.View
-            style={{
-              opacity: opacityAnim,
-              transform: [{
-                translateY: opacityAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-10, 0]
-                })
-              }]
-            }}
-            pointerEvents={isCollapsed ? 'none' : 'auto'}
-          >
-            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
-          </Animated.View>
-        )}
-      </View>
-      <Pressable
-        style={[styles.chevronButton, isPressed && styles.chevronButtonPressed]}
+    <View style={styles.sectionHeader}>
+      <Pressable 
+        style={[styles.sectionTitleRow, isPressed && styles.sectionTitleRowPressed]}
         onPress={onToggleCollapsed}
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
@@ -180,6 +116,7 @@ function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotati
         accessibilityRole="button"
         accessibilityState={{ expanded: !isCollapsed }}
       >
+        <Text style={styles.sectionTitle}>{title}</Text>
         <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
           <IconSymbol 
             name="chevron.down" 
@@ -188,12 +125,25 @@ function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotati
           />
         </Animated.View>
       </Pressable>
-      <Animated.View 
-        style={[
-          styles.gestureIndicator,
-          { opacity: gestureIndicatorOpacity }
-        ]}
-      />
+      {subtitle && (
+        <Animated.View
+          style={[
+            styles.sectionSubtitleContainer,
+            {
+              opacity: opacityAnim,
+              transform: [{
+                translateY: opacityAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-10, 0]
+                })
+              }]
+            }
+          ]}
+          pointerEvents={isCollapsed ? 'none' : 'auto'}
+        >
+          <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
