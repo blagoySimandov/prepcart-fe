@@ -61,6 +61,7 @@ const STORAGE_KEY = "@recent_items_collapsed";
 
 export const useCollapsibleSection = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const chevronAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
@@ -74,8 +75,10 @@ export const useCollapsibleSection = () => {
           chevronAnim.setValue(collapsed ? 1 : 0);
           opacityAnim.setValue(collapsed ? 0 : 1);
         }
+        setIsInitialized(true);
       } catch (error) {
         console.warn("Failed to load collapsed state:", error);
+        setIsInitialized(true);
       }
     };
 
@@ -91,6 +94,8 @@ export const useCollapsibleSection = () => {
   }, []);
 
   const toggleCollapsed = useCallback(() => {
+    if (!isInitialized) return;
+    
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
     persistState(newCollapsed);
@@ -108,7 +113,7 @@ export const useCollapsibleSection = () => {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, [isCollapsed, persistState, chevronAnim, opacityAnim]);
+  }, [isCollapsed, isInitialized, persistState, chevronAnim, opacityAnim]);
 
   const chevronRotation = chevronAnim.interpolate({
     inputRange: [0, 1],
@@ -120,5 +125,6 @@ export const useCollapsibleSection = () => {
     toggleCollapsed,
     chevronRotation,
     opacityAnim,
+    isInitialized,
   };
 };

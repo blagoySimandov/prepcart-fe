@@ -21,7 +21,7 @@ type RecentItemsProps = {
 export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentItemsProps) {
   const { recentItems, isLoading } = useRecentItems();
   const { triggerHaptic } = useHapticFeedback();
-  const { isCollapsed, toggleCollapsed, chevronRotation, opacityAnim } = useCollapsibleSection();
+  const { isCollapsed, toggleCollapsed, chevronRotation, opacityAnim, isInitialized } = useCollapsibleSection();
 
   const onItemSelect = useCallback(
     (item: BaseShoppingListItem) => {
@@ -48,7 +48,7 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
     toggleCollapsed();
   }, [triggerHaptic, toggleCollapsed]);
 
-  if (isLoading) {
+  if (isLoading || !isInitialized) {
     return (
       <Root>
         <Root.LoadingState />
@@ -73,6 +73,7 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
         onToggleCollapsed={handleToggleCollapsed}
         chevronRotation={chevronRotation}
         opacityAnim={opacityAnim}
+        isInitialized={isInitialized}
       />
       <Root.CollapsibleContent opacityAnim={opacityAnim} isCollapsed={isCollapsed}>
         <Root.List
@@ -98,9 +99,10 @@ type HeaderProps = {
   onToggleCollapsed: () => void;
   chevronRotation: Animated.AnimatedInterpolation<string | number>;
   opacityAnim: Animated.Value;
+  isInitialized: boolean;
 };
 
-function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation, opacityAnim }: HeaderProps) {
+function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation, opacityAnim, isInitialized }: HeaderProps) {
   const { styles, colors } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
   
@@ -116,34 +118,37 @@ function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotati
         accessibilityRole="button"
         accessibilityState={{ expanded: !isCollapsed }}
       >
-        <Text style={styles.sectionTitle}>{title}</Text>
-        <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-          <IconSymbol 
-            name="chevron.down" 
-            size={16} 
-            color={colors.icon} 
-          />
-        </Animated.View>
+        <View style={styles.titleContent}>
+          <Text style={styles.sectionTitle}>{title}</Text>
+          {subtitle && !isCollapsed && isInitialized && (
+            <Animated.View
+              style={{
+                opacity: opacityAnim,
+                transform: [{
+                  translateY: opacityAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-10, 0]
+                  })
+                }]
+              }}
+            >
+              <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+            </Animated.View>
+          )}
+          {subtitle && !isCollapsed && !isInitialized && (
+            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          )}
+        </View>
+        <View style={styles.chevronContainer}>
+          <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+            <IconSymbol 
+              name="chevron.down" 
+              size={16} 
+              color={colors.icon} 
+            />
+          </Animated.View>
+        </View>
       </Pressable>
-      {subtitle && (
-        <Animated.View
-          style={[
-            styles.sectionSubtitleContainer,
-            {
-              opacity: opacityAnim,
-              transform: [{
-                translateY: opacityAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-10, 0]
-                })
-              }]
-            }
-          ]}
-          pointerEvents={isCollapsed ? 'none' : 'auto'}
-        >
-          <Text style={styles.sectionSubtitle}>{subtitle}</Text>
-        </Animated.View>
-      )}
     </View>
   );
 }
