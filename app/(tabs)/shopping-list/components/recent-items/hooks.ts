@@ -3,9 +3,7 @@ import { useUserService } from "@/src/user";
 import { useCallback, useState, useEffect, useRef } from "react";
 import { Animated, Easing } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Haptics from "expo-haptics";
 import { fetchRecentItems } from "./query";
-import { HAPTIC_TYPES } from "./constants";
 
 export const useRecentItems = () => {
   const user = useUserService();
@@ -23,47 +21,14 @@ export const useRecentItems = () => {
   };
 };
 
-export const useHapticFeedback = () => {
-  const triggerHaptic = useCallback((type: keyof typeof HAPTIC_TYPES) => {
-    if (process.env.EXPO_OS === "ios") {
-      switch (type) {
-        case "light":
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          break;
-        case "medium":
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          break;
-        case "heavy":
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          break;
-        case "selection":
-          Haptics.selectionAsync();
-          break;
-        case "success":
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          break;
-        case "warning":
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          break;
-        case "error":
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-          break;
-        default:
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
-    }
-  }, []);
-
-  return { triggerHaptic };
-};
-
 const STORAGE_KEY = "@recent_items_collapsed";
 
 export const useCollapsibleSection = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasRendered, setHasRendered] = useState(false);
   const chevronAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current; // Start collapsed by default
 
   useEffect(() => {
     const loadPersistedState = async () => {
@@ -74,16 +39,34 @@ export const useCollapsibleSection = () => {
           setIsCollapsed(collapsed);
           chevronAnim.setValue(collapsed ? 1 : 0);
           opacityAnim.setValue(collapsed ? 0 : 1);
+        } else {
+          // No stored state - default to expanded
+          setIsCollapsed(false);
+          chevronAnim.setValue(0);
+          opacityAnim.setValue(1);
         }
         setIsInitialized(true);
       } catch (error) {
         console.warn("Failed to load collapsed state:", error);
+        // On error, default to expanded
+        setIsCollapsed(false);
+        chevronAnim.setValue(0);
+        opacityAnim.setValue(1);
         setIsInitialized(true);
       }
     };
 
     loadPersistedState();
   }, [chevronAnim, opacityAnim]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      const timer = setTimeout(() => {
+        setHasRendered(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isInitialized]);
 
   const persistState = useCallback(async (collapsed: boolean) => {
     try {
@@ -94,8 +77,8 @@ export const useCollapsibleSection = () => {
   }, []);
 
   const toggleCollapsed = useCallback(() => {
-    if (!isInitialized) return;
-    
+    if (!isInitialized || !hasRendered) return;
+
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
     persistState(newCollapsed);
@@ -113,7 +96,14 @@ export const useCollapsibleSection = () => {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, [isCollapsed, isInitialized, persistState, chevronAnim, opacityAnim]);
+  }, [
+    isCollapsed,
+    isInitialized,
+    hasRendered,
+    persistState,
+    chevronAnim,
+    opacityAnim,
+  ]);
 
   const chevronRotation = chevronAnim.interpolate({
     inputRange: [0, 1],
@@ -126,5 +116,6 @@ export const useCollapsibleSection = () => {
     chevronRotation,
     opacityAnim,
     isInitialized,
+    hasRendered,
   };
 };

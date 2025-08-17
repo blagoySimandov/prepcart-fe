@@ -2,30 +2,35 @@ import { BaseShoppingListItem } from "@/src/user/shopping-list";
 import { RChildren } from "@/src/utils/types";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { memo, useCallback, useRef, useState } from "react";
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  Animated, 
-  Pressable
-} from "react-native";
-import { useRecentItems, useHapticFeedback, useCollapsibleSection } from "./hooks";
+import { View, Text, FlatList, Animated, Pressable } from "react-native";
+import { useRecentItems, useCollapsibleSection } from "./hooks";
 import { useRecentItemsStyles } from "./styles";
-import { ANIMATION_CONFIG, ACCESSIBILITY, COLLAPSIBLE } from "./constants";
+import { ANIMATION_CONFIG, ACCESSIBILITY } from "./constants";
+import { HAPTIC_TYPES, useHapticFeedback } from "@/hooks/use-haptic-feedback";
 
 type RecentItemsProps = {
   onAddItem?: (item: { name: string; quantity: string }) => void;
   onItemLongPress?: (item: BaseShoppingListItem) => void;
 };
 
-export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentItemsProps) {
+export default memo(function RecentItems({
+  onAddItem,
+  onItemLongPress,
+}: RecentItemsProps) {
   const { recentItems, isLoading } = useRecentItems();
   const { triggerHaptic } = useHapticFeedback();
-  const { isCollapsed, toggleCollapsed, chevronRotation, opacityAnim, isInitialized } = useCollapsibleSection();
+  const {
+    isCollapsed,
+    toggleCollapsed,
+    chevronRotation,
+    opacityAnim,
+    isInitialized,
+    hasRendered,
+  } = useCollapsibleSection();
 
   const onItemSelect = useCallback(
     (item: BaseShoppingListItem) => {
-      triggerHaptic('success');
+      triggerHaptic("success");
       if (onAddItem) {
         onAddItem({
           name: item.name,
@@ -36,15 +41,18 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
     [onAddItem, triggerHaptic],
   );
 
-  const handleItemLongPress = useCallback((item: BaseShoppingListItem) => {
-    triggerHaptic('medium');
-    if (onItemLongPress) {
-      onItemLongPress(item);
-    }
-  }, [onItemLongPress, triggerHaptic]);
+  const handleItemLongPress = useCallback(
+    (item: BaseShoppingListItem) => {
+      triggerHaptic("medium");
+      if (onItemLongPress) {
+        onItemLongPress(item);
+      }
+    },
+    [onItemLongPress, triggerHaptic],
+  );
 
   const handleToggleCollapsed = useCallback(() => {
-    triggerHaptic('light');
+    triggerHaptic("light");
     toggleCollapsed();
   }, [triggerHaptic, toggleCollapsed]);
 
@@ -66,22 +74,28 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
 
   return (
     <Root>
-      <Root.Header 
-        title="Recent Items" 
+      <Root.Header
+        title="Recent Items"
         subtitle="Tap to add quickly"
         isCollapsed={isCollapsed}
         onToggleCollapsed={handleToggleCollapsed}
         chevronRotation={chevronRotation}
         opacityAnim={opacityAnim}
         isInitialized={isInitialized}
+        hasRendered={hasRendered}
       />
-      <Root.CollapsibleContent opacityAnim={opacityAnim} isCollapsed={isCollapsed}>
-        <Root.List
-          data={recentItems}
-          onItemSelect={onItemSelect}
-          onItemLongPress={handleItemLongPress}
-          triggerHaptic={triggerHaptic}
-        />
+      <Root.CollapsibleContent
+        opacityAnim={opacityAnim}
+        isCollapsed={isCollapsed}
+      >
+        {isInitialized && (
+          <Root.List
+            data={recentItems}
+            onItemSelect={onItemSelect}
+            onItemLongPress={handleItemLongPress}
+            triggerHaptic={triggerHaptic}
+          />
+        )}
       </Root.CollapsibleContent>
     </Root>
   );
@@ -100,53 +114,78 @@ type HeaderProps = {
   chevronRotation: Animated.AnimatedInterpolation<string | number>;
   opacityAnim: Animated.Value;
   isInitialized: boolean;
+  hasRendered: boolean;
 };
 
-function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation, opacityAnim, isInitialized }: HeaderProps) {
+function Header({
+  title,
+  subtitle,
+  isCollapsed,
+  onToggleCollapsed,
+  chevronRotation,
+  opacityAnim,
+  isInitialized,
+  hasRendered,
+}: HeaderProps) {
   const { styles, colors } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
-  
+
   return (
     <View style={styles.sectionHeader}>
-      <Pressable 
-        style={[styles.sectionTitleRow, isPressed && styles.sectionTitleRowPressed]}
+      <Pressable
+        style={[
+          styles.sectionTitleRow,
+          isPressed && styles.sectionTitleRowPressed,
+        ]}
         onPress={onToggleCollapsed}
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
-        accessibilityLabel={isCollapsed ? ACCESSIBILITY.labels.expandSection : ACCESSIBILITY.labels.collapseSection}
+        accessibilityLabel={
+          isCollapsed
+            ? ACCESSIBILITY.labels.expandSection
+            : ACCESSIBILITY.labels.collapseSection
+        }
         accessibilityHint={ACCESSIBILITY.hints.tapToToggle}
         accessibilityRole="button"
         accessibilityState={{ expanded: !isCollapsed }}
       >
         <View style={styles.titleContent}>
           <Text style={styles.sectionTitle}>{title}</Text>
-          {subtitle && !isCollapsed && isInitialized && (
+          {subtitle && !isCollapsed && isInitialized && hasRendered && (
             <Animated.View
               style={{
                 opacity: opacityAnim,
-                transform: [{
-                  translateY: opacityAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-10, 0]
-                  })
-                }]
+                transform: [
+                  {
+                    translateY: opacityAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-10, 0],
+                    }),
+                  },
+                ],
               }}
             >
               <Text style={styles.sectionSubtitle}>{subtitle}</Text>
             </Animated.View>
           )}
-          {subtitle && !isCollapsed && !isInitialized && (
+          {subtitle && !isCollapsed && (!isInitialized || !hasRendered) && (
             <Text style={styles.sectionSubtitle}>{subtitle}</Text>
           )}
         </View>
         <View style={styles.chevronContainer}>
-          <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-            <IconSymbol 
-              name="chevron.down" 
-              size={16} 
-              color={colors.icon} 
-            />
-          </Animated.View>
+          {hasRendered ? (
+            <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+              <IconSymbol name="chevron.down" size={16} color={colors.icon} />
+            </Animated.View>
+          ) : (
+            <View
+              style={{
+                transform: [{ rotate: isCollapsed ? "90deg" : "0deg" }],
+              }}
+            >
+              <IconSymbol name="chevron.down" size={16} color={colors.icon} />
+            </View>
+          )}
         </View>
       </Pressable>
     </View>
@@ -158,14 +197,18 @@ type CollapsibleContentProps = RChildren & {
   isCollapsed: boolean;
 };
 
-function CollapsibleContent({ children, opacityAnim, isCollapsed }: CollapsibleContentProps) {
+function CollapsibleContent({
+  children,
+  opacityAnim,
+  isCollapsed,
+}: CollapsibleContentProps) {
   const { styles } = useRecentItemsStyles();
   const [contentHeight, setContentHeight] = useState(120); // Better default height
 
   const animatedHeight = opacityAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, contentHeight], // Animate from 0 to measured height
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   return (
@@ -173,9 +216,9 @@ function CollapsibleContent({ children, opacityAnim, isCollapsed }: CollapsibleC
       {/* Hidden measurement view - always present but invisible */}
       <View
         style={{
-          position: 'absolute',
+          position: "absolute",
           opacity: 0,
-          pointerEvents: 'none',
+          pointerEvents: "none",
         }}
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
@@ -186,21 +229,23 @@ function CollapsibleContent({ children, opacityAnim, isCollapsed }: CollapsibleC
       >
         {children}
       </View>
-      
+
       {/* Animated visible content */}
-      <Animated.View 
+      <Animated.View
         style={{
           height: animatedHeight,
           opacity: opacityAnim,
-          overflow: 'hidden',
-          transform: [{
-            translateY: opacityAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [-30, 0] // Slides down from just above
-            })
-          }]
+          overflow: "hidden",
+          transform: [
+            {
+              translateY: opacityAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-30, 0], // Slides down from just above
+              }),
+            },
+          ],
         }}
-        pointerEvents={isCollapsed ? 'none' : 'auto'}
+        pointerEvents={isCollapsed ? "none" : "auto"}
       >
         {children}
       </Animated.View>
@@ -212,10 +257,15 @@ type ListProps = {
   data: BaseShoppingListItem[];
   onItemSelect?: (item: BaseShoppingListItem) => void;
   onItemLongPress?: (item: BaseShoppingListItem) => void;
-  triggerHaptic: (type: keyof typeof import("./constants").HAPTIC_TYPES) => void;
+  triggerHaptic: (type: keyof typeof HAPTIC_TYPES) => void;
 };
 
-function List({ data, onItemSelect, onItemLongPress, triggerHaptic }: ListProps) {
+function List({
+  data,
+  onItemSelect,
+  onItemLongPress,
+  triggerHaptic,
+}: ListProps) {
   const { styles } = useRecentItemsStyles();
 
   return (
@@ -246,17 +296,22 @@ type ItemCardProps = {
   index: number;
   onPress?: () => void;
   onLongPress?: () => void;
-  triggerHaptic: (type: keyof typeof import("./constants").HAPTIC_TYPES) => void;
+  triggerHaptic: (type: keyof typeof HAPTIC_TYPES) => void;
 };
 
-function ItemCard({ item, onPress, onLongPress, triggerHaptic }: ItemCardProps) {
+function ItemCard({
+  item,
+  onPress,
+  onLongPress,
+  triggerHaptic,
+}: ItemCardProps) {
   const { styles } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
   const animatedValue = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
     setIsPressed(true);
-    triggerHaptic('light');
+    triggerHaptic("light");
     Animated.spring(animatedValue, {
       toValue: ANIMATION_CONFIG.press.scale,
       ...ANIMATION_CONFIG.spring,
@@ -273,10 +328,7 @@ function ItemCard({ item, onPress, onLongPress, triggerHaptic }: ItemCardProps) 
     }).start();
   }, [animatedValue]);
 
-  const cardStyle = [
-    styles.cardContainer,
-    isPressed && styles.cardPressed,
-  ];
+  const cardStyle = [styles.cardContainer, isPressed && styles.cardPressed];
 
   const animatedStyle = {
     transform: [{ scale: animatedValue }],
@@ -294,15 +346,15 @@ function ItemCard({ item, onPress, onLongPress, triggerHaptic }: ItemCardProps) 
         accessibilityHint={ACCESSIBILITY.hints.tapToAdd}
         accessibilityRole="button"
         accessibilityActions={[
-          { name: 'activate', label: ACCESSIBILITY.labels.addToList },
-          { name: 'longpress', label: ACCESSIBILITY.labels.editItem },
+          { name: "activate", label: ACCESSIBILITY.labels.addToList },
+          { name: "longpress", label: ACCESSIBILITY.labels.editItem },
         ]}
         onAccessibilityAction={(event) => {
           switch (event.nativeEvent.actionName) {
-            case 'activate':
+            case "activate":
               onPress?.();
               break;
-            case 'longpress':
+            case "longpress":
               onLongPress?.();
               break;
           }
@@ -323,9 +375,7 @@ function ItemCard({ item, onPress, onLongPress, triggerHaptic }: ItemCardProps) 
                 <Text style={styles.unitText}>{item.unit}</Text>
               </View>
             </View>
-
           </View>
-
         </View>
       </Pressable>
     </Animated.View>
@@ -334,17 +384,17 @@ function ItemCard({ item, onPress, onLongPress, triggerHaptic }: ItemCardProps) 
 
 function LoadingState() {
   const { styles } = useRecentItemsStyles();
-  
+
   return (
-    <View 
+    <View
       style={styles.loadingContainer}
       accessibilityLabel="Loading recent items"
       accessibilityLiveRegion="polite"
       accessible={true}
     >
       {[1, 2, 3].map((index) => (
-        <View 
-          key={index} 
+        <View
+          key={index}
           style={styles.skeletonCard}
           accessibilityElementsHidden={true}
         />
@@ -355,30 +405,24 @@ function LoadingState() {
 
 function EmptyState() {
   const { styles, colors } = useRecentItemsStyles();
-  
+
   return (
-    <View 
+    <View
       style={styles.emptyContainer}
       accessibilityLabel="No recent items available"
       accessibilityHint="Add items to your shopping list to see them here for quick access"
       accessible={true}
     >
-      <IconSymbol 
-        name="clock" 
-        size={32} 
-        color={colors.icon} 
+      <IconSymbol
+        name="clock"
+        size={32}
+        color={colors.icon}
         style={styles.emptyIcon}
       />
-      <Text 
-        style={styles.emptyTitle}
-        accessibilityRole="header"
-      >
+      <Text style={styles.emptyTitle} accessibilityRole="header">
         No Recent Items
       </Text>
-      <Text 
-        style={styles.emptyMessage}
-        accessibilityRole="text"
-      >
+      <Text style={styles.emptyMessage} accessibilityRole="text">
         Items you add to your shopping list will appear here for quick access
       </Text>
     </View>

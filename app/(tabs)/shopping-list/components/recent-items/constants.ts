@@ -88,16 +88,6 @@ export const LAYOUT = {
   frequencyBadgeSize: 6,
 } as const;
 
-export const HAPTIC_TYPES = {
-  light: "light" as const,
-  medium: "medium" as const,
-  heavy: "heavy" as const,
-  selection: "selection" as const,
-  success: "success" as const,
-  warning: "warning" as const,
-  error: "error" as const,
-} as const;
-
 export const ACCESSIBILITY = {
   minimumTouchTarget: 44,
   labels: {
@@ -132,3 +122,4 @@ export const COLLAPSIBLE = {
     velocityThreshold: 0.5,
   },
 } as const;
+
