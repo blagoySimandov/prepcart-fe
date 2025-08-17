@@ -248,6 +248,33 @@ export function useDiscounts(items: ShoppingItem[], selectedStores?: string[]) {
   };
 }
 
+export function useSavingsSummaryVisibility() {
+  const [isClosed, setIsClosed] = useState(false);
+
+  useEffect(() => {
+    const loadState = async () => {
+      try {
+        const closed = await AsyncStorage.getItem("savings-summary-closed");
+        setIsClosed(closed === "true");
+      } catch (error) {
+        console.error("Error loading savings summary state:", error);
+      }
+    };
+    loadState();
+  }, []);
+
+  const closeSummary = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem("savings-summary-closed", "true");
+      setIsClosed(true);
+    } catch (error) {
+      console.error("Error saving savings summary state:", error);
+    }
+  }, []);
+
+  return { isClosed, closeSummary };
+}
+
 export function useShoppingListModals() {
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);

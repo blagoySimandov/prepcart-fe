@@ -12,7 +12,7 @@ import { HelpModal } from "./components/help-modal";
 import { SavingsSummary } from "./components/savings-summary";
 import { ShoppingListHeader } from "./components/shopping-list-header";
 import { ShoppingListView } from "./components/shopping-list-view";
-import { useDiscounts, useShoppingList, useShoppingListModals } from "./hooks";
+import { useDiscounts, useSavingsSummaryVisibility, useShoppingList, useShoppingListModals } from "./hooks";
 import { useStoreFilter } from "./hooks/use-store-filter";
 import { useStyles } from "./styles";
 import RecentItems from "./components/recent-items";
@@ -49,6 +49,7 @@ export default function ShoppingListScreen() {
     closeUnavailableModal,
   } = useDiscounts(items, isLoadingStores ? [] : selectedStores);
   const { itemModal, discountModal, helpModal } = useShoppingListModals();
+  const { isClosed: isSavingsSummaryClosed, closeSummary: handleCloseSavingsSummary } = useSavingsSummaryVisibility();
 
   const handleAddItem = useCallback(
     (item: { name: string; quantity: string }) => {
@@ -103,7 +104,9 @@ export default function ShoppingListScreen() {
           onOpenStoreFilter={openModal}
         />
 
-        <SavingsSummary items={items} />
+        {!isSavingsSummaryClosed && (
+          <SavingsSummary items={items} onClose={handleCloseSavingsSummary} />
+        )}
 
         <RecentItems 
           onAddItem={handleAddRecentItem} 

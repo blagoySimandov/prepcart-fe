@@ -243,11 +243,17 @@ export function useStyles() {
       shadowRadius: 4,
       elevation: 3,
     },
+    savingsHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 4,
+    },
     savingsContent: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 4,
+      flex: 1,
     },
     savingsTitle: {
       fontSize: 12,
@@ -268,6 +274,11 @@ export function useStyles() {
       color: colors.icon,
       textAlign: "center",
       opacity: 0.8,
+    },
+    savingsCloseButton: {
+      padding: 4,
+      borderRadius: 12,
+      backgroundColor: colors.background,
     },
     editButton: {
       padding: 8,

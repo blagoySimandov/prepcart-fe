@@ -2,14 +2,15 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useCountryRestriction } from "@/src/hooks/use-country-restriction";
 import { ShoppingItem } from "@/src/user/shopping-list/types";
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
 
 interface SavingsSummaryProps {
   items: ShoppingItem[];
+  onClose?: () => void;
 }
 
-export function SavingsSummary({ items }: SavingsSummaryProps) {
+export function SavingsSummary({ items, onClose }: SavingsSummaryProps) {
   const { styles, colors } = useStyles();
   const { isDiscountsAvailable } = useCountryRestriction();
 
@@ -65,10 +66,17 @@ export function SavingsSummary({ items }: SavingsSummaryProps) {
 
   return (
     <View style={styles.savingsSummary}>
-      <View style={styles.savingsContent}>
-        <IconSymbol name="tag.fill" size={16} color={colors.accent} />
-        <Text style={styles.savingsTitle}>Potential Savings</Text>
-        <Text style={styles.savingsAmount}>{renderSavingsAmount()}</Text>
+      <View style={styles.savingsHeader}>
+        <View style={styles.savingsContent}>
+          <IconSymbol name="tag.fill" size={16} color={colors.accent} />
+          <Text style={styles.savingsTitle}>Potential Savings</Text>
+          <Text style={styles.savingsAmount}>{renderSavingsAmount()}</Text>
+        </View>
+        {onClose && (
+          <TouchableOpacity onPress={onClose} style={styles.savingsCloseButton}>
+            <IconSymbol name="xmark" size={16} color={colors.icon} />
+          </TouchableOpacity>
+        )}
       </View>
       <Text style={styles.savingsSubtext}>
         {totalItemsText} with savings calculated
