@@ -154,9 +154,6 @@ function Header({
               <Text style={styles.sectionSubtitle}>{subtitle}</Text>
             </Animated.View>
           )}
-          {subtitle && !isCollapsed && (
-            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
-          )}
         </View>
         <View style={styles.chevronContainer}>
           <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
