@@ -7,11 +7,12 @@ import {
   Text, 
   FlatList, 
   Animated, 
-  Pressable 
+  Pressable,
+  PanResponder 
 } from "react-native";
-import { useRecentItems, useHapticFeedback } from "./hooks";
+import { useRecentItems, useHapticFeedback, useCollapsibleSection } from "./hooks";
 import { useRecentItemsStyles } from "./styles";
-import { ANIMATION_CONFIG, ACCESSIBILITY } from "./constants";
+import { ANIMATION_CONFIG, ACCESSIBILITY, COLLAPSIBLE } from "./constants";
 
 type RecentItemsProps = {
   onAddItem?: (item: { name: string; quantity: string }) => void;
@@ -21,6 +22,7 @@ type RecentItemsProps = {
 export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentItemsProps) {
   const { recentItems, isLoading } = useRecentItems();
   const { triggerHaptic } = useHapticFeedback();
+  const { isCollapsed, toggleCollapsed, chevronRotation, opacityAnim } = useCollapsibleSection();
 
   const onItemSelect = useCallback(
     (item: BaseShoppingListItem) => {
@@ -42,6 +44,11 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
     }
   }, [onItemLongPress, triggerHaptic]);
 
+  const handleToggleCollapsed = useCallback(() => {
+    triggerHaptic('light');
+    toggleCollapsed();
+  }, [triggerHaptic, toggleCollapsed]);
+
   if (isLoading) {
     return (
       <Root>
@@ -60,13 +67,21 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
 
   return (
     <Root>
-      <Root.Header title="Recent Items" subtitle="Tap to add quickly" />
-      <Root.List
-        data={recentItems}
-        onItemSelect={onItemSelect}
-        onItemLongPress={handleItemLongPress}
-        triggerHaptic={triggerHaptic}
+      <Root.Header 
+        title="Recent Items" 
+        subtitle="Tap to add quickly"
+        isCollapsed={isCollapsed}
+        onToggleCollapsed={handleToggleCollapsed}
+        chevronRotation={chevronRotation}
       />
+      <Root.CollapsibleContent opacityAnim={opacityAnim} isCollapsed={isCollapsed}>
+        <Root.List
+          data={recentItems}
+          onItemSelect={onItemSelect}
+          onItemLongPress={handleItemLongPress}
+          triggerHaptic={triggerHaptic}
+        />
+      </Root.CollapsibleContent>
     </Root>
   );
 });
@@ -79,17 +94,144 @@ function Root({ children }: RChildren) {
 type HeaderProps = {
   title: string;
   subtitle?: string;
+  isCollapsed: boolean;
+  onToggleCollapsed: () => void;
+  chevronRotation: Animated.AnimatedInterpolation<string | number>;
 };
 
-function Header({ title, subtitle }: HeaderProps) {
-  const { styles } = useRecentItemsStyles();
+function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation }: HeaderProps) {
+  const { styles, colors } = useRecentItemsStyles();
+  const [isPressed, setIsPressed] = useState(false);
+  const gestureIndicatorOpacity = useRef(new Animated.Value(0)).current;
+  
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      // Only respond to vertical swipes
+      return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && 
+             Math.abs(gestureState.dy) > COLLAPSIBLE.gestures.swipeThreshold;
+    },
+    onPanResponderGrant: () => {
+      // Show gesture indicator
+      Animated.timing(gestureIndicatorOpacity, {
+        toValue: 0.7,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      // Hide gesture indicator
+      Animated.timing(gestureIndicatorOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      
+      const { dy, vy } = gestureState;
+      
+      // Determine swipe direction and trigger toggle if threshold met
+      if (Math.abs(dy) > COLLAPSIBLE.gestures.swipeThreshold || 
+          Math.abs(vy) > COLLAPSIBLE.gestures.velocityThreshold) {
+        
+        // Swipe up to collapse, swipe down to expand
+        const shouldCollapse = dy < 0;
+        const shouldExpand = dy > 0;
+        
+        if ((shouldCollapse && !isCollapsed) || (shouldExpand && isCollapsed)) {
+          onToggleCollapsed();
+        }
+      }
+    },
+  });
   
   return (
-    <View style={styles.sectionHeader}>
-      <View>
+    <View 
+      style={styles.sectionHeader}
+      {...panResponder.panHandlers}
+      accessibilityHint={ACCESSIBILITY.hints.swipeToToggle}
+    >
+      <View style={styles.sectionHeaderContent}>
         <Text style={styles.sectionTitle}>{title}</Text>
         {subtitle && <Text style={styles.sectionSubtitle}>{subtitle}</Text>}
       </View>
+      <Pressable
+        style={[styles.chevronButton, isPressed && styles.chevronButtonPressed]}
+        onPress={onToggleCollapsed}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        accessibilityLabel={isCollapsed ? ACCESSIBILITY.labels.expandSection : ACCESSIBILITY.labels.collapseSection}
+        accessibilityHint={ACCESSIBILITY.hints.tapToToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: !isCollapsed }}
+      >
+        <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+          <IconSymbol 
+            name="chevron.down" 
+            size={16} 
+            color={colors.icon} 
+          />
+        </Animated.View>
+      </Pressable>
+      <Animated.View 
+        style={[
+          styles.gestureIndicator,
+          { opacity: gestureIndicatorOpacity }
+        ]}
+      />
+    </View>
+  );
+}
+
+type CollapsibleContentProps = RChildren & {
+  opacityAnim: Animated.Value;
+  isCollapsed: boolean;
+};
+
+function CollapsibleContent({ children, opacityAnim, isCollapsed }: CollapsibleContentProps) {
+  const { styles } = useRecentItemsStyles();
+  const [contentHeight, setContentHeight] = useState(120); // Better default height
+
+  const animatedHeight = opacityAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, contentHeight], // Animate from 0 to measured height
+    extrapolate: 'clamp',
+  });
+
+  return (
+    <View style={styles.collapsibleContent}>
+      {/* Hidden measurement view - always present but invisible */}
+      <View
+        style={{
+          position: 'absolute',
+          opacity: 0,
+          pointerEvents: 'none',
+        }}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          if (height !== contentHeight && height > 0) {
+            setContentHeight(height);
+          }
+        }}
+      >
+        {children}
+      </View>
+      
+      {/* Animated visible content */}
+      <Animated.View 
+        style={{
+          height: animatedHeight,
+          opacity: opacityAnim,
+          overflow: 'hidden',
+          transform: [{
+            translateY: opacityAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-30, 0] // Slides down from just above
+            })
+          }]
+        }}
+        pointerEvents={isCollapsed ? 'none' : 'auto'}
+      >
+        {children}
+      </Animated.View>
     </View>
   );
 }
@@ -254,7 +396,6 @@ function EmptyState() {
         size={32} 
         color={colors.icon} 
         style={styles.emptyIcon}
-        accessibilityElementsHidden={true}
       />
       <Text 
         style={styles.emptyTitle}
@@ -273,6 +414,7 @@ function EmptyState() {
 }
 
 Root.Header = Header;
+Root.CollapsibleContent = CollapsibleContent;
 Root.List = List;
 Root.ItemCard = ItemCard;
 Root.LoadingState = LoadingState;

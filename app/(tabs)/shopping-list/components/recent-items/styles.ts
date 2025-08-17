@@ -17,6 +17,10 @@ export function useRecentItemsStyles() {
       justifyContent: "space-between",
       paddingHorizontal: LAYOUT.containerPadding,
       marginBottom: 12,
+      minHeight: 44, // Ensure minimum touch target
+    },
+    sectionHeaderContent: {
+      flex: 1,
     },
     sectionTitle: {
       fontSize: 18,
@@ -29,11 +33,38 @@ export function useRecentItemsStyles() {
       color: colors.icon,
       opacity: 0.8,
     },
+    chevronButton: {
+      padding: 8,
+      borderRadius: 8,
+      backgroundColor: colors.background,
+      marginLeft: 12,
+      minWidth: 44,
+      minHeight: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    chevronButtonPressed: {
+      backgroundColor: colors.border,
+      transform: [{ scale: 0.95 }],
+    },
     listContainer: {
       paddingHorizontal: LAYOUT.containerPadding,
     },
     scrollContent: {
       paddingRight: LAYOUT.containerPadding,
+    },
+    collapsibleContent: {
+      overflow: "hidden",
+    },
+    gestureIndicator: {
+      position: "absolute",
+      bottom: -2,
+      left: 0,
+      right: 0,
+      height: 2,
+      backgroundColor: colors.tint,
+      opacity: 0,
+      borderRadius: 1,
     },
 
     // Card Styles

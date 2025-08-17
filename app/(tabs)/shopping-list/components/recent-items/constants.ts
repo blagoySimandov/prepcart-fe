@@ -105,9 +105,30 @@ export const ACCESSIBILITY = {
     addToList: "Add to shopping list",
     editItem: "Edit item",
     removeFromRecents: "Remove from recent items",
+    collapseSection: "Collapse recent items",
+    expandSection: "Expand recent items",
+    toggleSection: "Toggle recent items visibility",
   },
   hints: {
     tapToAdd: "Tap to add to your shopping list",
     longPressToEdit: "Long press to edit or remove",
+    tapToToggle: "Tap to collapse or expand this section",
+    swipeToToggle: "Swipe up or down to toggle section",
+  },
+  states: {
+    expanded: "Recent items section is expanded",
+    collapsed: "Recent items section is collapsed",
+  },
+} as const;
+
+export const COLLAPSIBLE = {
+  animation: {
+    duration: 400,
+    springTension: 120,
+    springFriction: 8,
+  },
+  gestures: {
+    swipeThreshold: 20,
+    velocityThreshold: 0.5,
   },
 } as const;
