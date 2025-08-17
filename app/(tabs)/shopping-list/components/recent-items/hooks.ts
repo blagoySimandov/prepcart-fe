@@ -25,8 +25,6 @@ const STORAGE_KEY = "@recent_items_collapsed";
 
 export const useCollapsibleSection = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [hasRendered, setHasRendered] = useState(false);
   const chevronAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current; // Start collapsed by default
 
@@ -45,28 +43,17 @@ export const useCollapsibleSection = () => {
           chevronAnim.setValue(0);
           opacityAnim.setValue(1);
         }
-        setIsInitialized(true);
       } catch (error) {
         console.warn("Failed to load collapsed state:", error);
         // On error, default to expanded
         setIsCollapsed(false);
         chevronAnim.setValue(0);
         opacityAnim.setValue(1);
-        setIsInitialized(true);
       }
     };
 
     loadPersistedState();
   }, [chevronAnim, opacityAnim]);
-
-  useEffect(() => {
-    if (isInitialized) {
-      const timer = setTimeout(() => {
-        setHasRendered(true);
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isInitialized]);
 
   const persistState = useCallback(async (collapsed: boolean) => {
     try {
@@ -77,8 +64,6 @@ export const useCollapsibleSection = () => {
   }, []);
 
   const toggleCollapsed = useCallback(() => {
-    if (!isInitialized || !hasRendered) return;
-
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
     persistState(newCollapsed);
@@ -96,14 +81,7 @@ export const useCollapsibleSection = () => {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, [
-    isCollapsed,
-    isInitialized,
-    hasRendered,
-    persistState,
-    chevronAnim,
-    opacityAnim,
-  ]);
+  }, [isCollapsed, persistState, chevronAnim, opacityAnim]);
 
   const chevronRotation = chevronAnim.interpolate({
     inputRange: [0, 1],
@@ -115,7 +93,5 @@ export const useCollapsibleSection = () => {
     toggleCollapsed,
     chevronRotation,
     opacityAnim,
-    isInitialized,
-    hasRendered,
   };
 };

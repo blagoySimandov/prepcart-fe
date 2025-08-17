@@ -19,14 +19,8 @@ export default memo(function RecentItems({
 }: RecentItemsProps) {
   const { recentItems, isLoading } = useRecentItems();
   const { triggerHaptic } = useHapticFeedback();
-  const {
-    isCollapsed,
-    toggleCollapsed,
-    chevronRotation,
-    opacityAnim,
-    isInitialized,
-    hasRendered,
-  } = useCollapsibleSection();
+  const { isCollapsed, toggleCollapsed, chevronRotation, opacityAnim } =
+    useCollapsibleSection();
 
   const onItemSelect = useCallback(
     (item: BaseShoppingListItem) => {
@@ -56,7 +50,7 @@ export default memo(function RecentItems({
     toggleCollapsed();
   }, [triggerHaptic, toggleCollapsed]);
 
-  if (isLoading || !isInitialized) {
+  if (isLoading) {
     return (
       <Root>
         <Root.LoadingState />
@@ -81,21 +75,17 @@ export default memo(function RecentItems({
         onToggleCollapsed={handleToggleCollapsed}
         chevronRotation={chevronRotation}
         opacityAnim={opacityAnim}
-        isInitialized={isInitialized}
-        hasRendered={hasRendered}
       />
       <Root.CollapsibleContent
         opacityAnim={opacityAnim}
         isCollapsed={isCollapsed}
       >
-        {isInitialized && (
-          <Root.List
-            data={recentItems}
-            onItemSelect={onItemSelect}
-            onItemLongPress={handleItemLongPress}
-            triggerHaptic={triggerHaptic}
-          />
-        )}
+        <Root.List
+          data={recentItems}
+          onItemSelect={onItemSelect}
+          onItemLongPress={handleItemLongPress}
+          triggerHaptic={triggerHaptic}
+        />
       </Root.CollapsibleContent>
     </Root>
   );
@@ -113,8 +103,6 @@ type HeaderProps = {
   onToggleCollapsed: () => void;
   chevronRotation: Animated.AnimatedInterpolation<string | number>;
   opacityAnim: Animated.Value;
-  isInitialized: boolean;
-  hasRendered: boolean;
 };
 
 function Header({
@@ -124,8 +112,6 @@ function Header({
   onToggleCollapsed,
   chevronRotation,
   opacityAnim,
-  isInitialized,
-  hasRendered,
 }: HeaderProps) {
   const { styles, colors } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
@@ -151,7 +137,7 @@ function Header({
       >
         <View style={styles.titleContent}>
           <Text style={styles.sectionTitle}>{title}</Text>
-          {subtitle && !isCollapsed && isInitialized && hasRendered && (
+          {subtitle && !isCollapsed && (
             <Animated.View
               style={{
                 opacity: opacityAnim,
@@ -168,24 +154,14 @@ function Header({
               <Text style={styles.sectionSubtitle}>{subtitle}</Text>
             </Animated.View>
           )}
-          {subtitle && !isCollapsed && (!isInitialized || !hasRendered) && (
+          {subtitle && !isCollapsed && (
             <Text style={styles.sectionSubtitle}>{subtitle}</Text>
           )}
         </View>
         <View style={styles.chevronContainer}>
-          {hasRendered ? (
-            <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-              <IconSymbol name="chevron.down" size={16} color={colors.icon} />
-            </Animated.View>
-          ) : (
-            <View
-              style={{
-                transform: [{ rotate: isCollapsed ? "90deg" : "0deg" }],
-              }}
-            >
-              <IconSymbol name="chevron.down" size={16} color={colors.icon} />
-            </View>
-          )}
+          <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+            <IconSymbol name="chevron.down" size={16} color={colors.icon} />
+          </Animated.View>
         </View>
       </Pressable>
     </View>
@@ -240,7 +216,7 @@ function CollapsibleContent({
             {
               translateY: opacityAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [-30, 0], // Slides down from just above
+                outputRange: [-30, 0], // slides down from just above
               }),
             },
           ],
