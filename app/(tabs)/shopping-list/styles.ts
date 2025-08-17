@@ -95,7 +95,6 @@ export function useStyles() {
       fontWeight: "600",
       color: colors.text,
       marginBottom: 10,
-      marginTop: 10,
     },
     itemCard: {
       flexDirection: "row",

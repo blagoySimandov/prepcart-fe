@@ -9,15 +9,15 @@ export function useRecentItemsStyles() {
 
   const styles = StyleSheet.create({
     container: {
-      marginVertical: 16,
+      marginTop: 16,
     },
     sectionHeader: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: LAYOUT.containerPadding,
-      marginBottom: 12,
-      minHeight: 44, // Ensure minimum touch target
+      marginBottom: 4,
+      minHeight: 44,
     },
     sectionHeaderContent: {
       flex: 1,
@@ -49,6 +49,7 @@ export function useRecentItemsStyles() {
     },
     listContainer: {
       paddingHorizontal: LAYOUT.containerPadding,
+      marginBottom: 8,
     },
     scrollContent: {
       paddingRight: LAYOUT.containerPadding,
@@ -96,7 +97,7 @@ export function useRecentItemsStyles() {
       color: colors.text,
       flex: 1,
     },
-    
+
     itemDetails: {
       flexDirection: "row",
       alignItems: "center",
@@ -122,7 +123,6 @@ export function useRecentItemsStyles() {
       color: colors.icon,
       opacity: 0.8,
     },
-
 
     // Empty State
     emptyContainer: {
@@ -183,7 +183,6 @@ export function useRecentItemsStyles() {
       opacity: 0.05,
     },
 
-
     // Context Menu
     contextMenuOverlay: {
       position: "absolute",
@@ -216,3 +215,4 @@ export function useRecentItemsStyles() {
 
   return { styles, colors };
 }
+

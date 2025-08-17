@@ -95,15 +95,13 @@ export const useCollapsibleSection = () => {
     setIsCollapsed(newCollapsed);
     persistState(newCollapsed);
 
-    // Animate opacity and height together
     Animated.timing(opacityAnim, {
       toValue: newCollapsed ? 0 : 1,
       duration: 300,
       easing: Easing.bezier(0.4, 0, 0.6, 1),
-      useNativeDriver: false, // Required for height animation
+      useNativeDriver: false,
     }).start();
 
-    // Animate chevron rotation
     Animated.spring(chevronAnim, {
       toValue: newCollapsed ? 1 : 0,
       tension: 120,
@@ -114,7 +112,7 @@ export const useCollapsibleSection = () => {
 
   const chevronRotation = chevronAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "90deg"], // 0deg = down (expanded), -90deg = left (collapsed)
+    outputRange: ["0deg", "90deg"],
   });
 
   return {

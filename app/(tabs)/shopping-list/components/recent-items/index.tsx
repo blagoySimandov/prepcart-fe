@@ -73,6 +73,7 @@ export default memo(function RecentItems({ onAddItem, onItemLongPress }: RecentI
         isCollapsed={isCollapsed}
         onToggleCollapsed={handleToggleCollapsed}
         chevronRotation={chevronRotation}
+        opacityAnim={opacityAnim}
       />
       <Root.CollapsibleContent opacityAnim={opacityAnim} isCollapsed={isCollapsed}>
         <Root.List
@@ -97,9 +98,10 @@ type HeaderProps = {
   isCollapsed: boolean;
   onToggleCollapsed: () => void;
   chevronRotation: Animated.AnimatedInterpolation<string | number>;
+  opacityAnim: Animated.Value;
 };
 
-function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation }: HeaderProps) {
+function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotation, opacityAnim }: HeaderProps) {
   const { styles, colors } = useRecentItemsStyles();
   const [isPressed, setIsPressed] = useState(false);
   const gestureIndicatorOpacity = useRef(new Animated.Value(0)).current;
@@ -151,7 +153,22 @@ function Header({ title, subtitle, isCollapsed, onToggleCollapsed, chevronRotati
     >
       <View style={styles.sectionHeaderContent}>
         <Text style={styles.sectionTitle}>{title}</Text>
-        {subtitle && <Text style={styles.sectionSubtitle}>{subtitle}</Text>}
+        {subtitle && (
+          <Animated.View
+            style={{
+              opacity: opacityAnim,
+              transform: [{
+                translateY: opacityAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-10, 0]
+                })
+              }]
+            }}
+            pointerEvents={isCollapsed ? 'none' : 'auto'}
+          >
+            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          </Animated.View>
+        )}
       </View>
       <Pressable
         style={[styles.chevronButton, isPressed && styles.chevronButtonPressed]}
