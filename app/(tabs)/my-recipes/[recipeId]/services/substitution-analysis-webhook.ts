@@ -52,16 +52,6 @@ function normalizeSubstitutionChanges(
   data: WebhookResponseData,
   originalRecipe: Recipe,
 ): SubstitutionChanges {
-  console.log("Normalizing substitution changes");
-  console.log(
-    "Original recipe ingredients:",
-    originalRecipe.ingredients.map((i) => i.name),
-  );
-  console.log(
-    "Modifications from webhook:",
-    data.recipeModifications.updatedIngredients,
-  );
-
   const normalizedData = {
     ...data,
     recipeModifications: {
@@ -91,11 +81,8 @@ function normalizeSubstitutionChanges(
             if (originalIngredient) {
               normalized.originalQuantity = originalIngredient.quantity;
               normalized.originalUnit = originalIngredient.unit;
-              console.log(
-                `Found original values for ${mod.name}: ${originalIngredient.quantity} ${originalIngredient.unit}`,
-              );
             } else {
-              console.log(
+              console.warn(
                 `Warning: Could not find original ingredient for modification: ${mod.name}`,
               );
             }
@@ -107,17 +94,14 @@ function normalizeSubstitutionChanges(
               (ing) => ing.name.toLowerCase() === mod.name.toLowerCase(),
             );
             if (!exists) {
-              console.log(
-                `Skipping removal of non-existent ingredient: ${mod.name}`,
-              );
-              // Skip this modification as the ingredient doesn't exist
+              // skip this modification as the ingredient doesn't exist
               return null;
             }
           }
 
           return normalized;
         })
-        .filter(Boolean), // Remove null entries
+        .filter(Boolean),
       updatedInstructions: data.recipeModifications.updatedInstructions || [],
       additionalSteps: data.recipeModifications.additionalSteps || [],
     },

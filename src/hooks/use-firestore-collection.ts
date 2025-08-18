@@ -58,7 +58,8 @@ export function useFirestoreCollection<T extends FirebaseFirestoreTypes.Document
     );
 
     return () => unsubscribe();
-  }, dependencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryFn, transform, ...dependencies]);
 
   return { data, isLoading, error };
 }

@@ -60,7 +60,8 @@ export function useFirestoreDocument<T extends FirebaseFirestoreTypes.DocumentDa
     );
 
     return () => unsubscribe();
-  }, dependencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docRefFn, transform, ...dependencies]);
 
   return { data, isLoading, error };
 }

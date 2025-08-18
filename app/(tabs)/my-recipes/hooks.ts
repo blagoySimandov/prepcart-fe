@@ -93,18 +93,21 @@ export function useRecipeActions() {
 
   // Cleanup all subscriptions and timeouts on unmount
   useEffect(() => {
+    const timeouts = timeoutRefs.current;
+    const unsubscribes = unsubscribeRefs.current;
+    
     return () => {
       // Clear all timeouts
-      timeoutRefs.current.forEach((timeoutId) => {
+      timeouts.forEach((timeoutId) => {
         clearTimeout(timeoutId);
       });
-      timeoutRefs.current.clear();
+      timeouts.clear();
 
       // Unsubscribe from all Firestore listeners
-      unsubscribeRefs.current.forEach((unsubscribe) => {
+      unsubscribes.forEach((unsubscribe) => {
         unsubscribe();
       });
-      unsubscribeRefs.current.clear();
+      unsubscribes.clear();
     };
   }, []);
 

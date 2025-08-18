@@ -1,7 +1,7 @@
 import { BaseShoppingListItem } from "@/src/user/shopping-list";
 import { RChildren } from "@/src/utils/types";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState, useEffect } from "react";
 import { View, Text, FlatList, Animated, Pressable } from "react-native";
 import { useRecentItems, useCollapsibleSection } from "./hooks";
 import { useRecentItemsStyles } from "./styles";
@@ -50,22 +50,6 @@ export default memo(function RecentItems({
     toggleCollapsed();
   }, [triggerHaptic, toggleCollapsed]);
 
-  if (isLoading) {
-    return (
-      <Root>
-        <Root.LoadingState />
-      </Root>
-    );
-  }
-
-  if (!recentItems || recentItems.length === 0) {
-    return (
-      <Root>
-        <Root.EmptyState />
-      </Root>
-    );
-  }
-
   return (
     <Root>
       <Root.Header
@@ -80,6 +64,10 @@ export default memo(function RecentItems({
         opacityAnim={opacityAnim}
         isCollapsed={isCollapsed}
       >
+        {isLoading && <Root.LoadingState />}
+        {!isLoading && (!recentItems || recentItems.length === 0) && (
+          <Root.EmptyState />
+        )}
         <Root.List
           data={recentItems}
           onItemSelect={onItemSelect}
@@ -357,6 +345,22 @@ function ItemCard({
 
 function LoadingState() {
   const { styles } = useRecentItemsStyles();
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(shimmerAnim, {
+        toValue: 1,
+        duration: 1500,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [shimmerAnim]);
+
+  const shimmerTranslate = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 200],
+  });
 
   return (
     <View
@@ -370,7 +374,21 @@ function LoadingState() {
           key={index}
           style={styles.skeletonCard}
           accessibilityElementsHidden={true}
-        />
+        >
+          <Animated.View
+            style={[
+              styles.skeletonShimmer,
+              { transform: [{ translateX: shimmerTranslate }] }
+            ]}
+          />
+          <View style={styles.skeletonContent}>
+            <View>
+              <View style={styles.skeletonTextLine} />
+              <View style={styles.skeletonTextLineShort} />
+            </View>
+            <View style={styles.skeletonQuantity} />
+          </View>
+        </View>
       ))}
     </View>
   );

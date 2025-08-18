@@ -105,7 +105,7 @@ export function useAuth() {
 
       const userService = new UserService(currentUser.uid);
       const profile = await userService.getProfile();
-      return !!(profile?.country);
+      return !!profile?.country;
     } catch (error) {
       console.error("Error checking user country:", error);
       return false;
@@ -193,8 +193,6 @@ export function useAuth() {
       await batch.commit();
 
       await deleteUser(currentUser);
-
-      console.log("User account and data successfully deleted");
     } catch (error: any) {
       console.error("Error deleting user account:", error);
 
