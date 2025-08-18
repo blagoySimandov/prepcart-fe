@@ -1,7 +1,7 @@
 import { SmallRecipeCard } from "@/app/(tabs)/my-recipes/components/small-recipe-card";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import React from "react";
+import React, { memo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import {
   EMPTY_STATE_SUBTITLE,
@@ -13,15 +13,24 @@ import { useRecentRecipes } from "./hooks";
 import { useStyles } from "./styles";
 import { RecentRecipesSectionProps } from "./types";
 
-export function RecentRecipesSection({ onViewAll }: RecentRecipesSectionProps) {
+export const RecentRecipesSection = memo(function RecentRecipesSection({
+  recipes: propRecipes,
+  isLoading: propIsLoading,
+  onViewAll,
+}: RecentRecipesSectionProps) {
   const { styles, colors } = useStyles();
   const {
-    recentRecipes,
-    isLoading,
-    hasRecipes,
+    recentRecipes: fallbackRecipes,
+    isLoading: fallbackIsLoading,
     handleViewAll,
     handleRecipePress,
   } = useRecentRecipes();
+
+  // Use props if provided, otherwise fall back to hook data
+  const recentRecipes = propRecipes || fallbackRecipes;
+  const isLoading =
+    propIsLoading !== undefined ? propIsLoading : fallbackIsLoading;
+  const hasRecipes = recentRecipes.length > 0;
 
   if (isLoading) {
     return null;
@@ -70,5 +79,4 @@ export function RecentRecipesSection({ onViewAll }: RecentRecipesSectionProps) {
       )}
     </View>
   );
-}
-
+});

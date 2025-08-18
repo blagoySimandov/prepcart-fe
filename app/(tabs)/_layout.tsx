@@ -1,4 +1,4 @@
-import { Tabs, useRouter, usePathname, useGlobalSearchParams } from "expo-router";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
 

@@ -49,16 +49,16 @@ export function useUnitConversion(
 
   useEffect(() => {
     loadPreferences();
-  }, []);
+  }, [loadPreferences]);
 
 
   useEffect(() => {
     if (globalPreferences.autoConvert && state.availableConversions.length > 0) {
       applySystemPreference();
     }
-  }, [globalPreferences.autoConvert, globalPreferences.defaultSystem]);
+  }, [globalPreferences.autoConvert, globalPreferences.defaultSystem, applySystemPreference, state.availableConversions.length]);
 
-  const loadPreferences = async () => {
+  const loadPreferences = useCallback(async () => {
     try {
       const [unitPrefs, globalPrefs] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.unitPreferences),
@@ -98,9 +98,9 @@ export function useUnitConversion(
       console.error('Failed to load unit preferences:', error);
       setIsInitialized(true);
     }
-  };
+  }, [recipeId, ingredientName, safeUnit, safeValue]);
 
-  const savePreference = async (unit: string, value?: number) => {
+  const savePreference = useCallback(async (unit: string, value?: number) => {
     try {
       const newPreferences = {
         ...preferences,
@@ -122,7 +122,7 @@ export function useUnitConversion(
     } catch (error) {
       console.error('Failed to save unit preference:', error);
     }
-  };
+  }, [preferences, recipeId, ingredientName, state.currentValue, state.originalUnit, globalPreferences.defaultSystem]);
 
   const convertToUnit = useCallback((targetUnit: string) => {
     if (!isConvertibleUnit(safeUnit) || !isConvertibleUnit(targetUnit)) {
@@ -145,7 +145,7 @@ export function useUnitConversion(
     if (result.isConverted) {
       savePreference(result.unit, result.value);
     }
-  }, [safeValue, safeUnit, recipeId, ingredientName]);
+  }, [safeValue, safeUnit, savePreference]);
 
   const cycleUnit = useCallback(() => {
     const availableUnits = [safeUnit, ...state.availableConversions];
@@ -164,7 +164,7 @@ export function useUnitConversion(
       isConverted: false,
     }));
     savePreference(safeUnit, safeValue);
-  }, [safeUnit, safeValue]);
+  }, [safeUnit, safeValue, savePreference]);
 
   const convertToBest = useCallback(() => {
     const result = getBestUnit(safeValue, safeUnit);
@@ -178,7 +178,7 @@ export function useUnitConversion(
       }));
       savePreference(result.unit, result.value);
     }
-  }, [safeValue, safeUnit]);
+  }, [safeValue, safeUnit, savePreference]);
 
   const applySystemPreference = useCallback(() => {
     if (globalPreferences.defaultSystem === UNIT_SYSTEMS.original) {

@@ -4,21 +4,16 @@ import {
 } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
 
-interface UseFirestoreCollectionOptions<T> {
-  // Function to create the query/collection reference
+interface UseFirestoreCollectionOptions<T extends FirebaseFirestoreTypes.DocumentData> {
   queryFn: () =>
-    | FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>
-    | FirebaseFirestoreTypes.CollectionReference<FirebaseFirestoreTypes.DocumentData>
+    | FirebaseFirestoreTypes.Query<T>
+    | FirebaseFirestoreTypes.CollectionReference<T>
     | null;
-  // Function to transform Firestore documents to your type
-  transform: (
-    snapshot: FirebaseFirestoreTypes.QuerySnapshot<FirebaseFirestoreTypes.DocumentData>,
-  ) => T[];
-  // Dependencies that should trigger re-subscription
+  transform?: (snapshot: FirebaseFirestoreTypes.QuerySnapshot<T>) => T[];
   dependencies?: any[];
 }
 
-export function useFirestoreCollection<T>({
+export function useFirestoreCollection<T extends FirebaseFirestoreTypes.DocumentData>({
   queryFn,
   transform,
   dependencies = [],
@@ -43,7 +38,9 @@ export function useFirestoreCollection<T>({
       query,
       (snapshot) => {
         try {
-          const transformedData = transform(snapshot);
+          const transformedData = transform 
+            ? transform(snapshot)
+            : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
           setData(transformedData);
           setIsLoading(false);
         } catch (err) {
@@ -61,7 +58,8 @@ export function useFirestoreCollection<T>({
     );
 
     return () => unsubscribe();
-  }, dependencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryFn, transform, ...dependencies]);
 
   return { data, isLoading, error };
 }

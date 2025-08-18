@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { remoteConfigService } from "./index";
 
 interface RemoteConfigContextType {
@@ -14,13 +14,13 @@ const RemoteConfigContext = createContext<RemoteConfigContextType>({
 });
 
 function useRemoteConfigValue() {
-  const [config, setConfig] = React.useState<{
+  const [config, setConfig] = useState<{
     storeNames: Record<string, string>;
     isHighlightingEnabled: boolean;
   }>({ storeNames: {}, isHighlightingEnabled: true });
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     remoteConfigService.initializeIfNot().then(() => {
       setConfig({
         storeNames: remoteConfigService.getStoreNames(),

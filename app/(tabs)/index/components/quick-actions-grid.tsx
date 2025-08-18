@@ -3,12 +3,15 @@ import { RelativePathString, router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
 import { QuickAction } from "../types";
+import { memo } from "react";
 
 interface QuickActionsGridProps {
   actions: QuickAction[];
 }
 
-export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
+export const QuickActionsGrid = memo(function QuickActionsGrid({
+  actions,
+}: QuickActionsGridProps) {
   const { styles } = useStyles();
 
   return (
@@ -40,4 +43,4 @@ export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
       </View>
     </View>
   );
-}
+});

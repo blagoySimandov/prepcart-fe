@@ -1,24 +1,19 @@
 import { useState, useEffect } from "react";
-import { 
-  DocumentReference,
+import {
   onSnapshot,
-  DocumentSnapshot,
-  DocumentData 
+  FirebaseFirestoreTypes,
 } from "@react-native-firebase/firestore";
 
-interface UseFirestoreDocumentOptions<T> {
-  // Function to create the document reference
-  docRefFn: () => DocumentReference<DocumentData> | null;
-  // Function to transform Firestore document to your type
-  transform: (doc: DocumentSnapshot<DocumentData>) => T | null;
-  // Dependencies that should trigger re-subscription
+interface UseFirestoreDocumentOptions<T extends FirebaseFirestoreTypes.DocumentData> {
+  docRefFn: () => FirebaseFirestoreTypes.DocumentReference<T> | null;
+  transform?: (doc: FirebaseFirestoreTypes.DocumentSnapshot<T>) => T | null;
   dependencies?: any[];
 }
 
-export function useFirestoreDocument<T>({
+export function useFirestoreDocument<T extends FirebaseFirestoreTypes.DocumentData>({
   docRefFn,
   transform,
-  dependencies = []
+  dependencies = [],
 }: UseFirestoreDocumentOptions<T>) {
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +21,7 @@ export function useFirestoreDocument<T>({
 
   useEffect(() => {
     const docRef = docRefFn();
-    
+
     if (!docRef) {
       setData(null);
       setIsLoading(false);
@@ -40,7 +35,14 @@ export function useFirestoreDocument<T>({
       docRef,
       (doc) => {
         try {
-          const transformedData = transform(doc);
+          if (!doc.exists) {
+            setData(null);
+            setIsLoading(false);
+            return;
+          }
+
+          const docData = doc.data();
+          const transformedData = transform ? transform(doc) : (docData as T);
           setData(transformedData);
           setIsLoading(false);
         } catch (err) {
@@ -54,11 +56,12 @@ export function useFirestoreDocument<T>({
         setError(err);
         setData(null);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
-  }, dependencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docRefFn, transform, ...dependencies]);
 
   return { data, isLoading, error };
 }

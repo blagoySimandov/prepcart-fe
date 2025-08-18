@@ -1,7 +1,8 @@
 import { Text, View } from "react-native";
 import { useStyles } from "../styles";
+import { memo } from "react";
 
-export function HomeHeader() {
+export const HomeHeader = memo(function HomeHeader() {
   const { styles } = useStyles();
 
   return (
@@ -10,4 +11,4 @@ export function HomeHeader() {
       <Text style={styles.subtitle}>What would you like to cook today?</Text>
     </View>
   );
-}
+});

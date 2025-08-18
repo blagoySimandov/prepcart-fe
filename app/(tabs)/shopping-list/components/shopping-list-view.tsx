@@ -47,8 +47,23 @@ export function ShoppingListView({
     );
   };
 
-  const completedItems = items.filter((item) => item.completed);
-  const pendingItems = items.filter((item) => !item.completed);
+  const getItemTimestamp = (item: ShoppingItemType): number => {
+    if (!item.createdAt) return 0;
+
+    if (typeof item.createdAt === "object" && "seconds" in item.createdAt) {
+      return (item.createdAt as any).seconds * 1000;
+    }
+
+    return new Date(item.createdAt).getTime();
+  };
+
+  const completedItems = items
+    .filter((item) => item.completed)
+    .sort((a, b) => getItemTimestamp(b) - getItemTimestamp(a)); // newest first
+
+  const pendingItems = items
+    .filter((item) => !item.completed)
+    .sort((a, b) => getItemTimestamp(b) - getItemTimestamp(a)); // newest first
 
   if (items.length === 0) {
     return (

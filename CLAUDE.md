@@ -12,4 +12,4 @@
 - Limit the use of comments in the codebase as much as possible. Let the code speak for itself.
 - When creating components if it makes sense group them by using the compound components pattern
 - Try to never use useEffect. If you need to do a fetch opt for useQuery and/or useInfiniteQuery instead.
-
+- Do not import the whole React object always destructure and use the import from there
