@@ -60,17 +60,7 @@ export class UserService {
       }
     } catch (error) {
       console.error("Error updating user statistics:", error);
-      try {
-        const userDoc = await getDoc(userDocRef);
-        if (!userDoc.exists()) {
-          throw new Error("User document not found on fallback.");
-        }
-        await updateDoc(userDocRef, {
-          "statistics.totalDiscoveredDiscounts": increment(discoveredDiscounts),
-        });
-      } catch (fallbackError) {
-        console.error("Fallback statistics update failed:", fallbackError);
-      }
+      throw error;
     }
   }
 

@@ -15,30 +15,30 @@ export function RestrictedCatalogSearch() {
     <ThemedView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <IconSymbol 
-            name="magnifyingglass" 
-            size={64} 
-            color={tint} 
+          <IconSymbol
+            name="magnifyingglass"
+            size={64}
+            color={tint}
             style={styles.icon}
           />
         </View>
-        
+
         <ThemedText type="title" style={styles.title}>
-          Catalog Search
+          Discount Search
         </ThemedText>
-        
+
         <ThemedText type="default" style={styles.subtitle}>
           Search through thousands of products from various stores
         </ThemedText>
-        
+
         <TouchableOpacity
           style={[styles.searchButton, { borderColor, backgroundColor: tint }]}
           onPress={() => setShowModal(true)}
         >
           <IconSymbol name="magnifyingglass" size={20} color="#fff" />
-          <ThemedText 
-            type="defaultSemiBold" 
-            lightColor="#fff" 
+          <ThemedText
+            type="defaultSemiBold"
+            lightColor="#fff"
             darkColor="#000"
             style={styles.buttonText}
           >
@@ -50,7 +50,7 @@ export function RestrictedCatalogSearch() {
       <FeatureUnavailableModal
         visible={showModal}
         onClose={() => setShowModal(false)}
-        title="Catalog Search Unavailable"
+        title="Discount Search Unavailable"
         message="The catalog search feature is currently only available in Bulgaria. We're working to expand to more countries soon!"
       />
     </ThemedView>
@@ -97,3 +97,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
