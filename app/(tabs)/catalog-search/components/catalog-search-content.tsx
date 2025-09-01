@@ -43,7 +43,8 @@ export function CatalogSearchContent({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.background }]}>
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -51,9 +52,10 @@ export function CatalogSearchContent({
           justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingVertical: 8,
-        }}>
+        }}
+      >
         <Text style={[styles.title, { color: themeColors.text, flex: 1 }]}>
-          Catalog Search
+          Discount Search
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <CatalogStoreFilterButton onPress={onOpenStoreFilter} />

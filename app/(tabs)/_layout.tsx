@@ -16,7 +16,11 @@ const SIZE = 28;
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
-  const { isCatalogSearchAvailable, catalogSearchRestrictionMode, isLoading: isCheckingCountry } = useCountryRestriction();
+  const {
+    isCatalogSearchAvailable,
+    catalogSearchRestrictionMode,
+    isLoading: isCheckingCountry,
+  } = useCountryRestriction();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,7 +32,6 @@ export default function TabLayout() {
       router.replace("/auth/login");
     }
   }, [user, loading, router]);
-
 
   if (loading || isCheckingCountry || !user) {
     return null;
@@ -48,14 +51,16 @@ export default function TabLayout() {
             },
             default: {},
           }),
-        }}>
+        }}
+      >
         <Tabs.Screen
-          name="index"
+          name="shopping-list"
           options={{
-            title: "Home",
+            title: "Shopping List",
             tabBarIcon: ({ color }) => (
-              <IconSymbol size={SIZE} name="house.fill" color={color} />
+              <IconSymbol size={SIZE} name="cart.fill" color={color} />
             ),
+            href: "/shopping-list",
           }}
         />
         <Tabs.Screen
@@ -65,7 +70,11 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <IconSymbol size={SIZE} name="magnifyingglass" color={color} />
             ),
-            href: (isCatalogSearchAvailable || catalogSearchRestrictionMode === "show_popup") ? "/catalog-search" : null,
+            href:
+              isCatalogSearchAvailable ||
+              catalogSearchRestrictionMode === "show_popup"
+                ? "/catalog-search"
+                : null,
           }}
         />
         <Tabs.Screen
@@ -82,19 +91,10 @@ export default function TabLayout() {
               if (pathname.match(/^\/my-recipes\/[^\/]+$/)) {
                 // We're on a recipe details page, navigate to main recipes page
                 e.preventDefault();
-                router.push('/my-recipes');
+                router.push("/my-recipes");
               }
               // For all other cases (home -> recipes, recipes main page, etc.), allow default behavior
             },
-          }}
-        />
-        <Tabs.Screen
-          name="shopping-list"
-          options={{
-            title: "Shopping",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={SIZE} name="cart.fill" color={color} />
-            ),
           }}
         />
         <Tabs.Screen
