@@ -3,7 +3,7 @@ import { ShoppingItem as ShoppingItemType } from "@/src/user/shopping-list/types
 import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useStyles } from "../styles";
-import { ShoppingItem as ShoppingItemComponent } from "./shopping-item";
+import { SwipeableShoppingItem } from "./swipeable-shopping-item";
 
 interface ShoppingListViewProps {
   items: ShoppingItemType[];
@@ -34,7 +34,7 @@ export function ShoppingListView({
         : undefined;
 
     return (
-      <ShoppingItemComponent
+      <SwipeableShoppingItem
         item={item}
         key={item.id}
         onToggle={onToggleItem}
