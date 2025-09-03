@@ -951,6 +951,33 @@ export function useStyles() {
       padding: 8,
       borderRadius: 8,
     },
+
+    // Swipe gesture styles
+    swipeableContainer: {
+      position: "relative",
+    },
+    leftAction: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      bottom: 0,
+      right: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 12,
+      marginBottom: 8,
+    },
+    rightAction: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      bottom: 0,
+      right: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 12,
+      marginBottom: 8,
+    },
   });
   return { styles, colors };
 }
