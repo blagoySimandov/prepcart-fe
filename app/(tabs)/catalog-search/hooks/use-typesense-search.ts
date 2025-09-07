@@ -4,7 +4,7 @@ import {
 } from "@/src/catalog-search/types";
 import { remoteConfigService } from "@/src/remote-config";
 import debounce from "lodash.debounce";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useInfiniteHits, useSearchBox } from "react-instantsearch-core";
 
 const DEBOUNCE_TIME = remoteConfigService.debounceTime();
