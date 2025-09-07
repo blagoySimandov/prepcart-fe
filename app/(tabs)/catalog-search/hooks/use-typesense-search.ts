@@ -51,8 +51,6 @@ export function useTypesenseSearch() {
     }
   };
 
-  useEffect(() => {}, [inputValue, query, results.length, items.length]);
-
   return {
     query: inputValue,
     results,
