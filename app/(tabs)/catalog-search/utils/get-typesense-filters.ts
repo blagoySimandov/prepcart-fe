@@ -1,9 +1,12 @@
+const DAY_IN_SECONDS = 86400;
 export const getTypesenseFilters = (
   selectedStores: string[],
   allStores: string[],
   isLoadingStores: boolean,
 ) => {
-  const now = Math.floor(Date.now() / 1000);
+  //items are saved with 0 hours as valid_until. This means that we should actually check yesterday...
+  const now = Math.floor(Date.now() / 1000) - DAY_IN_SECONDS;
+  console.log(now);
 
   const storeFilter =
     !isLoadingStores ||
